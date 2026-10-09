@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Suscripciones Digitales - PY DIGITAL STORE</title>
+    <title>Gestor de Suscripciones - PY DIGITAL STORE</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -18,10 +18,11 @@
     <!-- Menú Lateral (Sidebar) -->
     <aside class="w-full md:w-64 bg-[#161b22] border-r border-gray-800 p-4 flex flex-col justify-between">
         <div>
-            <div class="flex items-center space-x-2 mb-8 px-2">
-                <div class="bg-red-600 text-white p-2 rounded-lg font-bold text-lg">PY</div>
+            <!-- Logotipo PY -->
+            <div class="flex items-center space-x-3 mb-8 px-2">
+                <div class="bg-red-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg shadow-red-600/30">PY</div>
                 <div>
-                    <h1 class="font-bold text-white text-md">PY DIGITAL STORE</h1>
+                    <h1 class="font-bold text-white text-md tracking-wide">PY DIGITAL STORE</h1>
                     <p class="text-xs text-gray-400">Gestor de Suscripciones</p>
                 </div>
             </div>
@@ -40,87 +41,93 @@
                     <span>Cuentas y Perfiles</span>
                 </a>
                 <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 text-sm transition">
-                    <span>🛍️</span>
-                    <span>Catálogo de Servicios</span>
+                    <span>🔔</span>
+                    <span>Renovaciones <span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full ml-auto" id="pending-count">0</span></span>
                 </a>
                 <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 text-sm transition">
-                    <span>🔔</span>
-                    <span>Solicitudes <span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full ml-auto" id="pending-count">0</span></span>
+                    <span>🛍️</span>
+                    <span>Proveedores</span>
                 </a>
             </nav>
         </div>
-        <div class="text-xs text-gray-500 px-2 pt-4 border-t border-gray-800">
-            Espacio seguro de la empresa
+        <div class="text-xs text-gray-500 px-2 pt-4 border-t border-gray-800 flex justify-between items-center">
+            <span>Espacio seguro PY</span>
+            <span id="db-status" class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block" title="Conectando..."></span>
         </div>
     </aside>
 
     <!-- Contenido Principal -->
     <main class="flex-1 p-6 md:p-8 overflow-y-auto">
-        <header class="flex justify-between items-center mb-8 pb-4 border-b border-gray-800">
+        <!-- Banner de Bienvenida -->
+        <div class="mb-8 bg-gradient-to-r from-[#161b22] to-[#1f2937] border border-gray-800 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-                <h2 class="text-2xl font-bold text-white">Panel Principal</h2>
-                <p class="text-sm text-gray-400">Resumen general de tu negocio en tiempo real</p>
+                <h2 class="text-2xl font-bold text-white mb-1">¡Hola, Royce! Hagamos crecer tu tienda.</h2>
+                <p class="text-sm text-gray-400">Vencimientos, cobros, rentabilidad y capacidad de cada cuenta a una vista rápida.</p>
             </div>
-            <div class="flex items-center space-x-4">
-                <span id="db-status" class="bg-yellow-500/10 text-yellow-400 text-xs px-3 py-1 rounded-full border border-yellow-500/20">🟡 Conectando a Supabase...</span>
+            <div class="mt-4 md:mt-0 flex space-x-3">
+                <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-red-600/20">+ Nuevo Cliente</button>
+                <button class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition border border-gray-700">+ Vender Perfil</button>
             </div>
-        </header>
+        </div>
 
-        <!-- Tarjetas de Indicadores (Dashboard) -->
+        <!-- Tarjetas de Indicadores Principales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-[#161b22] border border-gray-800 p-5 rounded-xl">
-                <p class="text-xs text-gray-400 uppercase font-medium">Clientes Totales</p>
-                <h3 id="total-clients" class="text-2xl font-bold text-white mt-1">0</h3>
+            <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
+                <p class="text-xs text-gray-400 uppercase font-medium">Perfiles Activos</p>
+                <h3 id="total-perfiles" class="text-3xl font-bold text-white mt-1">0</h3>
+                <p class="text-xs text-gray-500 mt-2">Actualmente en servicio</p>
             </div>
-            <div class="bg-[#161b22] border border-gray-800 p-5 rounded-xl">
-                <p class="text-xs text-gray-400 uppercase font-medium">Suscripciones Activas</p>
-                <h3 id="active-subs" class="text-2xl font-bold text-white mt-1">0</h3>
+            <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
+                <p class="text-xs text-gray-400 uppercase font-medium">Vencen en 7 días</p>
+                <h3 id="expiring-soon" class="text-3xl font-bold text-yellow-500 mt-1">0</h3>
+                <p class="text-xs text-gray-500 mt-2">Requieren seguimiento</p>
             </div>
-            <div class="bg-[#161b22] border border-gray-800 p-5 rounded-xl">
-                <p class="text-xs text-gray-400 uppercase font-medium">Próximos a Vencer (7d)</p>
-                <h3 id="expiring-soon" class="text-2xl font-bold text-yellow-500 mt-1">0</h3>
+            <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
+                <p class="text-xs text-gray-400 uppercase font-medium">Ventas Totales</p>
+                <h3 id="month-sales" class="text-3xl font-bold text-green-400 mt-1">S/ 0.00</h3>
+                <p class="text-xs text-gray-500 mt-2">Total ingresado</p>
             </div>
-            <div class="bg-[#161b22] border border-gray-800 p-5 rounded-xl">
-                <p class="text-xs text-gray-400 uppercase font-medium">Ventas del Mes (S/)</p>
-                <h3 id="month-sales" class="text-2xl font-bold text-green-400 mt-1">S/ 0.00</h3>
+            <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
+                <p class="text-xs text-gray-400 uppercase font-medium">Cuentas Maestras</p>
+                <h3 id="total-cuentas" class="text-3xl font-bold text-white mt-1">0</h3>
+                <p class="text-xs text-gray-500 mt-2">Plataformas activas</p>
             </div>
         </div>
 
-        <!-- Sección de Plataformas de Streaming (Inspirado en tu Excel) -->
+        <!-- Sección de Cuentas Principales (Ejemplo Netflix / Servicios) -->
         <div class="mb-8">
-            <h3 class="text-lg font-semibold text-white mb-4">Plataformas y Cuentas Activas</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl text-center hover:border-red-600 transition">
-                    <span class="text-2xl mb-1 block">🍿</span>
-                    <h4 class="font-semibold text-xs text-white">Netflix</h4>
-                </div>
-                <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl text-center hover:border-blue-600 transition">
-                    <span class="text-2xl mb-1 block">✨</span>
-                    <h4 class="font-semibold text-xs text-white">Disney+</h4>
-                </div>
-                <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl text-center hover:border-purple-600 transition">
-                    <span class="text-2xl mb-1 block">🎬</span>
-                    <h4 class="font-semibold text-xs text-white">Max</h4>
-                </div>
-                <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl text-center hover:border-cyan-600 transition">
-                    <span class="text-2xl mb-1 block">🎨</span>
-                    <h4 class="font-semibold text-xs text-white">Canva</h4>
-                </div>
-                <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl text-center hover:border-green-600 transition">
-                    <span class="text-2xl mb-1 block">🎵</span>
-                    <h4 class="font-semibold text-xs text-white">Spotify</h4>
-                </div>
-                <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl text-center hover:border-yellow-600 transition">
-                    <span class="text-2xl mb-1 block">📺</span>
-                    <h4 class="font-semibold text-xs text-white">IPTV</h4>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Cuentas principales</h3>
+                <span class="text-xs text-gray-400">Correos principales de cada plataforma</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tarjeta Cuenta Netflix Ejemplo -->
+                <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-red-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm">N</div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">Netflix</h4>
+                                <p class="text-xs text-gray-400">carlosstore@gmail.com</p>
+                            </div>
+                        </div>
+                        <span class="bg-red-600/10 text-red-500 border border-red-500/20 text-xs px-2.5 py-1 rounded-full font-semibold">5/7 cupos</span>
+                    </div>
+                    <!-- Barra de Progreso -->
+                    <div class="w-full bg-gray-800 rounded-full h-2 mb-4">
+                        <div class="bg-red-600 h-2 rounded-full" style="width: 71%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 mb-4 bg-gray-900/50 p-3 rounded-xl">
+                        <div>Ingreso: <span class="text-white font-semibold">S/ 56.00</span></div>
+                        <div>Costos: <span class="text-white font-semibold">S/ 16.00</span></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-lg border border-yellow-500/20 font-medium">⏳ 25 días para renovar</span>
+                        <button class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg transition">Abrir Netflix</button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Sección de Bienvenida -->
-        <div class="bg-[#161b22] border border-gray-800 rounded-xl p-6">
-            <h3 class="text-lg font-semibold text-white mb-4">Bienvenida a tu plataforma PY DIGITAL STORE</h3>
-            <p class="text-sm text-gray-400 mb-4">Tu base de datos en Supabase está conectada para gestionar tus cuentas digitales y perfiles de streaming.</p>
         </div>
     </main>
 
@@ -133,27 +140,28 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function cargarDatosDashboard() {
-            const statusBadge = document.getElementById('db-status');
+            const statusIndicator = document.getElementById('db-status');
             try {
                 // 1. Contar Clientes / Perfiles
-                const { count: clientCount } = await _supabase.from('clientes').select('*', { count: 'exact', head: true });
-                if (clientCount !== null) {
-                    document.getElementById('total-clients').textContent = clientCount;
+                const { count: perfilCount } = await _supabase.from('clientes').select('*', { count: 'exact', head: true });
+                if (perfilCount !== null) {
+                    document.getElementById('total-perfiles').textContent = perfilCount;
                 }
 
-                // 2. Contar Suscripciones Activas
-                const { count: subCount } = await _supabase.from('suscripciones').select('*', { count: 'exact', head: true });
-                if (subCount !== null) {
-                    document.getElementById('active-subs').textContent = subCount;
-                    document.getElementById('pending-count').textContent = subCount;
+                // 2. Contar Cuentas Maestras
+                const { count: cuentaCount } = await _supabase.from('suscripciones').select('*', { count: 'exact', head: true });
+                if (cuentaCount !== null) {
+                    document.getElementById('total-cuentas').textContent = cuentaCount;
+                    document.getElementById('expiring-soon').textContent = cuentaCount;
+                    document.getElementById('pending-count').textContent = cuentaCount;
                 }
 
-                statusBadge.className = "bg-green-500/10 text-green-400 text-xs px-3 py-1 rounded-full border border-green-500/20";
-                statusBadge.textContent = "🟢 Conectado a Supabase";
+                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-green-500 inline-block shadow-lg shadow-green-500/50";
+                statusIndicator.title = "Conectado a Supabase";
             } catch (err) {
                 console.error("Error al conectar con Supabase:", err);
-                statusBadge.className = "bg-red-500/10 text-red-400 text-xs px-3 py-1 rounded-full border border-red-500/20";
-                statusBadge.textContent = "🔴 Error de conexión";
+                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
+                statusIndicator.title = "Error de conexión";
             }
         }
 
