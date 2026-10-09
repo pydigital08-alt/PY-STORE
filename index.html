@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Suscripciones Digitales - PY Digital Store</title>
-    <!-- Tailwind CSS para un diseño profesional y moderno -->
+    <title>Gestor de Suscripciones Digitales - PY DIGITAL STORE</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f1117; color: #f3f4f6; }
     </style>
@@ -43,7 +45,7 @@
                 </a>
                 <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 text-sm transition">
                     <span>🔔</span>
-                    <span>Solicitudes <span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full ml-auto">0</span></span>
+                    <span>Solicitudes <span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full ml-auto" id="pending-count">0</span></span>
                 </a>
             </nav>
         </div>
@@ -60,7 +62,7 @@
                 <p class="text-sm text-gray-400">Resumen general de tu negocio en tiempo real</p>
             </div>
             <div class="flex items-center space-x-4">
-                <span class="bg-green-500/10 text-green-400 text-xs px-3 py-1 rounded-full border border-green-500/20">🟢 Guardado en la nube</span>
+                <span id="db-status" class="bg-yellow-500/10 text-yellow-400 text-xs px-3 py-1 rounded-full border border-yellow-500/20">🟡 Conectando a Supabase...</span>
             </div>
         </header>
 
@@ -87,9 +89,43 @@
         <!-- Sección de Bienvenida -->
         <div class="bg-[#161b22] border border-gray-800 rounded-xl p-6">
             <h3 class="text-lg font-semibold text-white mb-4">Bienvenida a tu plataforma PY DIGITAL STORE</h3>
-            <p class="text-sm text-gray-400 mb-4">Tu base de datos en Supabase ya está lista y configurada correctamente. En los siguientes pasos conectaremos los datos reales para que los indicadores del dashboard cobren vida.</p>
+            <p class="text-sm text-gray-400 mb-4">Tu base de datos en Supabase está conectada. Los indicadores de arriba se actualizarán automáticamente con la información real de tus tablas.</p>
         </div>
     </main>
 
+    <!-- Script de Conexión a Supabase -->
+    <script>
+        // 1. Reemplaza estos dos datos con la URL de tu proyecto de Supabase y tu Publishable Key
+        const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function cargarDatosDashboard() {
+            const statusBadge = document.getElementById('db-status');
+            try {
+                // Consultas básicas a las tablas de Supabase
+                const { count: clientCount, error: clientError } = await _supabase.from('clientes').select('*', { count: 'exact', head: true });
+                if (!clientError && clientCount !== null) {
+                    document.getElementById('total-clients').textContent = clientCount;
+                }
+
+                const { count: subCount, error: subError } = await _supabase.from('suscripciones').select('*', { count: 'exact', head: true });
+                if (!subError && subCount !== null) {
+                    document.getElementById('active-subs').textContent = subCount;
+                }
+
+                statusBadge.className = "bg-green-500/10 text-green-400 text-xs px-3 py-1 rounded-full border border-green-500/20";
+                statusBadge.textContent = "🟢 Conectado a Supabase";
+            } catch (err) {
+                console.error("Error al conectar con Supabase:", err);
+                statusBadge.className = "bg-red-500/10 text-red-400 text-xs px-3 py-1 rounded-full border border-red-500/20";
+                statusBadge.textContent = "🔴 Error de conexión";
+            }
+        }
+
+        cargarDatosDashboard();
+    </script>
 </body>
 </html>
