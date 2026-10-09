@@ -95,7 +95,7 @@
             </div>
         </div>
 
-        <!-- Sección Dinámica de Cuentas Principales -->
+        <!-- Sección de Cuentas Principales -->
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-white">Cuentas principales</h3>
@@ -106,6 +106,32 @@
                 <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 text-center text-gray-400 text-sm">
                     Cargando cuentas...
                 </div>
+            </div>
+        </div>
+
+        <!-- Sección de Clientes y Cobros por WhatsApp -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white">Clientes y Cobros rápidos</h3>
+                <span class="text-xs text-gray-400">Envía recordatorios directos por WhatsApp</span>
+            </div>
+            
+            <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 overflow-x-auto">
+                <table class="w-full text-left text-xs text-gray-300">
+                    <thead class="border-b border-gray-800 text-gray-400 uppercase">
+                        <tr>
+                            <th class="pb-3 px-3">Cliente</th>
+                            <th class="pb-3 px-3">Celular</th>
+                            <th class="pb-3 px-3">Estado</th>
+                            <th class="pb-3 px-3 text-right">Acción de Cobro</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientes-table-body">
+                        <tr>
+                            <td colspan="4" class="py-4 text-center text-gray-500">Cargando clientes...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -121,7 +147,7 @@
         </div>
     </div>
 
-    <!-- Script -->
+    <!-- Script Principal -->
     <script>
         const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
@@ -130,28 +156,51 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function cargarSistema() {
-            const contenedor = document.getElementById('cuentas-container');
             try {
-                // 1. Clientes
-                const { count: clienteCount } = await _supabase.from('clientes').select('*', { count: 'exact', head: true });
-                if (clienteCount !== null) document.getElementById('total-perfiles').textContent = clienteCount;
+                // 1. Cargar Clientes desde 'clients' y generar enlaces de WhatsApp
+                const { data: clients } = await _supabase.from('clients').select('*');
+                if (clients) {
+                    document.getElementById('total-perfiles').textContent = clients.length;
+                    const tablaClientes = document.getElementById('clientes-table-body');
+                    
+                    if(clients.length > 0) {
+                        tablaClientes.innerHTML = '';
+                        clients.forEach(cli => {
+                            const nombre = cli.cliente || cli.name || 'Cliente';
+                            const telefono = cli.telefono || cli.phone || '999999999';
+                            const telefonoClean = telefono.replace(/\D/g,'');
+                            const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu suscripción. ¿Deseas continuar este mes?`);
+                            const whatsappUrl = `https://wa.me/${telefonoClean}?text=${mensaje}`;
 
-                // 2. Suscripciones
-                const { data: suscripciones, error } = await _supabase.from('suscripciones').select('*');
-                
-                if (error) {
-                    console.error("Error Supabase:", error.message);
-                    contenedor.innerHTML = `<div class="col-span-3 bg-[#161b22] border border-gray-800 rounded-2xl p-6 text-center text-red-400 text-xs">Error al cargar la tabla: ${error.message}</div>`;
-                    return;
+                            tablaClientes.innerHTML += `
+                                <tr class="border-b border-gray-800/50 hover:bg-gray-800/20 transition">
+                                    <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
+                                    <td class="py-3 px-3 text-gray-400">${telefono}</td>
+                                    <td class="py-3 px-3"><span class="bg-green-500/10 text-green-400 px-2.5 py-1 rounded-full text-[10px] font-medium border border-green-500/20">Activo</span></td>
+                                    <td class="py-3 px-3 text-right">
+                                        <a href="${whatsappUrl}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-xl font-medium text-[11px] inline-flex items-center space-x-1 transition shadow-lg shadow-green-600/20">
+                                            <span>💬 Cobrar por WhatsApp</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        tablaClientes.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">No hay clientes registrados aún. Usa "+ Nuevo Cliente".</td></tr>`;
+                    }
                 }
 
-                if (suscripciones && suscripciones.length > 0) {
-                    document.getElementById('total-cuentas').textContent = suscripciones.length;
-                    document.getElementById('pending-count').textContent = suscripciones.length;
+                // 2. Cargar Cuentas Maestras desde 'accounts'
+                const { data: cuentas } = await _supabase.from('accounts').select('*');
+                const contenedorCuentas = document.getElementById('cuentas-container');
+                
+                if (cuentas && cuentas.length > 0) {
+                    document.getElementById('total-cuentas').textContent = cuentas.length;
+                    document.getElementById('pending-count').textContent = cuentas.length;
                     
-                    contenedor.innerHTML = '';
-                    suscripciones.forEach(sub => {
-                        contenedor.innerHTML += `
+                    contenedorCuentas.innerHTML = '';
+                    cuentas.forEach(sub => {
+                        contenedorCuentas.innerHTML += `
                             <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 shadow-sm relative overflow-hidden">
                                 <div class="flex justify-between items-start mb-4">
                                     <div class="flex items-center space-x-3">
@@ -159,8 +208,8 @@
                                             ${sub.plataforma ? sub.plataforma.charAt(0).toUpperCase() : 'S'}
                                         </div>
                                         <div>
-                                            <h4 class="font-bold text-white text-sm">${sub.plataforma || 'Plataforma'}</h4>
-                                            <p class="text-xs text-gray-400">${sub.correo || 'Sin correo'}</p>
+                                            <h4 class="font-bold text-white text-sm">${sub.plataforma || sub.name || 'Plataforma'}</h4>
+                                            <p class="text-xs text-gray-400">${sub.correo || sub.email || 'Sin correo'}</p>
                                         </div>
                                     </div>
                                     <span class="bg-red-600/10 text-red-500 border border-red-500/20 text-xs px-2.5 py-1 rounded-full font-semibold">Activa</span>
@@ -169,8 +218,8 @@
                                     <div class="bg-red-600 h-2 rounded-full" style="width: 70%"></div>
                                 </div>
                                 <div class="flex justify-between text-xs text-gray-400 mb-4 bg-gray-900/50 p-3 rounded-xl">
-                                    <div>Costo: <span class="text-white font-semibold">S/ ${sub.costo || '0.00'}</span></div>
-                                    <div>Precio: <span class="text-white font-semibold">S/ ${sub.precio || '0.00'}</span></div>
+                                    <div>Costo: <span class="text-white font-semibold">S/ ${sub.costo || sub.cost || '0.00'}</span></div>
+                                    <div>Precio: <span class="text-white font-semibold">S/ ${sub.precio || sub.price || '0.00'}</span></div>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-xs bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-lg border border-yellow-500/20 font-medium">⏳ Al día</span>
@@ -180,8 +229,7 @@
                         `;
                     });
                 } else {
-                    document.getElementById('total-cuentas').textContent = 0;
-                    contenedor.innerHTML = `
+                    contenedorCuentas.innerHTML = `
                         <div class="col-span-3 bg-[#161b22] border border-gray-800 rounded-2xl p-8 text-center">
                             <p class="text-gray-400 text-sm mb-3">Aún no hay cuentas maestras registradas.</p>
                             <button onclick="abrirModalCuenta()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition">+ Registrar primera cuenta</button>
@@ -190,14 +238,13 @@
                 }
             } catch (err) {
                 console.error("Error general:", err);
-                contenedor.innerHTML = `<div class="col-span-3 bg-[#161b22] border border-gray-800 rounded-2xl p-6 text-center text-red-400 text-xs">Error de conexión con la base de datos.</div>`;
             }
         }
 
         function abrirModalCuenta() {
             document.getElementById('modal-titulo').textContent = "Registrar Cuenta Maestra";
             document.getElementById('modal-contenido').innerHTML = `
-                <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix, Disney+)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="number" id="cu-costo" placeholder="Costo proveedor (S/)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="number" id="cu-precio" placeholder="Precio venta total (S/)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
@@ -211,7 +258,7 @@
             document.getElementById('modal-titulo').textContent = "Registrar Nuevo Cliente";
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cli-celular" placeholder="Número de celular" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-celular" placeholder="Número de celular (ej. 912345678)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <button onclick="guardarClienteSupabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar Cliente</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
@@ -237,7 +284,7 @@
 
             if(!plataforma || !correo) { alert("Completa los campos obligatorios"); return; }
 
-            const { error } = await _supabase.from('suscripciones').insert([{ plataforma, correo, costo, precio }]);
+            const { error } = await _supabase.from('accounts').insert([{ plataforma, correo, costo, precio }]);
             if(error) alert("Error al guardar: " + error.message);
             else { alert("¡Cuenta maestra guardada con éxito!"); cerrarModal(); cargarSistema(); }
         }
@@ -248,7 +295,7 @@
 
             if(!cliente) { alert("Ingresa el nombre del cliente"); return; }
 
-            const { error } = await _supabase.from('clientes').insert([{ cliente, telefono }]);
+            const { error } = await _supabase.from('clients').insert([{ cliente, telefono }]);
             if(error) alert("Error al guardar: " + error.message);
             else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
         }
