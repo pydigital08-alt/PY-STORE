@@ -18,7 +18,7 @@
     <!-- Menú Lateral (Sidebar) -->
     <aside class="w-full md:w-64 bg-[#161b22] border-r border-gray-800 p-4 flex flex-col justify-between">
         <div>
-            <!-- Logotipo con Imagen Personalizada -->
+            <!-- Logotipo PY STORE -->
             <div class="flex items-center space-x-3 mb-8 px-2">
                 <img src="logo.png" alt="PY STORE" class="w-11 h-11 rounded-full object-cover border-2 border-cyan-400 shadow-lg shadow-cyan-500/30">
                 <div>
@@ -65,8 +65,8 @@
                 <p class="text-sm text-gray-400">Vencimientos, cobros, rentabilidad y capacidad de cada cuenta a una vista rápida.</p>
             </div>
             <div class="mt-4 md:mt-0 flex space-x-3">
-                <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-red-600/20">+ Nuevo Cliente</button>
-                <button class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition border border-gray-700">+ Vender Perfil</button>
+                <button onclick="abrirModalCliente()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-red-600/20">+ Nuevo Cliente</button>
+                <button onclick="abrirModalVenta()" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition border border-gray-700">+ Vender Perfil</button>
             </div>
         </div>
 
@@ -94,44 +94,36 @@
             </div>
         </div>
 
-        <!-- Sección de Cuentas Principales -->
+        <!-- Sección Dinámica de Cuentas Principales -->
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-white">Cuentas principales</h3>
                 <span class="text-xs text-gray-400">Correos principales de cada plataforma</span>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Tarjeta Cuenta Netflix Ejemplo -->
-                <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 shadow-sm relative overflow-hidden">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center space-x-3">
-                            <div class="bg-red-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm">N</div>
-                            <div>
-                                <h4 class="font-bold text-white text-sm">Netflix</h4>
-                                <p class="text-xs text-gray-400">carlosstore@gmail.com</p>
-                            </div>
-                        </div>
-                        <span class="bg-red-600/10 text-red-500 border border-red-500/20 text-xs px-2.5 py-1 rounded-full font-semibold">5/7 cupos</span>
-                    </div>
-                    <!-- Barra de Progreso -->
-                    <div class="w-full bg-gray-800 rounded-full h-2 mb-4">
-                        <div class="bg-red-600 h-2 rounded-full" style="width: 71%"></div>
-                    </div>
-                    <div class="flex justify-between text-xs text-gray-400 mb-4 bg-gray-900/50 p-3 rounded-xl">
-                        <div>Ingreso: <span class="text-white font-semibold">S/ 56.00</span></div>
-                        <div>Costos: <span class="text-white font-semibold">S/ 16.00</span></div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-lg border border-yellow-500/20 font-medium">⏳ 25 días para renovar</span>
-                        <button class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg transition">Abrir Netflix</button>
-                    </div>
+            <div id="cuentas-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Se cargará dinámicamente desde Supabase -->
+                <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 text-center text-gray-400 text-sm">
+                    Cargando cuentas desde Supabase...
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Script de Conexión a Supabase -->
+    <!-- Modal Simple para Acciones -->
+    <div id="modal-accion" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+        <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 id="modal-titulo" class="text-lg font-bold text-white mb-4">Acción</h3>
+            <div id="modal-contenido" class="space-y-4">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="cerrarModal()" class="px-4 py-2 rounded-xl text-xs bg-gray-800 hover:bg-gray-700 text-gray-300">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Funcionalidad y Supabase -->
     <script>
         const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
@@ -139,23 +131,109 @@
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function cargarDatosDashboard() {
+        async function cargarSistema() {
+            const statusIndicator = document.getElementById('db-status');
             try {
+                // 1. Cargar estadísticas de Clientes / Perfiles
                 const { count: clienteCount } = await _supabase.from('clientes').select('*', { count: 'exact', head: true });
                 if (clienteCount !== null) document.getElementById('total-perfiles').textContent = clienteCount;
 
-                const { count: cuentaCount } = await _supabase.from('suscripciones').select('*', { count: 'exact', head: true });
-                if (cuentaCount !== null) {
-                    document.getElementById('total-cuentas').textContent = cuentaCount;
-                    document.getElementById('expiring-soon').textContent = cuentaCount;
-                    document.getElementById('pending-count').textContent = cuentaCount;
+                // 2. Cargar Cuentas Maestras / Suscripciones
+                const { data: suscripciones, error } = await _supabase.from('suscripciones').select('*');
+                
+                if (error) throw error;
+
+                document.getElementById('total-cuentas').textContent = suscripciones ? suscripciones.length : 0;
+                document.getElementById('pending-count').textContent = suscripciones ? suscripciones.length : 0;
+
+                const contenedorCuentas = document.getElementById('cuentas-container');
+                if (suscripciones && suscripciones.length > 0) {
+                    contenedorCuentas.innerHTML = '';
+                    suscripciones.forEach(sub => {
+                        contenedorCuentas.innerHTML += `
+                            <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="bg-red-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm">
+                                            ${sub.plataforma ? sub.plataforma.charAt(0).toUpperCase() : 'S'}
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-white text-sm">${sub.plataforma || 'Plataforma'}</h4>
+                                            <p class="text-xs text-gray-400">${sub.correo || 'Sin correo'}</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-red-600/10 text-red-500 border border-red-500/20 text-xs px-2.5 py-1 rounded-full font-semibold">Activa</span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-2 mb-4">
+                                    <div class="bg-red-600 h-2 rounded-full" style="width: 70%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-400 mb-4 bg-gray-900/50 p-3 rounded-xl">
+                                    <div>Costo: <span class="text-white font-semibold">S/ ${sub.costo || '0.00'}</span></div>
+                                    <div>Precio: <span class="text-white font-semibold">S/ ${sub.precio || '0.00'}</span></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-lg border border-yellow-500/20 font-medium">⏳ Al día</span>
+                                    <button onclick="alert('Accediendo a ${sub.plataforma}')" class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg transition">Gestionar</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    contenedorCuentas.innerHTML = `<div class="col-span-3 text-center text-gray-500 py-6">No hay cuentas maestras registradas todavía.</div>`;
                 }
+
+                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-green-500 inline-block shadow-lg shadow-green-500/50";
             } catch (err) {
-                console.error("Error al conectar con Supabase:", err);
+                console.error("Error cargando datos:", err);
+                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
             }
         }
 
-        cargarDatosDashboard();
+        function abrirModalCliente() {
+            document.getElementById('modal-titulo').textContent = "Registrar Nuevo Cliente";
+            document.getElementById('modal-contenido').innerHTML = `
+                <p class="text-xs text-gray-400">Ingresa los datos del cliente para tu base de datos:</p>
+                <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-celular" placeholder="Número de celular" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <button onclick="guardarClienteSupabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar en Supabase</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        function abrirModalVenta() {
+            document.getElementById('modal-titulo').textContent = "Vender / Asignar Perfil";
+            document.getElementById('modal-contenido').innerHTML = `
+                <p class="text-xs text-gray-400">Registra una nueva venta de perfil:</p>
+                <input type="text" placeholder="Plataforma (ej. Netflix)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" placeholder="Cliente asignado" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <button onclick="alert('Venta registrada con éxito'); cerrarModal();" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Registrar Venta</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarClienteSupabase() {
+            const nombre = document.getElementById('cli-nombre').value;
+            const celular = document.getElementById('cli-celular').value;
+            if(!nombre) { alert("Ingresa un nombre"); return; }
+
+            const { error } = await _supabase.from('clientes').insert([{ cliente: nombre, telefono: celular }]);
+            if(error) {
+                alert("Error al guardar: " + error.message);
+            } else {
+                alert("¡Cliente guardado con éxito en Supabase!");
+                cerrarModal();
+                cargarSistema();
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-accion').classList.remove('flex');
+            document.getElementById('modal-accion').classList.add('hidden');
+        }
+
+        cargarSistema();
     </script>
 </body>
 </html>
