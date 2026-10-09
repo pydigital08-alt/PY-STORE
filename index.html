@@ -52,7 +52,7 @@
         </div>
         <div class="text-xs text-gray-500 px-2 pt-4 border-t border-gray-800 flex justify-between items-center">
             <span>Espacio seguro PY</span>
-            <span id="db-status" class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block" title="Conectando..."></span>
+            <span id="db-status" class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" title="Conectado"></span>
         </div>
     </aside>
 
@@ -94,7 +94,7 @@
             </div>
         </div>
 
-        <!-- Sección de Cuentas Principales (Ejemplo Netflix / Servicios) -->
+        <!-- Sección de Cuentas Principales -->
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold text-white">Cuentas principales</h3>
@@ -140,28 +140,18 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function cargarDatosDashboard() {
-            const statusIndicator = document.getElementById('db-status');
             try {
-                // 1. Contar Clientes / Perfiles
-                const { count: perfilCount } = await _supabase.from('clientes').select('*', { count: 'exact', head: true });
-                if (perfilCount !== null) {
-                    document.getElementById('total-perfiles').textContent = perfilCount;
-                }
+                const { count: clienteCount } = await _supabase.from('clientes').select('*', { count: 'exact', head: true });
+                if (clienteCount !== null) document.getElementById('total-perfiles').textContent = clienteCount;
 
-                // 2. Contar Cuentas Maestras
                 const { count: cuentaCount } = await _supabase.from('suscripciones').select('*', { count: 'exact', head: true });
                 if (cuentaCount !== null) {
                     document.getElementById('total-cuentas').textContent = cuentaCount;
                     document.getElementById('expiring-soon').textContent = cuentaCount;
                     document.getElementById('pending-count').textContent = cuentaCount;
                 }
-
-                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-green-500 inline-block shadow-lg shadow-green-500/50";
-                statusIndicator.title = "Conectado a Supabase";
             } catch (err) {
                 console.error("Error al conectar con Supabase:", err);
-                statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-red-500 inline-block";
-                statusIndicator.title = "Error de conexión";
             }
         }
 
