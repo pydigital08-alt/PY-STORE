@@ -103,9 +103,8 @@
             </div>
             
             <div id="cuentas-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Se cargará dinámicamente desde Supabase -->
-                <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 text-center text-gray-400 text-sm">
-                    Cargando cuentas desde Supabase...
+                <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 text-center text-gray-400 text-sm">
+                    Cargando cuentas...
                 </div>
             </div>
         </div>
@@ -122,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Script de Conexión y Funcionalidad -->
+    <!-- Script -->
     <script>
         const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
@@ -131,19 +130,21 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function cargarSistema() {
+            const contenedor = document.getElementById('cuentas-container');
             try {
-                // 1. Contar Clientes
+                // 1. Clientes
                 const { count: clienteCount } = await _supabase.from('clientes').select('*', { count: 'exact', head: true });
                 if (clienteCount !== null) document.getElementById('total-perfiles').textContent = clienteCount;
 
-                // 2. Cargar Suscripciones / Cuentas Maestras
+                // 2. Suscripciones
                 const { data: suscripciones, error } = await _supabase.from('suscripciones').select('*');
+                
                 if (error) {
-                    console.error("Error al cargar suscripciones:", error);
+                    console.error("Error Supabase:", error.message);
+                    contenedor.innerHTML = `<div class="col-span-3 bg-[#161b22] border border-gray-800 rounded-2xl p-6 text-center text-red-400 text-xs">Error al cargar la tabla: ${error.message}</div>`;
                     return;
                 }
 
-                const contenedor = document.getElementById('cuentas-container');
                 if (suscripciones && suscripciones.length > 0) {
                     document.getElementById('total-cuentas').textContent = suscripciones.length;
                     document.getElementById('pending-count').textContent = suscripciones.length;
@@ -182,13 +183,14 @@
                     document.getElementById('total-cuentas').textContent = 0;
                     contenedor.innerHTML = `
                         <div class="col-span-3 bg-[#161b22] border border-gray-800 rounded-2xl p-8 text-center">
-                            <p class="text-gray-400 text-sm mb-3">No hay cuentas maestras registradas todavía.</p>
-                            <button onclick="abrirModalCuenta()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">+ Registrar tu primera cuenta</button>
+                            <p class="text-gray-400 text-sm mb-3">Aún no hay cuentas maestras registradas.</p>
+                            <button onclick="abrirModalCuenta()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition">+ Registrar primera cuenta</button>
                         </div>
                     `;
                 }
             } catch (err) {
                 console.error("Error general:", err);
+                contenedor.innerHTML = `<div class="col-span-3 bg-[#161b22] border border-gray-800 rounded-2xl p-6 text-center text-red-400 text-xs">Error de conexión con la base de datos.</div>`;
             }
         }
 
@@ -221,7 +223,7 @@
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" placeholder="Plataforma" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" placeholder="Nombre del cliente" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <button onclick="alert('Venta registrada'); cerrarModal();" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Registrar Venta</button>
+                <button onclick="alert('Venta registrada'); cerrarModal();" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar Venta</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
