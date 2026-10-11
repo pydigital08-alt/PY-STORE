@@ -3,29 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PY STORE - Gestor de Streaming</title>
+    <title>PY STORE - Gestor de Streaming PRO</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Supabase Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Chart.js para Gráficos Estadísticos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0b0914; color: #f3f4f6; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main, #0b0914); color: var(--text-main, #f3f4f6); transition: background 0.3s ease; }
         .sidebar-item:hover { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; }
         .active-tab { background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(126, 34, 206, 0.1)); border-left: 4px solid #a855f7; color: #e9d5ff; }
+        
+        /* Temas PRO */
+        body.theme-lila-blanco { background-color: #f8fafc; color: #1e1b4b; }
+        body.theme-lila-blanco aside { background-color: #ffffff; border-right-color: #e2e8f0; }
+        body.theme-lila-blanco .bg-card-pro { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #1e1b4b !important; }
+        body.theme-lila-blanco input, body.theme-lila-blanco select { background-color: #f1f5f9 !important; color: #1e1b4b !important; border-color: #cbd5e1 !important; }
+        body.theme-lila-blanco table th { color: #6b21a8 !important; }
+        body.theme-lila-blanco table td { color: #334155 !important; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row">
+<body class="min-h-screen flex flex-col md:flex-row theme-oscuro-femenino">
 
-    <!-- Menú Lateral (Sidebar) con tu logo oficial -->
-    <aside class="w-full md:w-64 bg-[#120f1d] border-r border-purple-900/30 p-4 flex flex-col justify-between">
+    <!-- Menú Lateral (Sidebar) -->
+    <aside class="w-full md:w-64 bg-[#120f1d] border-r border-purple-900/30 p-4 flex flex-col justify-between transition-all">
         <div>
             <!-- Logotipo PY STORE -->
             <div class="flex items-center space-x-3 mb-8 px-2 pt-2">
                 <img src="logo.png" alt="PY STORE" class="w-11 h-11 rounded-full object-cover border-2 border-purple-500 shadow-lg shadow-purple-500/30">
                 <div>
-                    <h1 class="font-bold text-white text-sm tracking-wider">PY STORE</h1>
-                    <p class="text-[11px] text-purple-300">GESTOR DE STREAMING</p>
+                    <h1 class="font-bold text-sm tracking-wider">PY STORE</h1>
+                    <p class="text-[11px] text-purple-300">GESTOR PRO</p>
                 </div>
             </div>
             
@@ -57,7 +67,7 @@
                 </a>
                 <a href="#" onclick="cambiarVista('renovaciones')" id="nav-renovaciones" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl sidebar-item text-purple-300 text-sm font-medium transition">
                     <span>🔔</span>
-                    <span>Renovaciones</span>
+                    <span>Renovaciones <span id="badge-alerta" class="bg-pink-500 text-white text-[9px] px-1.5 py-0.2 rounded-full hidden">0</span></span>
                 </a>
             </nav>
         </div>
@@ -68,28 +78,33 @@
     </aside>
 
     <!-- Contenido Principal -->
-    <main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#0b0914]">
+    <main class="flex-1 p-6 md:p-8 overflow-y-auto">
         
-        <!-- Barra Superior con Buscador y Filtros Rápidos -->
-        <div class="flex flex-col gap-4 mb-8 bg-[#151221] border border-purple-900/30 p-4 rounded-2xl">
+        <!-- Barra Superior PRO -->
+        <div class="flex flex-col gap-4 mb-8 bg-[#151221] bg-card-pro border border-purple-900/30 p-4 rounded-2xl shadow-sm">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="flex items-center space-x-3 w-full md:w-96 bg-[#1a162b] border border-purple-900/40 px-3 py-2 rounded-xl">
                     <span class="text-purple-400">🔍</span>
-                    <input type="text" id="input-buscador" oninput="filtrarDatos()" placeholder="Buscar clientes, cuentas o perfiles..." class="bg-transparent text-xs text-white focus:outline-none w-full">
+                    <input type="text" id="input-buscador" oninput="filtrarDatos()" placeholder="Buscar clientes, cuentas o perfiles..." class="bg-transparent text-xs focus:outline-none w-full">
                 </div>
-                <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
-                    <span class="text-xs bg-purple-950/60 border border-purple-800/40 text-purple-300 px-3 py-2 rounded-xl flex items-center space-x-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-                        <span>Guardado en la nube</span>
-                    </span>
+                <div class="flex items-center space-x-3 w-full md:w-auto justify-end flex-wrap gap-2">
+                    <!-- Selector de Tema PRO -->
+                    <select id="selector-tema" onchange="cambiarTema(this.value)" class="bg-[#1a162b] text-purple-200 text-xs px-3 py-2 rounded-xl border border-purple-900/40 focus:outline-none">
+                        <option value="oscuro">💜 Femenino Oscuro</option>
+                        <option value="blanco">🤍 Lila con Blanco</option>
+                    </select>
+                    <!-- Botón Exportar Reporte Excel -->
+                    <button onclick="exportarReporteExcel()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/30 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1">
+                        <span>📊</span><span>Exportar Excel</span>
+                    </button>
                     <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
                         + Registrar Cliente
                     </button>
                 </div>
             </div>
-            <!-- Botones de Filtro Rápido por Plataforma -->
+            <!-- Filtros Rápidos por Plataforma -->
             <div id="filtros-plataforma" class="flex flex-wrap gap-2 pt-2 border-t border-purple-900/30">
-                <button onclick="filtrarPorPlataforma('todos')" class="px-3 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white transition filtro-btn active-filtro">Todos</button>
+                <button onclick="filtrarPorPlataforma('todos')" class="px-3 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white transition filtro-btn">Todos</button>
                 <button onclick="filtrarPorPlataforma('Netflix')" class="px-3 py-1 rounded-lg text-xs font-medium bg-[#1a162b] text-purple-300 hover:bg-purple-900/40 transition filtro-btn">Netflix</button>
                 <button onclick="filtrarPorPlataforma('Disney')" class="px-3 py-1 rounded-lg text-xs font-medium bg-[#1a162b] text-purple-300 hover:bg-purple-900/40 transition filtro-btn">Disney+</button>
                 <button onclick="filtrarPorPlataforma('Max')" class="px-3 py-1 rounded-lg text-xs font-medium bg-[#1a162b] text-purple-300 hover:bg-purple-900/40 transition filtro-btn">Max</button>
@@ -98,7 +113,7 @@
             </div>
         </div>
 
-        <!-- VISTA: RESUMEN -->
+        <!-- VISTA: RESUMEN PRO -->
         <div id="vista-resumen" class="space-y-8">
             <!-- Banner Bienvenida Dinámico -->
             <div class="bg-gradient-to-r from-[#191428] via-[#1f1836] to-[#251b3d] border border-purple-900/40 rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-xl">
@@ -118,17 +133,17 @@
                 </div>
             </div>
 
-            <!-- Tarjetas de Métricas -->
+            <!-- 5 Tarjetas Superiores -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-start mb-2">
                         <p class="text-xs text-purple-400 uppercase font-medium">Perfiles activos</p>
                         <span class="bg-purple-950/60 p-1.5 rounded-xl border border-purple-900/40 text-xs">🔴</span>
                     </div>
-                    <h3 id="resumen-perfiles" class="text-3xl font-bold text-white">0</h3>
+                    <h3 id="resumen-perfiles" class="text-3xl font-bold">0</h3>
                     <p class="text-xs text-purple-300/60 mt-2">Actualmente en servicio</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-start mb-2">
                         <p class="text-xs text-purple-400 uppercase font-medium">Vencen en 7 días</p>
                         <span class="bg-purple-950/60 p-1.5 rounded-xl border border-purple-900/40 text-xs">⏳</span>
@@ -136,15 +151,15 @@
                     <h3 id="resumen-vencen" class="text-3xl font-bold text-amber-400">0</h3>
                     <p class="text-xs text-purple-300/60 mt-2">Requieren seguimiento</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-start mb-2">
                         <p class="text-xs text-purple-400 uppercase font-medium">Ventas (Ingresos)</p>
                         <span class="bg-purple-950/60 p-1.5 rounded-xl border border-purple-900/40 text-xs text-emerald-400 font-bold">↗</span>
                     </div>
-                    <h3 id="resumen-ventas" class="text-3xl font-bold text-white">S/ 0.00</h3>
+                    <h3 id="resumen-ventas" class="text-3xl font-bold">S/ 0.00</h3>
                     <p class="text-xs text-purple-300/60 mt-2">Total registrado</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-start mb-2">
                         <p class="text-xs text-purple-400 uppercase font-medium">Ganancia Real</p>
                         <span class="bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-900/40 text-xs text-emerald-400 font-bold">S/</span>
@@ -152,7 +167,7 @@
                     <h3 id="resumen-ganancia" class="text-3xl font-bold text-emerald-400">S/ 0.00</h3>
                     <p class="text-xs text-purple-300/60 mt-2">Ventas menos costos</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl shadow-sm">
                     <div class="flex justify-between items-start mb-2">
                         <p class="text-xs text-purple-400 uppercase font-medium">Por cobrar</p>
                         <span class="bg-red-950/60 p-1.5 rounded-xl border border-red-900/40 text-xs text-red-400 font-bold">!</span>
@@ -162,10 +177,10 @@
                 </div>
             </div>
 
-            <!-- Tarjeta de Barra de Ocupación Global -->
-            <div class="bg-[#151221] border border-purple-900/30 p-6 rounded-2xl shadow-sm">
+            <!-- Barra de Ocupación Global -->
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm">
                 <div class="flex justify-between items-center mb-2">
-                    <h4 class="font-bold text-white text-sm">Ocupación global de cuentas maestras</h4>
+                    <h4 class="font-bold text-sm">Ocupación global de cuentas maestras</h4>
                     <span id="ocupacion-texto" class="text-xs text-purple-300 font-semibold">0 de 0 perfiles ocupados</span>
                 </div>
                 <div class="w-full bg-purple-950/60 border border-purple-900/40 rounded-full h-3 overflow-hidden">
@@ -173,13 +188,23 @@
                 </div>
             </div>
 
-            <!-- 3 Tarjetas Inferiores -->
+            <!-- Gráfico Estadístico y Widgets -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Gráfico de Ingresos por Plataforma (Chart.js) -->
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-bold text-sm mb-4">Ingresos por Plataforma</h4>
+                        <div class="relative h-48 flex items-center justify-center">
+                            <canvas id="graficoPlataformas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Próximos Vencimientos -->
-                <div class="bg-[#151221] border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
                     <div>
                         <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-white text-sm">Próximos vencimientos</h4>
+                            <h4 class="font-bold text-sm">Próximos vencimientos</h4>
                             <button onclick="cambiarVista('renovaciones')" class="text-xs text-purple-400 hover:text-purple-300 font-medium">Ver todos</button>
                         </div>
                         <div id="widget-vencimientos" class="space-y-2.5 max-h-52 overflow-y-auto">
@@ -188,24 +213,11 @@
                     </div>
                 </div>
 
-                <!-- Estado por Plataforma -->
-                <div class="bg-[#151221] border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
-                    <div>
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-white text-sm">Estado por plataforma</h4>
-                            <button onclick="cambiarVista('cuentas')" class="text-xs text-purple-400 hover:text-purple-300 font-medium">Ver cuentas</button>
-                        </div>
-                        <div id="widget-plataformas-resumen" class="space-y-2.5 max-h-52 overflow-y-auto">
-                            <p class="text-xs text-purple-400/60 text-center py-6">Calculando estadísticas...</p>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Estado Financiero -->
-                <div class="bg-[#151221] border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
                     <div>
                         <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-white text-sm">Estado financiero</h4>
+                            <h4 class="font-bold text-sm">Estado financiero</h4>
                             <span class="text-xs text-purple-400">Resumen contable</span>
                         </div>
                         <div class="space-y-4 pt-2">
@@ -218,7 +230,7 @@
                                 <span id="fin-egresos" class="text-sm font-bold text-red-400">S/ 0.00</span>
                             </div>
                             <div class="flex justify-between items-center pt-1">
-                                <span class="text-xs font-bold text-white">Saldo actual (Ganancia)</span>
+                                <span class="text-xs font-bold">Saldo actual (Ganancia)</span>
                                 <span id="fin-saldo" class="text-base font-extrabold text-emerald-400">S/ 0.00</span>
                             </div>
                         </div>
@@ -229,14 +241,14 @@
 
         <!-- VISTA: CLIENTES -->
         <div id="vista-clientes" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-bold text-white">Clientes</h3>
+                    <h3 class="text-lg font-bold">Clientes</h3>
                     <p class="text-xs text-purple-300/70">Personas que compran perfiles o servicios.</p>
                 </div>
                 <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
             </div>
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6">
                 <div id="lista-clientes-completa" class="space-y-3">
                     <p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>
                 </div>
@@ -245,15 +257,15 @@
 
         <!-- VISTA: PERFILES -->
         <div id="vista-perfiles" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-bold text-white">Perfiles y Gestión</h3>
-                    <p class="text-xs text-purple-300/70">Perfiles vendidos vinculados a sus respectivas cuentas maestras.</p>
+                    <h3 class="text-lg font-bold">Perfiles y Gestión</h3>
+                    <p class="text-xs text-purple-300/70">Perfiles vendidos con método de pago Plin (BBVA).</p>
                 </div>
                 <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
             </div>
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 overflow-x-auto">
-                <table class="w-full text-left text-xs text-purple-200">
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6 overflow-x-auto">
+                <table class="w-full text-left text-xs">
                     <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
                         <tr>
                             <th class="pb-3 px-3">Perfil / Plataforma</th>
@@ -261,13 +273,14 @@
                             <th class="pb-3 px-3">Cliente</th>
                             <th class="pb-3 px-3">Celular</th>
                             <th class="pb-3 px-3">PIN</th>
+                            <th class="pb-3 px-3">Pago (Plin/BBVA)</th>
                             <th class="pb-3 px-3">Precio Venta</th>
                             <th class="pb-3 px-3">Vencimiento</th>
                             <th class="pb-3 px-3 text-right">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="perfiles-table-body">
-                        <tr><td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
+                        <tr><td colspan="9" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -275,10 +288,10 @@
 
         <!-- VISTA: CUENTAS -->
         <div id="vista-cuentas" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-bold text-white">Cuentas Maestras (Agrupadas por Correo)</h3>
-                    <p class="text-xs text-purple-300/70">Visualiza los espacios disponibles y los clientes asignados en cada cuenta.</p>
+                    <h3 class="text-lg font-bold">Cuentas Maestras (Agrupadas por Correo)</h3>
+                    <p class="text-xs text-purple-300/70">Visualiza los espacios disponibles y la contraseña protegida con visor.</p>
                 </div>
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Nueva cuenta</button>
             </div>
@@ -289,9 +302,9 @@
 
         <!-- VISTA: RENOVACIONES -->
         <div id="vista-renovaciones" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
-                <h3 class="text-lg font-bold text-white mb-1">Renovaciones y Vencimientos</h3>
-                <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio, actualiza precios y extiende fechas.</p>
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6">
+                <h3 class="text-lg font-bold mb-1">Renovaciones y Vencimientos</h3>
+                <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio.</p>
                 <div id="lista-renovaciones" class="space-y-3">
                     <p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>
                 </div>
@@ -300,35 +313,35 @@
 
         <!-- VISTA: PLATAFORMAS -->
         <div id="vista-plataformas" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-bold text-white">Plataformas</h3>
+                    <h3 class="text-lg font-bold">Plataformas</h3>
                     <p class="text-xs text-purple-300/70">Servicios disponibles en tu tienda.</p>
                 </div>
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Servicio</button>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="netflix.png" alt="Netflix" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Netflix</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="disney.png" alt="Disney+" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Disney+</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="canva.png" alt="Canva" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Canva</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="hbomax.png" alt="Max" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Max</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="primevideo.png" alt="Prime Video" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Prime Video</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="crunchyroll.png" alt="Crunchyroll" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Crunchyroll</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="spotify.png" alt="Spotify" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Spotify</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="youtubepremium.png" alt="YouTube" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">YouTube Premium</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="appletv.png" alt="Apple TV" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Apple TV</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="dgo.png" alt="DGO" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">DGO</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="paramount.png" alt="Paramount+" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Paramount+</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="viki.png" alt="Viki" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Viki</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="capcut.png" alt="CapCut" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">CapCut</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="chatgpt.png" alt="ChatGPT" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">ChatGPT</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="claude.png" alt="Claude" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Claude</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="coursera.png" alt="Coursera" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Coursera</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="netflix.png" alt="Netflix" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Netflix</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="disney.png" alt="Disney+" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Disney+</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="canva.png" alt="Canva" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Canva</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="hbomax.png" alt="Max" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Max</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="primevideo.png" alt="Prime Video" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Prime Video</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="crunchyroll.png" alt="Crunchyroll" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Crunchyroll</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="spotify.png" alt="Spotify" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Spotify</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="youtubepremium.png" alt="YouTube" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">YouTube Premium</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="appletv.png" alt="Apple TV" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Apple TV</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="dgo.png" alt="DGO" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">DGO</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="paramount.png" alt="Paramount+" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Paramount+</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="viki.png" alt="Viki" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Viki</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="capcut.png" alt="CapCut" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">CapCut</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="chatgpt.png" alt="ChatGPT" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">ChatGPT</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="claude.png" alt="Claude" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Claude</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="coursera.png" alt="Coursera" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-xs">Coursera</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
             </div>
         </div>
     </main>
 
-    <!-- Modal Dinámico en Tonos Lila -->
+    <!-- Modal Dinámico -->
     <div id="modal-accion" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-[#161225] border border-purple-900/50 rounded-2xl p-6 w-full max-w-md shadow-2xl shadow-purple-950">
             <h3 id="modal-titulo" class="text-base font-bold text-white mb-4">Acción</h3>
@@ -339,7 +352,7 @@
         </div>
     </div>
 
-    <!-- Script Sincronizado con Supabase -->
+    <!-- Script Sincronizado PRO -->
     <script>
         const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
@@ -350,8 +363,19 @@
         let globalClients = [];
         let globalCuentas = [];
         let filtroPlataformaActual = 'todos';
+        let chartInstance = null;
 
-        // Saludo dinámico según la hora del día con carita feliz
+        function cambiarTema(tema) {
+            const body = document.body;
+            if(tema === 'blanco') {
+                body.classList.remove('theme-oscuro-femenino');
+                body.classList.add('theme-lila-blanco');
+            } else {
+                body.classList.remove('theme-lila-blanco');
+                body.classList.add('theme-oscuro-femenino');
+            }
+        }
+
         function actualizarSaludo() {
             const hora = new Date().getHours();
             let saludo = "¡Buenas tardes, PY Digital! 😊";
@@ -388,21 +412,16 @@
 
         function calcularEstadoVencimiento(fechaStr) {
             if (!fechaStr || fechaStr === '---') return '<span class="text-purple-400/60">---</span>';
-            
-            const hoy = new Date();
-            hoy.setHours(0,0,0,0);
-            const vencimiento = new Date(fechaStr);
-            vencimiento.setHours(0,0,0,0);
-
-            const diferenciaTiempo = vencimiento - hoy;
-            const diasRestantes = Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24));
+            const hoy = new Date(); hoy.setHours(0,0,0,0);
+            const vencimiento = new Date(fechaStr); vencimiento.setHours(0,0,0,0);
+            const diasRestantes = Math.ceil((vencimiento - hoy) / (1000 * 60 * 60 * 24));
 
             if (diasRestantes < 0) {
-                return `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-full font-bold text-[10px] inline-block">¡Ya venció!</span>`;
+                return `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-full font-bold text-[10px]">¡Ya venció!</span>`;
             } else if (diasRestantes === 0) {
-                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold text-[10px] inline-block">Vence hoy</span>`;
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold text-[10px]">Vence hoy</span>`;
             } else if (diasRestantes <= 7) {
-                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-semibold text-[10px] inline-block">Quedan ${diasRestantes} días</span>`;
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-semibold text-[10px]">Quedan ${diasRestantes} días</span>`;
             } else {
                 return `<span class="text-emerald-400 font-medium">Quedan ${diasRestantes} días</span>`;
             }
@@ -447,7 +466,6 @@
 
         function filtrarDatos() {
             const query = document.getElementById('input-buscador').value.toLowerCase();
-            
             const clientesFiltrados = globalClients.filter(cli => {
                 const nombre = (cli.Cliente || cli.cliente || '').toLowerCase();
                 const perfil = (cli.Perfil || cli.perfil || '').toLowerCase();
@@ -465,13 +483,12 @@
         }
 
         function copiarPlantillaWhatsApp(plat, correo, clave, pin, vence, cliente) {
-            const texto = `¡Hola ${cliente}! Aquí tienes los datos de tu acceso de *${plat}*:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${clave}\n👤 Perfil asignado\n🔢 PIN: ${pin}\n📅 Vencimiento: ${vence}\n\n¡Gracias por tu preferencia en PY STORE! 🚀`;
+            const texto = `¡Hola ${cliente}! Aquí tienes los datos de tu acceso de *${plat}*:\n\n📧 Correo: ${correo}\n🔑 Contraseña: ${clave}\n👤 Perfil asignado\n🔢 PIN: ${pin}\n📅 Vencimiento: ${vence}\n💳 Pago: Plin (BBVA)\n\n¡Gracias por tu preferencia en PY STORE! 🚀`;
             navigator.clipboard.writeText(texto).then(() => {
-                alert("¡Plantilla de acceso copiada al portapapeles para WhatsApp!");
+                alert("¡Plantilla copiada para WhatsApp!");
             });
         }
 
-        // Función para alternar la visibilidad de la contraseña con el ícono del ojo
         function togglePassword(id, claveReal) {
             const spanEl = document.getElementById(`pass-text-${id}`);
             const btnEl = document.getElementById(`pass-btn-${id}`);
@@ -482,6 +499,54 @@
                 spanEl.textContent = '••••••';
                 btnEl.textContent = '👁️ Ver';
             }
+        }
+
+        function exportarReporteExcel() {
+            let csv = "Perfil,Plataforma,Cuenta Asignada,Cliente,Celular,PIN,MetodoPago,PrecioVenta,Vencimiento\n";
+            globalClients.forEach(c => {
+                csv += `"${c.Perfil || c.perfil}","${c.Plataforma || c.plataforma}","${c.CuentaMaestra || c.cuenta_maestra || ''}","${c.Cliente || c.cliente}","${c.Celular || c.celular}","${c.Pin || c.pin}","Plin (BBVA)","S/ ${c['Precio Venta'] || c.PrecioVenta || c.precio || 0}","${c.Vencimiento || c.vencimiento}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Reporte_PY_Store_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function renderizarGraficoEstadistico(clients) {
+            const ctx = document.getElementById('graficoPlataformas');
+            if (!ctx) return;
+
+            const conteo = {};
+            clients.forEach(c => {
+                const p = c.Plataforma || c.plataforma || 'Otros';
+                conteo[p] = (conteo[p] || 0) + 1;
+            });
+
+            const labels = Object.keys(conteo);
+            const data = Object.values(conteo);
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Sin datos'],
+                    datasets: [{
+                        data: data.length > 0 ? data : [1],
+                        backgroundColor: ['#a855f7', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#6366f1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 10, color: '#f3f4f6', font: { size: 10 } } }
+                    }
+                }
+            });
         }
 
         function renderizarDatos(clients, cuentas) {
@@ -522,6 +587,15 @@
                 });
             }
 
+            // Actualizar insignia de alerta en menú
+            const badge = document.getElementById('badge-alerta');
+            if (vencenProntoCount > 0) {
+                badge.textContent = vencenProntoCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
             document.getElementById('resumen-perfiles').textContent = globalClients.length;
             document.getElementById('resumen-vencen').textContent = vencenProntoCount;
             document.getElementById('resumen-ventas').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
@@ -536,6 +610,8 @@
             const porcentajeOcupacion = totalCapacidadCupos > 0 ? Math.min(100, Math.round((totalPerfilesOcupados / totalCapacidadCupos) * 100)) : 0;
             document.getElementById('barra-ocupacion').style.width = `${porcentajeOcupacion}%`;
             document.getElementById('ocupacion-texto').textContent = `${totalPerfilesOcupados} de ${totalCapacidadCupos} perfiles ocupados (${porcentajeOcupacion}%)`;
+
+            renderizarGraficoEstadistico(globalClients);
 
             // Widgets
             const widgetVenc = document.getElementById('widget-vencimientos');
@@ -552,7 +628,7 @@
                                 <span class="font-bold text-white">${c}</span> <span class="text-purple-300">(${pf})</span>
                                 <div class="text-[10px] text-amber-400">Vence: ${v}</div>
                             </div>
-                            <button onclick="cambiarVista('renovaciones')" class="text-[10px] bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 px-2 py-1 rounded-lg">Gestionar</button>
+                            <button onclick="cambiarVista('renovaciones')" class="text-[10px] bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg">Gestionar</button>
                         </div>
                     `;
                 });
@@ -570,7 +646,7 @@
             for (const [plat, count] of Object.entries(conteoPlat)) {
                 widgetPlat.innerHTML += `
                     <div class="bg-[#1a152d] p-2.5 rounded-xl flex justify-between items-center text-xs">
-                        <span class="font-bold text-white flex items-center space-x-2"><span>📺</span> <span>${plat}</span></span>
+                        <span class="font-bold flex items-center space-x-2"><span>📺</span> <span>${plat}</span></span>
                         <span class="bg-purple-950 text-purple-300 px-2.5 py-0.5 rounded-full font-semibold">${count} perfiles activos</span>
                     </div>
                 `;
@@ -595,14 +671,14 @@
                     const logoImg = obtenerLogo(plataforma);
 
                     const celularClean = celular.toString().replace(/\D/g,'');
-                    const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} de ${plataforma} (vence: ${vencimiento}). ¿Deseas continuar este mes?`);
+                    const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} de ${plataforma} (vence: ${vencimiento}). Puedes pagar mediante Plin al BBVA. ¿Deseas continuar este mes?`);
                     const whatsappUrl = `https://wa.me/${celularClean}?text=${mensaje}`;
 
                     const colPerfilHtml = `
                         <div class="flex items-center space-x-2.5">
                             <img src="${logoImg}" alt="${plataforma}" class="w-7 h-7 rounded-lg object-contain bg-purple-950/40 p-0.5 border border-purple-900/40">
                             <div>
-                                <span class="font-semibold text-white">${perfil}</span>
+                                <span class="font-semibold">${perfil}</span>
                                 <span class="block text-[10px] text-purple-400">${plataforma}</span>
                             </div>
                         </div>
@@ -610,6 +686,7 @@
 
                     const cuentaHtml = `<span class="text-purple-300 text-[11px] font-mono bg-purple-950/50 px-2 py-0.5 rounded border border-purple-950">${cuentaMaestra}</span>`;
                     const estadoVencimientoHtml = calcularEstadoVencimiento(vencimiento);
+                    const metodoPagoBadge = `<span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">Plin (BBVA)</span>`;
 
                     let claveCuenta = '••••••';
                     const cuentaObj = globalCuentas.find(c => (c.Correo || c.correo || '').toLowerCase() === cuentaMaestra.toLowerCase());
@@ -619,14 +696,15 @@
                         <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
                             <td class="py-3 px-3">${colPerfilHtml}</td>
                             <td class="py-3 px-3">${cuentaHtml}</td>
-                            <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
+                            <td class="py-3 px-3 font-semibold">${nombre}</td>
                             <td class="py-3 px-3 text-purple-300/70">${celular}</td>
-                            <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
+                            <td class="py-3 px-3"><code>${pin}</code></td>
+                            <td class="py-3 px-3">${metodoPagoBadge}</td>
                             <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
                             <td class="py-3 px-3">${estadoVencimientoHtml}</td>
                             <td class="py-3 px-3 text-right space-x-1">
-                                <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-lg text-[11px] font-semibold transition" title="Copiar datos para WhatsApp">📋 Copiar</button>
-                                <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[11px] font-semibold inline-flex items-center space-x-1 transition"><span>💬 Cobrar</span></a>
+                                <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/30 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-lg text-[11px]">📋 Copiar</button>
+                                <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[11px] inline-flex items-center space-x-1"><span>💬 Cobrar</span></a>
                             </td>
                         </tr>
                     `;
@@ -635,9 +713,10 @@
                         <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
                             <td class="py-3 px-3">${colPerfilHtml}</td>
                             <td class="py-3 px-3">${cuentaHtml}</td>
-                            <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
+                            <td class="py-3 px-3 font-semibold">${nombre}</td>
                             <td class="py-3 px-3 text-purple-300/70">${celular}</td>
-                            <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
+                            <td class="py-3 px-3"><code>${pin}</code></td>
+                            <td class="py-3 px-3">${metodoPagoBadge}</td>
                             <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
                             <td class="py-3 px-3">${estadoVencimientoHtml}</td>
                             <td class="py-3 px-3 text-right space-x-1">
@@ -653,8 +732,8 @@
                             <div class="flex items-center space-x-3">
                                 <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
                                 <div>
-                                    <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
-                                    <p class="text-[11px] text-purple-300/70">Cuenta: ${cuentaMaestra} | Cel: ${celular} | Vence: ${vencimiento}</p>
+                                    <h4 class="font-bold text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
+                                    <p class="text-[11px] text-purple-300/70">Cuenta: ${cuentaMaestra} | Pago: Plin (BBVA) | Vence: ${vencimiento}</p>
                                 </div>
                             </div>
                             <div class="flex space-x-2">
@@ -669,27 +748,27 @@
                             <div class="flex items-center space-x-3">
                                 <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
                                 <div>
-                                    <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
+                                    <h4 class="font-bold text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
                                     <p class="text-[11px] text-purple-300">Cuenta: ${cuentaMaestra}</p>
                                     <p class="text-[11px] text-amber-400 mt-0.5">Vencimiento: ${vencimiento} (${estadoVencimientoHtml})</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovar</button>
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
-                                <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
+                                <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">✅ Renovar</button>
+                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">✏️ Editar</button>
+                                <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">❌ No renovó</button>
                             </div>
                         </div>
                     `;
                 });
             } else {
-                tablaClientes.innerHTML = `<tr><td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
-                tablaPerfiles.innerHTML = `<tr><td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                tablaClientes.innerHTML = `<tr><td colspan="9" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                tablaPerfiles.innerHTML = `<tr><td colspan="9" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
                 listaClientes.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Renderizar Cuentas Maestras con el botón de Ver/Ocultar contraseña (Ojo)
+            // 2. Renderizar Cuentas Maestras
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (globalCuentas.length > 0) {
                 document.getElementById('total-cuentas').textContent = globalCuentas.length;
@@ -725,7 +804,7 @@
                             perfilesHtml += `
                                 <div class="bg-[#120f1d] border border-purple-900/40 p-2.5 rounded-xl mb-1.5 flex justify-between items-center text-xs">
                                     <div>
-                                        <span class="font-bold text-white">👤 ${pNombre}</span> <span class="text-purple-300">(${pCliente})</span>
+                                        <span class="font-bold">👤 ${pNombre}</span> <span class="text-purple-300">(${pCliente})</span>
                                         <div class="text-[10px] text-purple-400 mt-0.5">PIN: <code>${pPin}</code> | Vence: ${pVence}</div>
                                     </div>
                                     <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">Ocupado</span>
@@ -744,20 +823,20 @@
                     }
                     
                     htmlCuentas += `
-                        <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden flex flex-col justify-between">
+                        <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden flex flex-col justify-between">
                             <div>
                                 <div class="flex justify-between items-start mb-3">
                                     <div class="flex items-center space-x-3">
                                         <img src="${logoImg}" alt="${plataforma}" class="w-10 h-10 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
                                         <div>
-                                            <h4 class="font-bold text-white text-sm">${plataforma}</h4>
+                                            <h4 class="font-bold text-sm">${plataforma}</h4>
                                             <p class="text-xs text-purple-300 font-mono">${correo}</p>
                                         </div>
                                     </div>
                                     <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
                                 </div>
                                 <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
-                                    <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="text-purple-200 font-semibold">${periodo}</span></div>
+                                    <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="font-semibold">${periodo}</span></div>
                                     <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
                                     <div class="flex justify-between text-purple-300/70"><span>Espacios Libres:</span> <span class="text-pink-400 font-bold">${perfilesDisponibles} de ${totalCupos} libres</span></div>
                                 </div>
@@ -768,9 +847,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-center text-xs text-purple-300 pt-3 border-t border-purple-900/30">
+                            <div class="flex justify-between items-center text-xs pt-3 border-t border-purple-900/30">
                                 <div class="flex items-center space-x-2">
-                                    <span>Pass: <code id="pass-text-${id}" class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">••••••</code></span>
+                                    <span>Pass: <code id="pass-text-${id}" class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded">••••••</code></span>
                                     <button id="pass-btn-${id}" onclick="togglePassword('${id}', '${clave}')" class="text-[10px] bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-md transition">👁️ Ver</button>
                                 </div>
                                 <button onclick="abrirModalRenovarCuenta('${id}', '${plataforma}', '${costo}', '${periodo}', '${vencimientoCuenta}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🔄 Renovar / Mes</button>
@@ -810,10 +889,10 @@
 
             document.getElementById('modal-titulo').textContent = `Renovar Perfil: ${perfil} (${plataforma})`;
             document.getElementById('modal-contenido').innerHTML = `
-                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta (por si aumentó este mes) y extiende la fecha de vencimiento 1 mes más:</p>
+                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta y extiende la fecha de vencimiento 1 mes más:</p>
                 <input type="number" id="renova-cli-precio" value="${precioActual}" placeholder="Precio Venta (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <div class="text-[10px] text-purple-300 mb-3">Nuevo Vencimiento: <input type="date" id="renova-cli-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
+                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
@@ -831,7 +910,7 @@
             if (error) {
                 alert("Error al renovar cliente: " + error.message);
             } else {
-                alert("¡Perfil renovado con éxito para el nuevo mes!");
+                alert("¡Perfil renovado con éxito!");
                 cerrarModal();
                 cargarSistema();
             }
@@ -841,7 +920,7 @@
             document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra asignada" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
@@ -850,7 +929,7 @@
                     <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 </div>
                 <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
+                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
@@ -902,7 +981,7 @@
                 <input type="text" id="renova-periodo" placeholder="Periodo (ej. Noviembre 2026)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <input type="number" id="renova-costo" value="${costoActual}" placeholder="Costo proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <div class="text-[10px] text-purple-300 mb-2">Nuevo Vencimiento: <input type="date" id="renova-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarRenovacionCuenta('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Renovación</button>
+                <button onclick="guardarRenovacionCuenta('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Renovación</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
@@ -921,15 +1000,7 @@
             const { error } = await _supabase.from('Cuenta Maestra').update(datosRenovacion).eq('id', id);
 
             if (error) {
-                delete datosRenovacion['Vencimiento'];
-                let segundoIntento = await _supabase.from('Cuenta Maestra').update(datosRenovacion).eq('id', id);
-                if (segundoIntento.error) {
-                    alert("Error al renovar: " + segundoIntento.error.message);
-                } else {
-                    alert("¡Cuenta renovada con éxito!");
-                    cerrarModal();
-                    cargarSistema();
-                }
+                alert("Error al renovar: " + error.message);
             } else {
                 alert("¡Cuenta renovada con éxito!");
                 cerrarModal();
@@ -950,7 +1021,7 @@
                     <div>Compra: <input type="date" id="cu-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                     <div>Vencimiento: <input type="date" id="cu-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                 </div>
-                <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
+                <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
@@ -960,7 +1031,7 @@
             document.getElementById('modal-titulo').textContent = "Registrar Cliente y Perfil";
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" id="cli-plat" placeholder="Plataforma (ej. Netflix, Disney+, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cli-cuenta" placeholder="Correo de Cuenta Maestra (ej. correo@netflix.com)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-cuenta" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-perfil" placeholder="Perfil (ej. Perfil 1, Myra)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
@@ -968,11 +1039,12 @@
                     <input type="text" id="cli-pin" placeholder="PIN (ej. 1234)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                     <input type="number" id="cli-precio" placeholder="Precio venta (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 </div>
+                <div class="text-[11px] text-blue-400 bg-blue-950/40 p-2 rounded-xl">💳 Método de Pago: <b>Plin (BBVA)</b></div>
                 <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
                     <div>Compra: <input type="date" id="cli-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                     <div>Vencimiento: <input type="date" id="cli-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                 </div>
-                <button onclick="guardarClienteSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cliente</button>
+                <button onclick="guardarClienteSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cliente</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
@@ -990,37 +1062,13 @@
 
             if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
-            const datosCuenta = { 
-                Plataforma, 
-                Correo, 
-                Clave, 
-                Proveedor, 
-                Periodo,
-                Costo 
-            };
-
+            const datosCuenta = { Plataforma, Correo, Clave, Proveedor, Periodo, Costo };
             if (FechaCompra) datosCuenta['FechaCompra'] = FechaCompra;
             if (Vencimiento) datosCuenta['Vencimiento'] = Vencimiento;
 
             const { error } = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
-
-            if(error) {
-                delete datosCuenta['FechaCompra'];
-                delete datosCuenta['Vencimiento'];
-                delete datosCuenta['Periodo'];
-                let segundoIntento = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
-                if(segundoIntento.error) {
-                    alert("Error al guardar: " + segundoIntento.error.message);
-                } else {
-                    alert("¡Cuenta guardada con éxito!");
-                    cerrarModal();
-                    cargarSistema();
-                }
-            } else {
-                alert("¡Cuenta maestra guardada con éxito!");
-                cerrarModal();
-                cargarSistema();
-            }
+            if(error) alert("Error al guardar: " + error.message);
+            else { alert("¡Cuenta maestra guardada con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         async function guardarClienteSupabase() {
@@ -1050,24 +1098,8 @@
             if (FechaCompra) datosCliente['Fecha Compra'] = FechaCompra;
 
             const { error } = await _supabase.from('Clientes').insert([datosCliente]);
-
-            if(error) {
-                delete datosCliente['CuentaMaestra'];
-                delete datosCliente['Vencimiento'];
-                delete datosCliente['Fecha Compra'];
-                let segundoIntento = await _supabase.from('Clientes').insert([datosCliente]);
-                if(segundoIntento.error) {
-                    alert("Error al guardar cliente: " + segundoIntento.error.message);
-                } else {
-                    alert("¡Cliente guardado con éxito!");
-                    cerrarModal();
-                    cargarSistema();
-                }
-            } else {
-                alert("¡Cliente guardado con éxito!");
-                cerrarModal();
-                cargarSistema();
-            }
+            if(error) alert("Error al guardar cliente: " + error.message);
+            else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function cerrarModal() {
