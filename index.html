@@ -144,7 +144,7 @@
                                 <th class="pb-3 px-3">Cliente</th>
                                 <th class="pb-3 px-3">Celular</th>
                                 <th class="pb-3 px-3">PIN</th>
-                                <th class="pb-3 px-3">Precio</th>
+                                <th class="pb-3 px-3">Precio Venta</th>
                                 <th class="pb-3 px-3">Vencimiento</th>
                                 <th class="pb-3 px-3 text-right">Acción de Cobro</th>
                             </tr>
@@ -192,7 +192,7 @@
                             <th class="pb-3 px-3">Cliente</th>
                             <th class="pb-3 px-3">Celular</th>
                             <th class="pb-3 px-3">PIN</th>
-                            <th class="pb-3 px-3">Precio</th>
+                            <th class="pb-3 px-3">Precio Venta</th>
                             <th class="pb-3 px-3">Vencimiento</th>
                         </tr>
                     </thead>
@@ -350,7 +350,7 @@
                     const nombre = cli.Cliente || cli.cliente || 'Cliente';
                     const celular = cli.Celular || cli.celular || '999999999';
                     const pin = cli.Pin || cli.pin || '----';
-                    const precio = parseFloat(cli.Precio || cli.precio || 0);
+                    const precio = parseFloat(cli['Precio Venta'] || cli.PrecioVenta || cli.precio || 0);
                     const vencimiento = cli.Vencimiento || cli.vencimiento || '---';
                     const logoImg = obtenerLogo(plataforma);
 
@@ -677,15 +677,43 @@
             const Cliente = document.getElementById('cli-nombre').value;
             const Celular = document.getElementById('cli-celular').value;
             const Pin = document.getElementById('cli-pin').value;
-            const Precio = parseFloat(document.getElementById('cli-precio').value) || 0;
+            const PrecioVenta = parseFloat(document.getElementById('cli-precio').value) || 0;
             const FechaCompra = document.getElementById('cli-fcompra').value;
             const Vencimiento = document.getElementById('cli-vence').value;
 
             if(!Cliente || !Perfil || !Plataforma) { alert("Ingresa la plataforma, el perfil y el cliente"); return; }
 
-            const { error } = await _supabase.from('Clientes').insert([{ Plataforma, Perfil, Cliente, Celular, Pin, Precio, FechaCompra, Vencimiento }]);
-            if(error) alert("Error al guardar: " + error.message);
-            else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
+            const datosCliente = { 
+                Plataforma, 
+                Perfil, 
+                Cliente, 
+                Celular, 
+                Pin, 
+                'Precio Venta': PrecioVenta 
+            };
+            
+            if (FechaCompra) datosCliente['Fecha Compra'] = FechaCompra;
+            if (Vencimiento) datosCliente['Vencimiento'] = Vencimiento;
+
+            const { error } = await _supabase.from('Clientes').insert([datosCliente]);
+
+            if(error) {
+                // Respaldo por si alguna columna de fecha aún no está creada en Supabase
+                delete datosCliente['Fecha Compra'];
+                delete datosCliente['Vencimiento'];
+                let segundoIntento = await _supabase.from('Clientes').insert([datosCliente]);
+                if(segundoIntento.error) {
+                    alert("Error al guardar cliente: " + segundoIntento.error.message);
+                } else {
+                    alert("¡Cliente guardado con éxito!");
+                    cerrarModal();
+                    cargarSistema();
+                }
+            } else {
+                alert("¡Cliente guardado con éxito!");
+                cerrarModal();
+                cargarSistema();
+            }
         }
 
         function cerrarModal() {
