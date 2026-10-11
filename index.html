@@ -457,7 +457,7 @@
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovar</button>
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
+                                <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
                                 <a href="${whatsappUrl}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">WhatsApp</a>
                             </div>
                         </div>
@@ -520,6 +520,18 @@
             }
         }
 
+        async function marcarNoRenovado(id) {
+            if (confirm("¿Estás segura de eliminar este perfil por no renovación?")) {
+                const { error } = await _supabase.from('Clientes').delete().eq('id', id);
+                if (error) {
+                    alert("Error al procesar: " + error.message);
+                } else {
+                    alert("Registro eliminado.");
+                    cargarSistema();
+                }
+            }
+        }
+
         function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
             let fechaSugerida = '';
             if (vencimientoActual && vencimientoActual !== '---') {
@@ -545,7 +557,7 @@
 
         async function guardarRenovacionCliente(id) {
             const PrecioVenta = parseFloat(document.getElementById('renova-cli-precio').value) || 0;
-            const Vencimiento = document.getElementById('renova-cli-vence.value') || document.getElementById('renova-cli-vence').value;
+            const Vencimiento = document.getElementById('renova-cli-vence').value;
 
             const datosRenovacion = { 'Precio Venta': PrecioVenta };
             if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
@@ -782,17 +794,17 @@
                 Cliente, 
                 Celular, 
                 Pin, 
-                'Precio Venta': PrecioVenta 
+                'Precio Venta': PrecioVenta,
+                Vencimiento 
             };
             
             if (FechaCompra) datosCliente['Fecha Compra'] = FechaCompra;
-            if (Vencimiento) datosCliente['Vencimiento'] = Vencimiento;
 
             const { error } = await _supabase.from('Clientes').insert([datosCliente]);
 
             if(error) {
-                delete datosCliente['Fecha Compra'];
                 delete datosCliente['Vencimiento'];
+                delete datosCliente['Fecha Compra'];
                 let segundoIntento = await _supabase.from('Clientes').insert([datosCliente]);
                 if(segundoIntento.error) {
                     alert("Error al guardar cliente: " + segundoIntento.error.message);
