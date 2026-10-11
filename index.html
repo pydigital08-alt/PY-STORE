@@ -424,9 +424,11 @@
                 cuentas.forEach(sub => {
                     const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
                     const correo = sub.Correo || sub.correo || 'Sin correo';
-                    const clave = sub.Clave || sub.clave || sub.Contraseña || sub.contrasena || sub.password || '••••••';
+                    const clave = sub.Clave || sub.clave || '••••••';
                     const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
                     const costo = parseFloat(sub.Costo || sub.costo || 0);
+                    const precioCuenta = parseFloat(sub.Precio || sub.precio || 0);
+                    const fechaCompraCuenta = sub.FechaCompra || sub.fecha_compra || '---';
                     const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
                     const logoImg = obtenerLogo(plataforma);
                     
@@ -444,6 +446,8 @@
                             </div>
                             <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
                                 <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
+                                <div class="flex justify-between text-purple-300/70"><span>Precio Venta:</span> <span class="text-purple-300 font-semibold">S/ ${precioCuenta.toFixed(2)}</span></div>
+                                <div class="flex justify-between text-purple-300/70"><span>Compra:</span> <span class="text-purple-200">${fechaCompraCuenta}</span></div>
                                 <div class="flex justify-between text-purple-300/70"><span>Vencimiento:</span> <span class="text-amber-400 font-semibold">${vencimientoCuenta}</span></div>
                             </div>
                             <div class="flex justify-between items-center text-xs text-purple-300">
@@ -519,7 +523,10 @@
                 <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cu-pass" placeholder="Contraseña de acceso" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cu-prov" placeholder="Proveedor (ej. YO - BOLIVIA, KIRA)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="number" id="cu-costo" placeholder="Costo del proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="cu-costo" placeholder="Costo proveedor (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="cu-precio" placeholder="Precio venta (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                </div>
                 <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
                     <div>Compra: <input type="date" id="cu-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                     <div>Vencimiento: <input type="date" id="cu-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
@@ -553,31 +560,45 @@
         async function guardarCuentaSupabase() {
             const Plataforma = document.getElementById('cu-plat').value;
             const Correo = document.getElementById('cu-correo').value;
-            const claveVal = document.getElementById('cu-pass').value;
+            const Clave = document.getElementById('cu-pass').value;
             const Proveedor = document.getElementById('cu-prov').value;
             const Costo = parseFloat(document.getElementById('cu-costo').value) || 0;
+            const Precio = parseFloat(document.getElementById('cu-precio').value) || 0;
             const FechaCompra = document.getElementById('cu-fcompra').value;
             const Vencimiento = document.getElementById('cu-vence').value;
 
             if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
-            // CORRECCIÓN DEFINITIVA: 
-            // Apuntamos directamente a la columna 'Clave' con 'C' mayúscula tal cual se ve en tu captura de Supabase.
-            const datosParaEnviar = {
-                Plataforma: Plataforma,
-                Correo: Correo,
-                Proveedor: Proveedor,
-                Costo: Costo,
-                FechaCompra: FechaCompra || null,
-                Vencimiento: Vencimiento || null
+            const datosCuenta = { 
+                Plataforma, 
+                Correo, 
+                Clave, 
+                Proveedor, 
+                Costo, 
+                Precio 
             };
-            
-            datosParaEnviar['Clave'] = claveVal;
 
-            const { error } = await _supabase.from('Cuenta Maestra').insert([datosParaEnviar]);
+            if (FechaCompra) datosCuenta['FechaCompra'] = FechaCompra;
+            if (Vencimiento) datosCuenta['Vencimiento'] = Vencimiento;
+
+            const { error } = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
 
             if(error) {
-                alert("Error al guardar: " + error.message);
+                // Si la tabla de Supabase aún no tiene esas columnas de fechas creadas en su interfaz, reintentamos guardando sin las fechas para no bloquearte
+                if(error.message.includes('FechaCompra') || error.message.includes('Vencimiento')) {
+                    delete datosCuenta['FechaCompra'];
+                    delete datosCuenta['Vencimiento'];
+                    let segundoIntento = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
+                    if(segundoIntento.error) {
+                        alert("Error al guardar: " + segundoIntento.error.message);
+                    } else {
+                        alert("¡Cuenta guardada con éxito! (Nota: Añade las columnas FechaCompra y Vencimiento en Supabase si deseas guardarlas).");
+                        cerrarModal();
+                        cargarSistema();
+                    }
+                } else {
+                    alert("Error al guardar: " + error.message);
+                }
             } else {
                 alert("¡Cuenta maestra guardada con éxito!");
                 cerrarModal();
