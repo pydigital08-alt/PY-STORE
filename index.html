@@ -228,7 +228,7 @@
             </div>
         </div>
 
-        <!-- VISTA: PLATAFORMAS -->
+        <!-- VISTA: PLATAFORMAS (Todas las subidas) -->
         <div id="vista-plataformas" class="space-y-6 hidden">
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
@@ -278,6 +278,46 @@
                     <h4 class="font-bold text-white text-xs">YouTube Premium</h4>
                     <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
                 </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="appletv.png" alt="Apple TV" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">Apple TV</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="dgo.png" alt="DGO" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">DGO</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="paramount.png" alt="Paramount+" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">Paramount+</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="viki.png" alt="Viki" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">Viki</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="capcut.png" alt="CapCut" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">CapCut</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="chatgpt.png" alt="ChatGPT" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">ChatGPT</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="claude.png" alt="Claude" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">Claude</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="coursera.png" alt="Coursera" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">Coursera</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
             </div>
         </div>
     </main>
@@ -315,6 +355,10 @@
             if (p.includes('dgo') || p.includes('directv')) return 'dgo.png';
             if (p.includes('viki')) return 'viki.png';
             if (p.includes('youtube')) return 'youtubepremium.png';
+            if (p.includes('capcut')) return 'capcut.png';
+            if (p.includes('chatgpt')) return 'chatgpt.png';
+            if (p.includes('claude')) return 'claude.png';
+            if (p.includes('coursera')) return 'coursera.png';
             return 'logo.png';
         }
 
