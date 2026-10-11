@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <!-- Menú Lateral (Sidebar) -->
+    <!-- Menú Lateral (Sidebar) con Botón Cerrar Sesión -->
     <aside class="w-full md:w-64 bg-[#120f1d] border-r border-purple-900/30 p-4 flex flex-col justify-between transition-all">
         <div>
             <!-- Logotipo PY STORE -->
@@ -83,9 +83,17 @@
                 </a>
             </nav>
         </div>
-        <div class="text-xs text-purple-400/60 px-2 pt-4 border-t border-purple-900/30 flex justify-between items-center">
-            <span>PY Digital 2026</span>
-            <span id="db-status" class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-sm shadow-emerald-400/50" title="Conectado a Supabase"></span>
+
+        <!-- Zona Inferior con Estado y Cerrar Sesión -->
+        <div class="pt-4 border-t border-purple-900/30 space-y-3">
+            <button onclick="cerrarSesion()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/25 py-2 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-2">
+                <span>🔒</span>
+                <span>Cerrar Sesión</span>
+            </button>
+            <div class="text-xs text-purple-400/60 px-1 flex justify-between items-center">
+                <span>PY Digital 2026</span>
+                <span id="db-status" class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-sm shadow-emerald-400/50" title="Conectado a Supabase"></span>
+            </div>
         </div>
     </aside>
 
@@ -213,9 +221,8 @@
                 </div>
             </div>
 
-            <!-- Gráficos Estadísticos (Donut y Histórico de Ventas) -->
+            <!-- Gráficos Estadísticos -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Gráfico de Ingresos por Plataforma -->
                 <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                     <div>
                         <h4 class="font-bold text-sm mb-4">Ingresos por Plataforma</h4>
@@ -225,7 +232,6 @@
                     </div>
                 </div>
 
-                <!-- Gráfico Histórico de Ventas Mensuales -->
                 <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                     <div>
                         <h4 class="font-bold text-sm mb-4">Histórico de Ventas por Mes</h4>
@@ -420,6 +426,13 @@
             } else {
                 alert("Contraseña incorrecta. La clave es 1911");
             }
+        }
+
+        // Función para cerrar sesión
+        function cerrarSesion() {
+            localStorage.removeItem('py_store_auth');
+            document.getElementById('pantalla-login').classList.remove('hidden');
+            document.getElementById('input-password-login').value = '';
         }
 
         window.onload = function() {
@@ -959,6 +972,89 @@
             }
         }
 
+        function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
+            let fechaSugerida = '';
+            if (vencimientoActual && vencimientoActual !== '---') {
+                let d = new Date(vencimientoActual);
+                d.setMonth(d.getMonth() + 1);
+                fechaSugerida = d.toISOString().split('T')[0];
+            } else {
+                let d = new Date();
+                d.setMonth(d.getMonth() + 1);
+                fechaSugerida = d.toISOString().split('T')[0];
+            }
+
+            document.getElementById('modal-titulo').textContent = `Renovar Perfil: ${perfil} (${plataforma})`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta y extiende la fecha de vencimiento 1 mes más:</p>
+                <input type="number" id="renova-cli-precio" value="${precioActual}" placeholder="Precio Venta (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="text-[10px] text-purple-300 mb-3">Nuevo Vencimiento: <input type="date" id="renova-cli-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarRenovacionCliente(id) {
+            const PrecioVenta = parseFloat(document.getElementById('renova-cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('renova-cli-vence').value;
+
+            const datosRenovacion = { 'Precio Venta': PrecioVenta };
+            if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
+
+            const { error } = await _supabase.from('Clientes').update(datosRenovacion).eq('id', id);
+            if (error) alert("Error al renovar cliente: " + error.message);
+            else { alert("¡Perfil renovado con éxito!"); cerrarModal(); cargarSistema(); }
+        }
+
+        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento, notas = '') {
+            document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <input type="text" id="edit-cli-pin" value="${pin}" placeholder="PIN" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <textarea id="edit-cli-notas" placeholder="Notas u observaciones" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">${notas !== 'Sin notas' ? notas : ''}</textarea>
+                <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarEdicionCliente(id) {
+            const Plataforma = document.getElementById('edit-cli-plat').value;
+            const CuentaMaestra = document.getElementById('edit-cli-cuenta').value;
+            const Perfil = document.getElementById('edit-cli-perfil').value;
+            const Cliente = document.getElementById('edit-cli-nombre').value;
+            const Celular = document.getElementById('edit-cli-celular').value;
+            const Pin = document.getElementById('edit-cli-pin').value;
+            const PrecioVenta = parseFloat(document.getElementById('edit-cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('edit-cli-vence').value;
+            const Notas = document.getElementById('edit-cli-notas').value;
+
+            const datosEditados = { 
+                Plataforma, 
+                CuentaMaestra,
+                Perfil, 
+                Cliente, 
+                Celular, 
+                Pin, 
+                'Precio Venta': PrecioVenta,
+                Vencimiento,
+                Notas 
+            };
+
+            const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
+            if (error) alert("Error al actualizar cliente: " + error.message);
+            else { alert("¡Cliente actualizado con éxito!"); cerrarModal(); cargarSistema(); }
+        }
+
         function abrirModalRenovarCuenta(id, plataforma, costoActual, periodoActual, vencimientoActual) {
             let fechaSugerida = '';
             if (vencimientoActual && vencimientoActual !== '---') {
@@ -1089,89 +1185,6 @@
             const { error } = await _supabase.from('Clientes').insert([datosCliente]);
             if(error) alert("Error al guardar cliente: " + error.message);
             else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
-        }
-
-        function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
-            let fechaSugerida = '';
-            if (vencimientoActual && vencimientoActual !== '---') {
-                let d = new Date(vencimientoActual);
-                d.setMonth(d.getMonth() + 1);
-                fechaSugerida = d.toISOString().split('T')[0];
-            } else {
-                let d = new Date();
-                d.setMonth(d.getMonth() + 1);
-                fechaSugerida = d.toISOString().split('T')[0];
-            }
-
-            document.getElementById('modal-titulo').textContent = `Renovar Perfil: ${perfil} (${plataforma})`;
-            document.getElementById('modal-contenido').innerHTML = `
-                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta y extiende la fecha de vencimiento 1 mes más:</p>
-                <input type="number" id="renova-cli-precio" value="${precioActual}" placeholder="Precio Venta (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <div class="text-[10px] text-purple-300 mb-3">Nuevo Vencimiento: <input type="date" id="renova-cli-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        async function guardarRenovacionCliente(id) {
-            const PrecioVenta = parseFloat(document.getElementById('renova-cli-precio').value) || 0;
-            const Vencimiento = document.getElementById('renova-cli-vence').value;
-
-            const datosRenovacion = { 'Precio Venta': PrecioVenta };
-            if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
-
-            const { error } = await _supabase.from('Clientes').update(datosRenovacion).eq('id', id);
-            if (error) alert("Error al renovar cliente: " + error.message);
-            else { alert("¡Perfil renovado con éxito!"); cerrarModal(); cargarSistema(); }
-        }
-
-        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento, notas = '') {
-            document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
-            document.getElementById('modal-contenido').innerHTML = `
-                <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <div class="grid grid-cols-2 gap-2 mb-2">
-                    <input type="text" id="edit-cli-pin" value="${pin}" placeholder="PIN" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                    <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                </div>
-                <textarea id="edit-cli-notas" placeholder="Notas u observaciones" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">${notas !== 'Sin notas' ? notas : ''}</textarea>
-                <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        async function guardarEdicionCliente(id) {
-            const Plataforma = document.getElementById('edit-cli-plat').value;
-            const CuentaMaestra = document.getElementById('edit-cli-cuenta').value;
-            const Perfil = document.getElementById('edit-cli-perfil').value;
-            const Cliente = document.getElementById('edit-cli-nombre').value;
-            const Celular = document.getElementById('edit-cli-celular').value;
-            const Pin = document.getElementById('edit-cli-pin').value;
-            const PrecioVenta = parseFloat(document.getElementById('edit-cli-precio').value) || 0;
-            const Vencimiento = document.getElementById('edit-cli-vence').value;
-            const Notas = document.getElementById('edit-cli-notas').value;
-
-            const datosEditados = { 
-                Plataforma, 
-                CuentaMaestra,
-                Perfil, 
-                Cliente, 
-                Celular, 
-                Pin, 
-                'Precio Venta': PrecioVenta,
-                Vencimiento,
-                Notas 
-            };
-
-            const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
-            if (error) alert("Error al actualizar cliente: " + error.message);
-            else { alert("¡Cliente actualizado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function cerrarModal() {
