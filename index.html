@@ -20,7 +20,7 @@
         body.theme-lila-blanco { background-color: #f8fafc; color: #1e1b4b; }
         body.theme-lila-blanco aside { background-color: #ffffff; border-right-color: #e2e8f0; }
         body.theme-lila-blanco .bg-card-pro { background-color: #ffffff !important; border-color: #e2e8f0 !important; color: #1e1b4b !important; }
-        body.theme-lila-blanco input, body.theme-lila-blanco select { background-color: #f1f5f9 !important; color: #1e1b4b !important; border-color: #cbd5e1 !important; }
+        body.theme-lila-blanco input, body.theme-lila-blanco select, body.theme-lila-blanco textarea { background-color: #f1f5f9 !important; color: #1e1b4b !important; border-color: #cbd5e1 !important; }
         body.theme-lila-blanco table th { color: #6b21a8 !important; }
         body.theme-lila-blanco table td { color: #334155 !important; }
     </style>
@@ -80,7 +80,7 @@
     <!-- Contenido Principal -->
     <main class="flex-1 p-6 md:p-8 overflow-y-auto">
         
-        <!-- Barra Superior PRO con Desplegable de Plataformas -->
+        <!-- Barra Superior PRO -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-[#151221] bg-card-pro border border-purple-900/30 p-4 rounded-2xl shadow-sm">
             <div class="flex items-center space-x-3 w-full md:w-80 bg-[#1a162b] border border-purple-900/40 px-3 py-2 rounded-xl">
                 <span class="text-purple-400">🔍</span>
@@ -90,7 +90,7 @@
             <div class="flex items-center space-x-3 w-full md:w-auto justify-end flex-wrap gap-2">
                 <!-- Desplegable de Todas las Plataformas -->
                 <select id="filtro-plataforma-select" onchange="filtrarPorPlataforma(this.value)" class="bg-[#1a162b] text-purple-200 text-xs px-3 py-2 rounded-xl border border-purple-900/40 focus:outline-none">
-                    <option value="todos">📺 Filtrar por Plataforma (Todas)</option>
+                    <option value="todos">📺 Plataforma (Todas)</option>
                     <option value="Netflix">Netflix</option>
                     <option value="Disney">Disney+</option>
                     <option value="Max">Max</option>
@@ -114,10 +114,12 @@
                     <option value="oscuro">💜 Femenino Oscuro</option>
                     <option value="blanco">🤍 Lila con Blanco</option>
                 </select>
-                <!-- Botón Exportar Reporte Excel -->
-                <button onclick="exportarReporteExcel()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/30 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1">
+
+                <!-- Botón Exportar Excel -->
+                <button onclick="exportarReporteExcel()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/35 hover:bg-emerald-600/30 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1">
                     <span>📊</span><span>Exportar Excel</span>
                 </button>
+
                 <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
                     + Registrar Cliente
                 </button>
@@ -268,7 +270,7 @@
             <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold">Perfiles y Gestión</h3>
-                    <p class="text-xs text-purple-300/70">Perfiles vendidos con método de pago Plin (BBVA).</p>
+                    <p class="text-xs text-purple-300/70">Perfiles vendidos con método de pago Plin (BBVA) y notas.</p>
                 </div>
                 <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
             </div>
@@ -284,11 +286,12 @@
                             <th class="pb-3 px-3">Pago (Plin/BBVA)</th>
                             <th class="pb-3 px-3">Precio Venta</th>
                             <th class="pb-3 px-3">Vencimiento</th>
+                            <th class="pb-3 px-3">Notas</th>
                             <th class="pb-3 px-3 text-right">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="perfiles-table-body">
-                        <tr><td colspan="9" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
+                        <tr><td colspan="10" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -311,8 +314,15 @@
         <!-- VISTA: RENOVACIONES -->
         <div id="vista-renovaciones" class="space-y-6 hidden">
             <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6">
-                <h3 class="text-lg font-bold mb-1">Renovaciones y Vencimientos</h3>
-                <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio.</p>
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold mb-1">Renovaciones y Vencimientos</h3>
+                        <p class="text-xs text-purple-300/70">Gestiona si el cliente renovó o no su servicio.</p>
+                    </div>
+                    <button onclick="enviarAlertaMasivaWhatsApp()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/35 hover:bg-emerald-600/30 text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center space-x-1.5">
+                        <span>💬</span><span>Enviar Cobro Masivo WhatsApp (Vencen hoy)</span>
+                    </button>
+                </div>
                 <div id="lista-renovaciones" class="space-y-3">
                     <p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>
                 </div>
@@ -360,7 +370,7 @@
         </div>
     </div>
 
-    <!-- Script Sincronizado PRO -->
+    <!-- Script Sincronizado ULTIMATE PRO -->
     <script>
         const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
@@ -491,6 +501,29 @@
             });
         }
 
+        function enviarAlertaMasivaWhatsApp() {
+            const hoy = new Date(); hoy.setHours(0,0,0,0);
+            const vencenHoy = globalClients.filter(c => {
+                const v = c.Vencimiento || c.vencimiento;
+                if (!v || v === '---') return false;
+                const vDate = new Date(v); vDate.setHours(0,0,0,0);
+                return vDate.getTime() === hoy.getTime();
+            });
+
+            if(vencenHoy.length === 0) {
+                alert("No hay clientes que venzan exactamente hoy para enviar recordatorios masivos.");
+                return;
+            }
+
+            vencenHoy.forEach(c => {
+                const cel = (c.Celular || c.celular || '').toString().replace(/\D/g,'');
+                const nom = c.Cliente || c.cliente || 'Cliente';
+                const plat = c.Plataforma || c.plataforma || 'servicio';
+                const msg = encodeURIComponent(`¡Hola ${nom}! Te escribo de PY STORE para recordarte que tu servicio de ${plat} vence el día de hoy. Puedes realizar tu pago por Plin (BBVA). ¡Esperamos tu renovación! 🚀`);
+                window.open(`https://wa.me/${cel}?text=${msg}`, '_blank');
+            });
+        }
+
         function togglePassword(id, claveReal) {
             const spanEl = document.getElementById(`pass-text-${id}`);
             const btnEl = document.getElementById(`pass-btn-${id}`);
@@ -504,9 +537,9 @@
         }
 
         function exportarReporteExcel() {
-            let csv = "Perfil,Plataforma,Cuenta Asignada,Cliente,Celular,PIN,MetodoPago,PrecioVenta,Vencimiento\n";
+            let csv = "Perfil,Plataforma,Cuenta Asignada,Cliente,Celular,PIN,MetodoPago,PrecioVenta,Vencimiento,Notas\n";
             globalClients.forEach(c => {
-                csv += `"${c.Perfil || c.perfil}","${c.Plataforma || c.plataforma}","${c.CuentaMaestra || c.cuenta_maestra || ''}","${c.Cliente || c.cliente}","${c.Celular || c.celular}","${c.Pin || c.pin}","Plin (BBVA)","S/ ${c['Precio Venta'] || c.PrecioVenta || c.precio || 0}","${c.Vencimiento || c.vencimiento}"\n`;
+                csv += `"${c.Perfil || c.perfil}","${c.Plataforma || c.plataforma}","${c.CuentaMaestra || c.cuenta_maestra || ''}","${c.Cliente || c.cliente}","${c.Celular || c.celular}","${c.Pin || c.pin}","Plin (BBVA)","S/ ${c['Precio Venta'] || c.PrecioVenta || c.precio || 0}","${c.Vencimiento || c.vencimiento}","${c.Notas || c.notas || ''}"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -636,22 +669,6 @@
                 widgetVenc.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-6">No hay vencimientos cercanos.</p>`;
             }
 
-            const widgetPlat = document.getElementById('widget-plataformas-resumen');
-            widgetPlat.innerHTML = '';
-            const conteoPlat = {};
-            globalClients.forEach(p => {
-                const plat = p.Plataforma || p.plataforma || 'Otros';
-                conteoPlat[plat] = (conteoPlat[plat] || 0) + 1;
-            });
-            for (const [plat, count] of Object.entries(conteoPlat)) {
-                widgetPlat.innerHTML += `
-                    <div class="bg-[#1a152d] p-2.5 rounded-xl flex justify-between items-center text-xs">
-                        <span class="font-bold flex items-center space-x-2"><span>📺</span> <span>${plat}</span></span>
-                        <span class="bg-purple-950 text-purple-300 px-2.5 py-0.5 rounded-full font-semibold">${count} perfiles activos</span>
-                    </div>
-                `;
-            }
-
             if(clients.length > 0) {
                 tablaClientes.innerHTML = '';
                 tablaPerfiles.innerHTML = '';
@@ -668,6 +685,7 @@
                     const pin = cli.Pin || cli.pin || '----';
                     const precio = parseFloat(cli['Precio Venta'] || cli.PrecioVenta || cli.precio || 0);
                     const vencimiento = cli.Vencimiento || cli.vencimiento || '---';
+                    const notas = cli.Notas || cli.notas || 'Sin notas';
                     const logoImg = obtenerLogo(plataforma);
 
                     const celularClean = celular.toString().replace(/\D/g,'');
@@ -702,6 +720,7 @@
                             <td class="py-3 px-3">${metodoPagoBadge}</td>
                             <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
                             <td class="py-3 px-3">${estadoVencimientoHtml}</td>
+                            <td class="py-3 px-3 text-purple-300/70 text-[11px]">${notas}</td>
                             <td class="py-3 px-3 text-right space-x-1">
                                 <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/30 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-lg text-[11px]">📋 Copiar</button>
                                 <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[11px] inline-flex items-center space-x-1"><span>💬 Cobrar</span></a>
@@ -719,9 +738,10 @@
                             <td class="py-3 px-3">${metodoPagoBadge}</td>
                             <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
                             <td class="py-3 px-3">${estadoVencimientoHtml}</td>
+                            <td class="py-3 px-3 text-purple-300/70 text-[11px]">${notas}</td>
                             <td class="py-3 px-3 text-right space-x-1">
                                 <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-[10px]">📋</button>
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-[10px]">✏️</button>
+                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}', '${notas}')" class="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-[10px]">✏️</button>
                                 <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded-lg text-[10px]">✅</button>
                             </td>
                         </tr>
@@ -734,6 +754,7 @@
                                 <div>
                                     <h4 class="font-bold text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
                                     <p class="text-[11px] text-purple-300/70">Cuenta: ${cuentaMaestra} | Pago: Plin (BBVA) | Vence: ${vencimiento}</p>
+                                    <p class="text-[10px] text-purple-400 mt-0.5">Nota: ${notas}</p>
                                 </div>
                             </div>
                             <div class="flex space-x-2">
@@ -755,15 +776,15 @@
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovar</button>
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
+                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}', '${notas}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
                                 <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
                             </div>
                         </div>
                     `;
                 });
             } else {
-                tablaClientes.innerHTML = `<tr><td colspan="9" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
-                tablaPerfiles.innerHTML = `<tr><td colspan="9" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                tablaClientes.innerHTML = `<tr><td colspan="10" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                tablaPerfiles.innerHTML = `<tr><td colspan="10" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
                 listaClientes.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
@@ -866,12 +887,8 @@
         async function marcarNoRenovado(id) {
             if (confirm("¿Estás segura de eliminar este perfil por no renovación?")) {
                 const { error } = await _supabase.from('Clientes').delete().eq('id', id);
-                if (error) {
-                    alert("Error al procesar: " + error.message);
-                } else {
-                    alert("Registro eliminado.");
-                    cargarSistema();
-                }
+                if (error) alert("Error al procesar: " + error.message);
+                else { alert("Registro eliminado."); cargarSistema(); }
             }
         }
 
@@ -906,17 +923,11 @@
             if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
 
             const { error } = await _supabase.from('Clientes').update(datosRenovacion).eq('id', id);
-
-            if (error) {
-                alert("Error al renovar cliente: " + error.message);
-            } else {
-                alert("¡Perfil renovado con éxito!");
-                cerrarModal();
-                cargarSistema();
-            }
+            if (error) alert("Error al renovar cliente: " + error.message);
+            else { alert("¡Perfil renovado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
-        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento) {
+        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento, notas = '') {
             document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
@@ -928,6 +939,7 @@
                     <input type="text" id="edit-cli-pin" value="${pin}" placeholder="PIN" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                     <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 </div>
+                <textarea id="edit-cli-notas" placeholder="Notas u observaciones (ej. Descuento especial)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">${notas !== 'Sin notas' ? notas : ''}</textarea>
                 <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                 <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
             `;
@@ -944,6 +956,7 @@
             const Pin = document.getElementById('edit-cli-pin').value;
             const PrecioVenta = parseFloat(document.getElementById('edit-cli-precio').value) || 0;
             const Vencimiento = document.getElementById('edit-cli-vence').value;
+            const Notas = document.getElementById('edit-cli-notas').value;
 
             const datosEditados = { 
                 Plataforma, 
@@ -953,18 +966,13 @@
                 Celular, 
                 Pin, 
                 'Precio Venta': PrecioVenta,
-                Vencimiento 
+                Vencimiento,
+                Notas 
             };
 
             const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
-
-            if (error) {
-                alert("Error al actualizar cliente: " + error.message);
-            } else {
-                alert("¡Cliente actualizado con éxito!");
-                cerrarModal();
-                cargarSistema();
-            }
+            if (error) alert("Error al actualizar cliente: " + error.message);
+            else { alert("¡Cliente actualizado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function abrirModalRenovarCuenta(id, plataforma, costoActual, periodoActual, vencimientoActual) {
@@ -998,14 +1006,8 @@
             if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
 
             const { error } = await _supabase.from('Cuenta Maestra').update(datosRenovacion).eq('id', id);
-
-            if (error) {
-                alert("Error al renovar: " + error.message);
-            } else {
-                alert("¡Cuenta renovada con éxito!");
-                cerrarModal();
-                cargarSistema();
-            }
+            if (error) alert("Error al renovar: " + error.message);
+            else { alert("¡Cuenta renovada con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function abrirModalCuenta() {
@@ -1021,7 +1023,7 @@
                     <div>Compra: <input type="date" id="cu-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                     <div>Vencimiento: <input type="date" id="cu-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                 </div>
-                <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
+                <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
@@ -1040,11 +1042,12 @@
                     <input type="number" id="cli-precio" placeholder="Precio venta (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 </div>
                 <div class="text-[11px] text-blue-400 bg-blue-950/40 p-2 rounded-xl">💳 Método de Pago: <b>Plin (BBVA)</b></div>
+                <textarea id="cli-notas" placeholder="Notas u observaciones (opcional)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white"></textarea>
                 <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
                     <div>Compra: <input type="date" id="cli-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                     <div>Vencimiento: <input type="date" id="cli-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
                 </div>
-                <button onclick="guardarClienteSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cliente</button>
+                <button onclick="guardarClienteSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cliente</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
@@ -1079,6 +1082,7 @@
             const Celular = document.getElementById('cli-celular').value;
             const Pin = document.getElementById('cli-pin').value;
             const PrecioVenta = parseFloat(document.getElementById('cli-precio').value) || 0;
+            const Notas = document.getElementById('cli-notas').value;
             const FechaCompra = document.getElementById('cli-fcompra').value;
             const Vencimiento = document.getElementById('cli-vence').value;
 
@@ -1092,6 +1096,7 @@
                 Celular, 
                 Pin, 
                 'Precio Venta': PrecioVenta,
+                Notas,
                 Vencimiento 
             };
             
