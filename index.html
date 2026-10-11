@@ -72,7 +72,7 @@
     <!-- Contenido Principal -->
     <main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#0b0914]">
         
-        <!-- Barra Superior de Acciones (Botón único arriba a la derecha) -->
+        <!-- Barra Superior de Acciones -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-[#151221] border border-purple-900/30 p-4 rounded-2xl">
             <div class="flex items-center space-x-3 w-full md:w-96 bg-[#1a162b] border border-purple-900/40 px-3 py-2 rounded-xl">
                 <span class="text-purple-400">🔍</span>
@@ -91,7 +91,7 @@
 
         <!-- VISTA: RESUMEN (Dashboard Principal) -->
         <div id="vista-resumen" class="space-y-8">
-            <!-- Banner Bienvenida (Limpio de botones repetidos) -->
+            <!-- Banner Bienvenida -->
             <div class="bg-gradient-to-r from-[#191428] via-[#1f1836] to-[#251b3d] border border-purple-900/40 rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-xl">
                 <div class="z-10 max-w-xl">
                     <span class="text-[11px] font-bold text-purple-400 tracking-widest uppercase">Tu negocio, en un vistazo</span>
@@ -108,11 +108,408 @@
                 </div>
             </div>
 
-            <!-- Tarjetas de Métricas -->
+            <!-- Tarjetas de Métricas (Restauradas) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
                     <p class="text-xs text-purple-400 uppercase font-medium">Perfiles Activos</p>
                     <h3 id="total-perfiles" class="text-3xl font-bold text-white mt-1">0</h3>
                     <p class="text-xs text-purple-300/60 mt-2">Actualmente en servicio</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                    <p class="text-xs text-purple-400 uppercase font-medium">Vencen en 7 días</p>
+                    <h3 id="expiring-soon" class="text-3xl font-bold text-amber-400 mt-1">0</h3>
+                    <p class="text-xs text-purple-300/60 mt-2">Requieren seguimiento</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                    <p class="text-xs text-purple-400 uppercase font-medium">Ventas Totales</p>
+                    <h3 id="month-sales" class="text-3xl font-bold text-emerald-400 mt-1">S/ 0.00</h3>
+                    <p class="text-xs text-purple-300/60 mt-2">Suma de perfiles</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                    <p class="text-xs text-purple-400 uppercase font-medium">Cuentas Maestras</p>
+                    <h3 id="total-cuentas" class="text-3xl font-bold text-white mt-1">0</h3>
+                    <p class="text-xs text-purple-300/60 mt-2">Plataformas activas</p>
+                </div>
+            </div>
+
+            <!-- Tabla de Cobros rápidos -->
+            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold text-white">Clientes y Cobros por WhatsApp</h3>
+                    <span class="text-xs text-purple-400">Recordatorios automáticos</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-purple-200">
+                        <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
+                            <tr>
+                                <th class="pb-3 px-3">Perfil</th>
+                                <th class="pb-3 px-3">Cliente</th>
+                                <th class="pb-3 px-3">Celular</th>
+                                <th class="pb-3 px-3">PIN</th>
+                                <th class="pb-3 px-3">Precio</th>
+                                <th class="pb-3 px-3">Vencimiento</th>
+                                <th class="pb-3 px-3 text-right">Acción de Cobro</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientes-table-body">
+                            <tr>
+                                <td colspan="7" class="py-4 text-center text-purple-400/60">Cargando datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA: CLIENTES -->
+        <div id="vista-clientes" class="space-y-6 hidden">
+            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Clientes</h3>
+                    <p class="text-xs text-purple-300/70">Personas que compran perfiles o servicios.</p>
+                </div>
+                <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
+            </div>
+            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
+                <div id="lista-clientes-completa" class="space-y-3">
+                    <p class="text-xs text-purple-400/60 text-center py-4">Cargando lista de clientes...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA: PERFILES -->
+        <div id="vista-perfiles" class="space-y-6 hidden">
+            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Perfiles</h3>
+                    <p class="text-xs text-purple-300/70">Perfiles vendidos o asignados a clientes.</p>
+                </div>
+                <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
+            </div>
+            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 overflow-x-auto">
+                <table class="w-full text-left text-xs text-purple-200">
+                    <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
+                        <tr>
+                            <th class="pb-3 px-3">Perfil</th>
+                            <th class="pb-3 px-3">Cliente</th>
+                            <th class="pb-3 px-3">Celular</th>
+                            <th class="pb-3 px-3">PIN</th>
+                            <th class="pb-3 px-3">Precio</th>
+                            <th class="pb-3 px-3">Vencimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="perfiles-table-body">
+                        <tr><td colspan="6" class="py-4 text-center text-purple-400/60">Cargando perfiles...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VISTA: CUENTAS -->
+        <div id="vista-cuentas" class="space-y-6 hidden">
+            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Cuentas Maestras</h3>
+                    <p class="text-xs text-purple-300/70">Correos principales de cada plataforma y proveedores.</p>
+                </div>
+                <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Nueva cuenta</button>
+            </div>
+            <div id="cuentas-grid-completo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="text-xs text-purple-400/60 text-center py-4">Cargando cuentas...</p>
+            </div>
+        </div>
+
+        <!-- VISTA: RENOVACIONES -->
+        <div id="vista-renovaciones" class="space-y-6 hidden">
+            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
+                <h3 class="text-lg font-bold text-white mb-1">Renovaciones y Vencimientos</h3>
+                <p class="text-xs text-purple-300/70 mb-4">Seguimiento de perfiles próximos a vencer.</p>
+                <div id="lista-renovaciones" class="space-y-3">
+                    <p class="text-xs text-purple-400/60 text-center py-4">No hay renovaciones pendientes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA: PLATAFORMAS -->
+        <div id="vista-plataformas" class="space-y-6 hidden">
+            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Plataformas</h3>
+                    <p class="text-xs text-purple-300/70">Servicios disponibles en tu tienda.</p>
+                </div>
+                <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Servicio</button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" id="plataformas-grid">
+                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
+                    <div class="w-12 h-12 bg-red-600/20 text-red-500 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">N</div>
+                    <h4 class="font-bold text-white text-xs">Netflix</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
+                    <div class="w-12 h-12 bg-blue-600/20 text-blue-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">D+</div>
+                    <h4 class="font-bold text-white text-xs">Disney+</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
+                    <div class="w-12 h-12 bg-cyan-600/20 text-cyan-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">C</div>
+                    <h4 class="font-bold text-white text-xs">Canva</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
+                    <div class="w-12 h-12 bg-purple-600/20 text-purple-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">M</div>
+                    <h4 class="font-bold text-white text-xs">Max</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Dinámico en Tonos Lila -->
+    <div id="modal-accion" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-[#161225] border border-purple-900/50 rounded-2xl p-6 w-full max-w-md shadow-2xl shadow-purple-950">
+            <h3 id="modal-titulo" class="text-base font-bold text-white mb-4">Acción</h3>
+            <div id="modal-contenido" class="space-y-3"></div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="cerrarModal()" class="px-4 py-2 rounded-xl text-xs bg-purple-950/60 hover:bg-purple-900/60 text-purple-300 border border-purple-800/30">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Sincronizado con Supabase -->
+    <script>
+        const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function cambiarVista(vista) {
+            ['resumen', 'clientes', 'perfiles', 'cuentas', 'renovaciones', 'plataformas'].forEach(v => {
+                document.getElementById(`vista-${v}`).classList.add('hidden');
+                document.getElementById(`nav-${v}`).classList.remove('active-tab');
+                document.getElementById(`nav-${v}`).classList.add('sidebar-item', 'text-purple-300');
+            });
+            document.getElementById(`vista-${vista}`).classList.remove('hidden');
+            document.getElementById(`nav-${vista}`).classList.add('active-tab');
+            document.getElementById(`nav-${vista}`).classList.remove('sidebar-item', 'text-purple-300');
+        }
+
+        async function cargarSistema() {
+            try {
+                // 1. Cargar Clientes / Perfiles
+                const { data: clients } = await _supabase.from('Clientes').select('*');
+                if (clients) {
+                    document.getElementById('total-perfiles').textContent = clients.length;
+                    const tablaClientes = document.getElementById('clientes-table-body');
+                    const tablaPerfiles = document.getElementById('perfiles-table-body');
+                    const listaClientes = document.getElementById('lista-clientes-completa');
+                    const listaRenovaciones = document.getElementById('lista-renovaciones');
+                    
+                    let ingresosTotales = 0;
+
+                    if(clients.length > 0) {
+                        tablaClientes.innerHTML = '';
+                        tablaPerfiles.innerHTML = '';
+                        listaClientes.innerHTML = '';
+                        listaRenovaciones.innerHTML = '';
+
+                        clients.forEach(cli => {
+                            const perfil = cli.Perfil || cli.perfil || 'Perfil';
+                            const nombre = cli.Cliente || cli.cliente || 'Cliente';
+                            const celular = cli.Celular || cli.celular || '999999999';
+                            const pin = cli.Pin || cli.pin || '----';
+                            const precio = parseFloat(cli.Precio || cli.precio || 0);
+                            const vencimiento = cli.Vencimiento || cli.vencimiento || '---';
+
+                            ingresosTotales += precio;
+
+                            const celularClean = celular.toString().replace(/\D/g,'');
+                            const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} (vence: ${vencimiento}). ¿Deseas continuar este mes?`);
+                            const whatsappUrl = `https://wa.me/${celularClean}?text=${mensaje}`;
+
+                            // Tabla Dashboard
+                            tablaClientes.innerHTML += `
+                                <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
+                                    <td class="py-3 px-3 font-semibold text-purple-300">${perfil}</td>
+                                    <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
+                                    <td class="py-3 px-3 text-purple-300/70">${celular}</td>
+                                    <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
+                                    <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
+                                    <td class="py-3 px-3 text-purple-300/70">${vencimiento}</td>
+                                    <td class="py-3 px-3 text-right">
+                                        <a href="${whatsappUrl}" target="_blank" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3 py-1.5 rounded-xl font-medium text-[11px] inline-flex items-center space-x-1 shadow-md shadow-emerald-900/30 transition">
+                                            <span>💬 Cobrar</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `;
+
+                            // Tabla Vista Perfiles
+                            tablaPerfiles.innerHTML += `
+                                <tr class="border-b border-purple-900/20">
+                                    <td class="py-3 px-3 font-semibold text-purple-300">${perfil}</td>
+                                    <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
+                                    <td class="py-3 px-3 text-purple-300/70">${celular}</td>
+                                    <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
+                                    <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
+                                    <td class="py-3 px-3 text-purple-300/70">${vencimiento}</td>
+                                </tr>
+                            `;
+
+                            // Vista Clientes
+                            listaClientes.innerHTML += `
+                                <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-bold text-white text-xs">${nombre}</h4>
+                                        <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Perfil: ${perfil}</p>
+                                    </div>
+                                    <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
+                                </div>
+                            `;
+
+                            // Vista Renovaciones
+                            listaRenovaciones.innerHTML += `
+                                <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-bold text-white text-xs">${nombre} (${perfil})</h4>
+                                        <p class="text-[11px] text-amber-400">Vence: ${vencimiento}</p>
+                                    </div>
+                                    <a href="${whatsappUrl}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-xl text-xs font-medium">Recordar cobro</a>
+                                </div>
+                            `;
+                        });
+                        document.getElementById('month-sales').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
+                    } else {
+                        tablaClientes.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-purple-400/60">No hay perfiles registrados aún.</td></tr>`;
+                    }
+                }
+
+                // 2. Cargar Cuentas Maestras
+                const { data: cuentas } = await _supabase.from('Cuenta Maestra').select('*');
+                const contenedorCuentas = document.getElementById('cuentas-container');
+                const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
+                
+                if (cuentas && cuentas.length > 0) {
+                    document.getElementById('total-cuentas').textContent = cuentas.length;
+                    
+                    let htmlCuentas = '';
+                    cuentas.forEach(sub => {
+                        const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
+                        const correo = sub.Correo || sub.correo || 'Sin correo';
+                        const password = sub.Contraseña || sub.contrasena || sub.password || '••••••';
+                        const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
+                        const costo = parseFloat(sub.Costo || sub.costo || 0);
+                        const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
+                        
+                        htmlCuentas += `
+                            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="bg-gradient-to-tr from-purple-600 to-pink-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-md">
+                                            ${plataforma.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-white text-sm">${plataforma}</h4>
+                                            <p class="text-xs text-purple-300/70">${correo}</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
+                                </div>
+                                <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
+                                    <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
+                                    <div class="flex justify-between text-purple-300/70"><span>Vencimiento:</span> <span class="text-amber-400 font-semibold">${vencimientoCuenta}</span></div>
+                                </div>
+                                <div class="flex justify-between items-center text-xs text-purple-300">
+                                    <span>Pass: <code class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">${password}</code></span>
+                                    <span class="text-emerald-400 font-medium text-[11px]">Activa</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = htmlCuentas;
+                }
+            } catch (err) {
+                console.error("Error general:", err);
+            }
+        }
+
+        function abrirModalCuenta() {
+            document.getElementById('modal-titulo').textContent = "Registrar Cuenta Maestra";
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-pass" placeholder="Contraseña de acceso" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-prov" placeholder="Proveedor (ej. YO - BOLIVIA, KIRA)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="number" id="cu-costo" placeholder="Costo del proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
+                    <div>Compra: <input type="date" id="cu-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                    <div>Vencimiento: <input type="date" id="cu-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                </div>
+                <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        function abrirModalCliente() {
+            document.getElementById('modal-titulo').textContent = "Registrar Cliente y Perfil";
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="cli-perfil" placeholder="Perfil (ej. Perfil 1, Myra)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="cli-pin" placeholder="PIN (ej. 1234)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="cli-precio" placeholder="Precio venta (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
+                    <div>Compra: <input type="date" id="cli-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                    <div>Vencimiento: <input type="date" id="cli-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                </div>
+                <button onclick="guardarClienteSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cliente</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarCuentaSupabase() {
+            const Plataforma = document.getElementById('cu-plat').value;
+            const Correo = document.getElementById('cu-correo').value;
+            const Contraseña = document.getElementById('cu-pass').value;
+            const Proveedor = document.getElementById('cu-prov').value;
+            const Costo = parseFloat(document.getElementById('cu-costo').value) || 0;
+            const FechaCompra = document.getElementById('cu-fcompra').value;
+            const Vencimiento = document.getElementById('cu-vence').value;
+
+            if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
+
+            const { error } = await _supabase.from('Cuenta Maestra').insert([{ Plataforma, Correo, Contraseña, Proveedor, Costo, FechaCompra, Vencimiento }]);
+            if(error) alert("Error al guardar: " + error.message);
+            else { alert("¡Cuenta maestra guardada con éxito!"); cerrarModal(); cargarSistema(); }
+        }
+
+        async function guardarClienteSupabase() {
+            const Perfil = document.getElementById('cli-perfil').value;
+            const Cliente = document.getElementById('cli-nombre').value;
+            const Celular = document.getElementById('cli-celular').value;
+            const Pin = document.getElementById('cli-pin').value;
+            const Precio = parseFloat(document.getElementById('cli-precio').value) || 0;
+            const FechaCompra = document.getElementById('cli-fcompra').value;
+            const Vencimiento = document.getElementById('cli-vence').value;
+
+            if(!Cliente || !Perfil) { alert("Ingresa el perfil y el cliente"); return; }
+
+            const { error } = await _supabase.from('Clientes').insert([{ Perfil, Cliente, Celular, Pin, Precio, FechaCompra, Vencimiento }]);
+            if(error) alert("Error al guardar: " + error.message);
+            else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-accion').classList.remove('flex');
+            document.getElementById('modal-accion').classList.add('hidden');
+        }
+
+        cargarSistema();
+    </script>
+</body>
+</html>
