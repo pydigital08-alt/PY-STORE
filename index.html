@@ -89,11 +89,11 @@
 
         <!-- VISTA: RESUMEN (Centro Financiero y de Métricas) -->
         <div id="vista-resumen" class="space-y-8">
-            <!-- Banner Bienvenida -->
+            <!-- Banner Bienvenida Dinámico -->
             <div class="bg-gradient-to-r from-[#191428] via-[#1f1836] to-[#251b3d] border border-purple-900/40 rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-xl">
                 <div class="z-10 max-w-xl">
-                    <span class="text-[11px] font-bold text-purple-400 tracking-widest uppercase">Tu negocio, en un vistazo</span>
-                    <h2 class="text-3xl font-extrabold text-white mt-1 mb-2">Hola, Yesabella. Hagamos crecer tu tienda.</h2>
+                    <span class="text-[11px] font-bold text-purple-400 tracking-widest uppercase">Todas tus plataformas en un solo lugar</span>
+                    <h2 id="saludo-bienvenida" class="text-3xl font-extrabold text-white mt-1 mb-2">¡Buenas tardes, PY Digital! 😊</h2>
                     <p class="text-sm text-purple-200/70">Controla tus ingresos, ganancia real frente a proveedores y vencimientos en tiempo real.</p>
                     <div class="flex flex-wrap gap-3 mt-6">
                         <button onclick="abrirModalCuenta()" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition">+ Crear cuenta</button>
@@ -328,6 +328,19 @@
         let globalClients = [];
         let globalCuentas = [];
 
+        // Saludo dinámico según la hora del día
+        function actualizarSaludo() {
+            const hora = new Date().getHours();
+            let saludo = "¡Buenas tardes, PY Digital! 😊";
+            if (hora >= 5 && hora < 12) {
+                saludo = "¡Buenos días, PY Digital! 😊";
+            } else if (hora >= 18 || hora < 5) {
+                saludo = "¡Buenas noches, PY Digital! 😊";
+            }
+            const el = document.getElementById('saludo-bienvenida');
+            if (el) el.textContent = saludo;
+        }
+
         function obtenerLogo(plataforma) {
             if (!plataforma) return 'logo.png';
             const p = plataforma.toLowerCase();
@@ -384,6 +397,7 @@
         }
 
         async function cargarSistema() {
+            actualizarSaludo();
             try {
                 const { data: clients } = await _supabase.from('Clientes').select('*');
                 const { data: cuentas } = await _supabase.from('Cuenta Maestra').select('*');
