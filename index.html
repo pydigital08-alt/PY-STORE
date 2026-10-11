@@ -416,19 +416,19 @@
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Cuentas Maestras (Muestra costo, clave y fechas de compra/vencimiento)
+            // 2. Cuentas Maestras (Muestra costo, periodo actual y botón de actualizar para el nuevo mes)
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (cuentas.length > 0) {
                 document.getElementById('total-cuentas').textContent = cuentas.length;
                 let htmlCuentas = '';
                 cuentas.forEach(sub => {
+                    const id = sub.id || sub.ID;
                     const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
                     const correo = sub.Correo || sub.correo || 'Sin correo';
                     const clave = sub.Clave || sub.clave || '••••••';
                     const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
                     const costo = parseFloat(sub.Costo || sub.costo || 0);
-                    const fechaCompra = sub.FechaCompra || sub.fecha_compra || '---';
-                    const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
+                    const periodo = sub.Periodo || sub.periodo || 'Mes Actual';
                     const logoImg = obtenerLogo(plataforma);
                     
                     htmlCuentas += `
@@ -444,13 +444,12 @@
                                 <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
                             </div>
                             <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
+                                <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="text-purple-200 font-semibold">${periodo}</span></div>
                                 <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
-                                <div class="flex justify-between text-purple-300/70"><span>Compra:</span> <span class="text-purple-200">${fechaCompra}</span></div>
-                                <div class="flex justify-between text-purple-300/70"><span>Vencimiento:</span> <span class="text-amber-400 font-semibold">${vencimientoCuenta}</span></div>
                             </div>
                             <div class="flex justify-between items-center text-xs text-purple-300">
                                 <span>Pass: <code class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">${clave}</code></span>
-                                <span class="text-emerald-400 font-medium text-[11px]">Activa</span>
+                                <button onclick="abrirModalRenovarCuenta('${id}', '${plataforma}', '${costo}', '${periodo}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🔄 Renovar / Nuevo Mes</button>
                             </div>
                         </div>
                     `;
@@ -494,6 +493,35 @@
             }
         }
 
+        function abrirModalRenovarCuenta(id, plataforma, costoActual, periodoActual) {
+            document.getElementById('modal-titulo').textContent = `Renovar ${plataforma} (Nuevo Mes)`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <p class="text-xs text-purple-300 mb-2">Registra el nuevo periodo (ej. Noviembre 2026) y el costo actualizado del proveedor para este mes:</p>
+                <input type="text" id="renova-periodo" placeholder="Nuevo periodo (ej. Noviembre 2026)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="number" id="renova-costo" value="${costoActual}" placeholder="Costo para este mes (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <button onclick="guardarRenovacionCuenta('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Renovación</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarRenovacionCuenta(id) {
+            const Periodo = document.getElementById('renova-periodo').value;
+            const Costo = parseFloat(document.getElementById('renova-costo').value) || 0;
+
+            if(!Periodo) { alert("Ingresa el periodo o mes"); return; }
+
+            const { error } = await _supabase.from('Cuenta Maestra').update({ Periodo, Costo }).eq('id', id);
+
+            if (error) {
+                alert("Error al renovar cuenta: " + error.message);
+            } else {
+                alert("¡Cuenta renovada para el nuevo periodo con éxito!");
+                cerrarModal();
+                cargarSistema();
+            }
+        }
+
         function filtrarDatos() {
             const query = document.getElementById('input-buscador').value.toLowerCase();
             
@@ -521,11 +549,8 @@
                 <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cu-pass" placeholder="Contraseña (Clave)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cu-prov" placeholder="Proveedor (ej. YO)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-periodo" placeholder="Periodo / Mes (ej. Octubre 2026)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="number" id="cu-costo" placeholder="Costo proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
-                    <div>Compra: <input type="date" id="cu-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                    <div>Vencimiento: <input type="date" id="cu-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                </div>
                 <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
@@ -557,9 +582,8 @@
             const Correo = document.getElementById('cu-correo').value;
             const Clave = document.getElementById('cu-pass').value;
             const Proveedor = document.getElementById('cu-prov').value;
+            const Periodo = document.getElementById('cu-periodo').value;
             const Costo = parseFloat(document.getElementById('cu-costo').value) || 0;
-            const FechaCompra = document.getElementById('cu-fcompra').value;
-            const Vencimiento = document.getElementById('cu-vence').value;
 
             if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
@@ -568,24 +592,20 @@
                 Correo, 
                 Clave, 
                 Proveedor, 
+                Periodo,
                 Costo 
             };
-
-            if (FechaCompra) datosCuenta['FechaCompra'] = FechaCompra;
-            if (Vencimiento) datosCuenta['Vencimiento'] = Vencimiento;
 
             const { error } = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
 
             if(error) {
-                // Si faltara crear las columnas de fecha en Supabase, reintentamos sin ellas para no interrumpirte
-                if(error.message.includes('FechaCompra') || error.message.includes('Vencimiento')) {
-                    delete datosCuenta['FechaCompra'];
-                    delete datosCuenta['Vencimiento'];
+                if(error.message.includes('Periodo')) {
+                    delete datosCuenta['Periodo'];
                     let segundoIntento = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
                     if(segundoIntento.error) {
                         alert("Error al guardar: " + segundoIntento.error.message);
                     } else {
-                        alert("¡Cuenta guardada con éxito! (Nota: Añade las columnas FechaCompra y Vencimiento en Supabase si deseas guardarlas).");
+                        alert("¡Cuenta guardada con éxito! (Nota: Añade la columna 'Periodo' en Supabase si deseas guardar el mes).");
                         cerrarModal();
                         cargarSistema();
                     }
@@ -620,10 +640,6 @@
             document.getElementById('modal-accion').classList.add('hidden');
         }
 
-        cargarSistema();
-    </script>
-</body>
-</html>
         cargarSistema();
     </script>
 </body>
