@@ -179,8 +179,8 @@
         <div id="vista-perfiles" class="space-y-6 hidden">
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-bold text-white">Perfiles</h3>
-                    <p class="text-xs text-purple-300/70">Perfiles vendidos o asignados a clientes con su respectiva plataforma.</p>
+                    <h3 class="text-lg font-bold text-white">Perfiles y Gestión</h3>
+                    <p class="text-xs text-purple-300/70">Perfiles vendidos con opción de editar o renovar mes.</p>
                 </div>
                 <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
             </div>
@@ -194,10 +194,11 @@
                             <th class="pb-3 px-3">PIN</th>
                             <th class="pb-3 px-3">Precio Venta</th>
                             <th class="pb-3 px-3">Vencimiento</th>
+                            <th class="pb-3 px-3 text-right">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="perfiles-table-body">
-                        <tr><td colspan="6" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
+                        <tr><td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -221,7 +222,7 @@
         <div id="vista-renovaciones" class="space-y-6 hidden">
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
                 <h3 class="text-lg font-bold text-white mb-1">Renovaciones y Vencimientos</h3>
-                <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio.</p>
+                <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio, actualiza precios y extiende fechas.</p>
                 <div id="lista-renovaciones" class="space-y-3">
                     <p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>
                 </div>
@@ -302,6 +303,28 @@
             return 'logo.png';
         }
 
+        function calcularEstadoVencimiento(fechaStr) {
+            if (!fechaStr || fechaStr === '---') return '<span class="text-purple-400/60">---</span>';
+            
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            const vencimiento = new Date(fechaStr);
+            vencimiento.setHours(0,0,0,0);
+
+            const diferenciaTiempo = vencimiento - hoy;
+            const diasRestantes = Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24));
+
+            if (diasRestantes < 0) {
+                return `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-full font-bold text-[11px] inline-block">¡Ya venció!</span>`;
+            } else if (diasRestantes === 0) {
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold text-[11px] inline-block">Vence hoy</span>`;
+            } else if (diasRestantes <= 7) {
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-semibold text-[11px] inline-block">Quedan ${diasRestantes} días</span>`;
+            } else {
+                return `<span class="text-emerald-400 font-medium">Quedan ${diasRestantes} días</span>`;
+            }
+        }
+
         function cambiarVista(vista) {
             ['resumen', 'clientes', 'perfiles', 'cuentas', 'renovaciones', 'plataformas'].forEach(v => {
                 document.getElementById(`vista-${v}`).classList.add('hidden');
@@ -328,7 +351,6 @@
         }
 
         function renderizarDatos(clients, cuentas) {
-            // 1. Clientes / Perfiles
             document.getElementById('total-perfiles').textContent = clients.length;
             const tablaClientes = document.getElementById('clientes-table-body');
             const tablaPerfiles = document.getElementById('perfiles-table-body');
@@ -336,6 +358,7 @@
             const listaRenovaciones = document.getElementById('lista-renovaciones');
             
             let ingresosTotales = 0;
+            let vencenProntoCount = 0;
 
             if(clients.length > 0) {
                 tablaClientes.innerHTML = '';
@@ -356,6 +379,13 @@
 
                     ingresosTotales += precio;
 
+                    if (vencimiento && vencimiento !== '---') {
+                        const hoy = new Date(); hoy.setHours(0,0,0,0);
+                        const vDate = new Date(vencimiento); vDate.setHours(0,0,0,0);
+                        const dias = Math.ceil((vDate - hoy) / (1000 * 60 * 60 * 24));
+                        if (dias >= 0 && dias <= 7) vencenProntoCount++;
+                    }
+
                     const celularClean = celular.toString().replace(/\D/g,'');
                     const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} de ${plataforma} (vence: ${vencimiento}). ¿Deseas continuar este mes?`);
                     const whatsappUrl = `https://wa.me/${celularClean}?text=${mensaje}`;
@@ -370,6 +400,8 @@
                         </div>
                     `;
 
+                    const estadoVencimientoHtml = calcularEstadoVencimiento(vencimiento);
+
                     tablaClientes.innerHTML += `
                         <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
                             <td class="py-3 px-3">${colPerfilHtml}</td>
@@ -377,7 +409,7 @@
                             <td class="py-3 px-3 text-purple-300/70">${celular}</td>
                             <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
                             <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
-                            <td class="py-3 px-3 text-purple-300/70">${vencimiento}</td>
+                            <td class="py-3 px-3">${estadoVencimientoHtml}</td>
                             <td class="py-3 px-3 text-right">
                                 <a href="${whatsappUrl}" target="_blank" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3 py-1.5 rounded-xl font-medium text-[11px] inline-flex items-center space-x-1 shadow-md shadow-emerald-900/30 transition">
                                     <span>💬 Cobrar</span>
@@ -387,13 +419,17 @@
                     `;
 
                     tablaPerfiles.innerHTML += `
-                        <tr class="border-b border-purple-900/20">
+                        <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
                             <td class="py-3 px-3">${colPerfilHtml}</td>
                             <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
                             <td class="py-3 px-3 text-purple-300/70">${celular}</td>
                             <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
                             <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
-                            <td class="py-3 px-3 text-purple-300/70">${vencimiento}</td>
+                            <td class="py-3 px-3">${estadoVencimientoHtml}</td>
+                            <td class="py-3 px-3 text-right space-x-1">
+                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-lg text-[11px] font-semibold transition">✏️ Editar</button>
+                                <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-lg text-[11px] font-semibold transition">✅ Renovar</button>
+                            </td>
                         </tr>
                     `;
 
@@ -403,7 +439,7 @@
                                 <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
                                 <div>
                                     <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
-                                    <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Pago: S/ ${precio.toFixed(2)}</p>
+                                    <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Pago: S/ ${precio.toFixed(2)} | Vence: ${vencimiento}</p>
                                 </div>
                             </div>
                             <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
@@ -416,21 +452,22 @@
                                 <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
                                 <div>
                                     <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
-                                    <p class="text-[11px] text-amber-400 mt-0.5">Vence: ${vencimiento} | Monto: S/ ${precio.toFixed(2)}</p>
+                                    <p class="text-[11px] text-amber-400 mt-0.5">Vencimiento: ${vencimiento} (${estadoVencimientoHtml})</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <button onclick="marcarRenovado('${id}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovó</button>
-                                <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
+                                <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovar</button>
+                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
                                 <a href="${whatsappUrl}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">WhatsApp</a>
                             </div>
                         </div>
                     `;
                 });
                 document.getElementById('month-sales').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
+                document.getElementById('expiring-soon').textContent = vencenProntoCount;
             } else {
                 tablaClientes.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
-                tablaPerfiles.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                tablaPerfiles.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
                 listaClientes.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
@@ -483,36 +520,92 @@
             }
         }
 
-        async function marcarRenovado(id, fechaActual) {
-            let nuevaFecha;
-            if (fechaActual && fechaActual !== '---') {
-                let d = new Date(fechaActual);
+        function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
+            let fechaSugerida = '';
+            if (vencimientoActual && vencimientoActual !== '---') {
+                let d = new Date(vencimientoActual);
                 d.setMonth(d.getMonth() + 1);
-                nuevaFecha = d.toISOString().split('T')[0];
+                fechaSugerida = d.toISOString().split('T')[0];
             } else {
                 let d = new Date();
                 d.setMonth(d.getMonth() + 1);
-                nuevaFecha = d.toISOString().split('T')[0];
+                fechaSugerida = d.toISOString().split('T')[0];
             }
 
-            const { error } = await _supabase.from('Clientes').update({ Vencimiento: nuevaFecha }).eq('id', id);
+            document.getElementById('modal-titulo').textContent = `Renovar Perfil: ${perfil} (${plataforma})`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta (por si aumentó este mes) y extiende la fecha de vencimiento 1 mes más:</p>
+                <input type="number" id="renova-cli-precio" value="${precioActual}" placeholder="Precio Venta (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="text-[10px] text-purple-300 mb-3">Nuevo Vencimiento: <input type="date" id="renova-cli-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarRenovacionCliente(id) {
+            const PrecioVenta = parseFloat(document.getElementById('renova-cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('renova-cli-vence.value') || document.getElementById('renova-cli-vence').value;
+
+            const datosRenovacion = { 'Precio Venta': PrecioVenta };
+            if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
+
+            const { error } = await _supabase.from('Clientes').update(datosRenovacion).eq('id', id);
+
             if (error) {
-                alert("Error al actualizar renovación: " + error.message);
+                alert("Error al renovar cliente: " + error.message);
             } else {
-                alert("¡Renovación exitosa! Se actualizó la fecha 1 mes más.");
+                alert("¡Perfil renovado con éxito para el nuevo mes!");
+                cerrarModal();
                 cargarSistema();
             }
         }
 
-        async function marcarNoRenovado(id) {
-            if (confirm("¿Estás segura de eliminar o marcar este perfil como no renovado?")) {
-                const { error } = await _supabase.from('Clientes').delete().eq('id', id);
-                if (error) {
-                    alert("Error al procesar: " + error.message);
-                } else {
-                    alert("Registro actualizado.");
-                    cargarSistema();
-                }
+        function abrirModalEditarCliente(id, plat, perfil, cliente, celular, pin, precio, vencimiento) {
+            document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <input type="text" id="edit-cli-pin" value="${pin}" placeholder="PIN" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarEdicionCliente(id) {
+            const Plataforma = document.getElementById('edit-cli-plat').value;
+            const Perfil = document.getElementById('edit-cli-perfil').value;
+            const Cliente = document.getElementById('edit-cli-nombre').value;
+            const Celular = document.getElementById('edit-cli-celular').value;
+            const Pin = document.getElementById('edit-cli-pin').value;
+            const PrecioVenta = parseFloat(document.getElementById('edit-cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('edit-cli-vence').value;
+
+            const datosEditados = { 
+                Plataforma, 
+                Perfil, 
+                Cliente, 
+                Celular, 
+                Pin, 
+                'Precio Venta': PrecioVenta,
+                Vencimiento 
+            };
+
+            const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
+
+            if (error) {
+                alert("Error al actualizar cliente: " + error.message);
+            } else {
+                alert("¡Cliente actualizado con éxito!");
+                cerrarModal();
+                cargarSistema();
             }
         }
 
@@ -698,7 +791,6 @@
             const { error } = await _supabase.from('Clientes').insert([datosCliente]);
 
             if(error) {
-                // Respaldo por si alguna columna de fecha aún no está creada en Supabase
                 delete datosCliente['Fecha Compra'];
                 delete datosCliente['Vencimiento'];
                 let segundoIntento = await _supabase.from('Clientes').insert([datosCliente]);
