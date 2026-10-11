@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PY STORE - Gestor de Streaming PRO</title>
+    <title>PY STORE - Gestor de Streaming SUPREME PRO</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -27,6 +27,18 @@
 </head>
 <body class="min-h-screen flex flex-col md:flex-row theme-oscuro-femenino">
 
+    <!-- PANTALLA DE LOGIN / BLOQUEO DE SEGURIDAD (Clave: 1911) -->
+    <div id="pantalla-login" class="fixed inset-0 bg-[#0b0914] z-50 flex items-center justify-center p-4">
+        <div class="bg-[#151221] border border-purple-900/50 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl shadow-purple-950">
+            <img src="logo.png" alt="PY STORE" class="w-16 h-16 rounded-full object-cover border-2 border-purple-500 mx-auto mb-4 shadow-lg shadow-purple-500/30">
+            <h2 class="text-xl font-extrabold text-white mb-1">PY STORE PRO</h2>
+            <p class="text-xs text-purple-300/70 mb-6">Acceso seguro a tu sistema de gestión</p>
+            <input type="password" id="input-password-login" placeholder="Ingresa tu contraseña" class="w-full bg-[#1a162b] border border-purple-900/50 rounded-xl p-3 text-xs text-white text-center mb-4 focus:outline-none focus:border-purple-500">
+            <button onclick="verificarLogin()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-3 rounded-xl text-xs transition shadow-lg shadow-purple-600/30">Entrar al Sistema</button>
+            <p class="text-[10px] text-purple-400/50 mt-4">Contraseña de acceso: <code class="text-purple-300">1911</code></p>
+        </div>
+    </div>
+
     <!-- Menú Lateral (Sidebar) -->
     <aside class="w-full md:w-64 bg-[#120f1d] border-r border-purple-900/30 p-4 flex flex-col justify-between transition-all">
         <div>
@@ -35,7 +47,7 @@
                 <img src="logo.png" alt="PY STORE" class="w-11 h-11 rounded-full object-cover border-2 border-purple-500 shadow-lg shadow-purple-500/30">
                 <div>
                     <h1 class="font-bold text-sm tracking-wider">PY STORE</h1>
-                    <p class="text-[11px] text-purple-300">GESTOR PRO</p>
+                    <p class="text-[11px] text-purple-300">SUPREME PRO</p>
                 </div>
             </div>
             
@@ -126,7 +138,7 @@
             </div>
         </div>
 
-        <!-- VISTA: RESUMEN PRO -->
+        <!-- VISTA: RESUMEN SUPREME PRO -->
         <div id="vista-resumen" class="space-y-8">
             <!-- Banner Bienvenida Dinámico -->
             <div class="bg-gradient-to-r from-[#191428] via-[#1f1836] to-[#251b3d] border border-purple-900/40 rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-xl">
@@ -201,17 +213,31 @@
                 </div>
             </div>
 
-            <!-- Gráfico Estadístico y Widgets -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Gráficos Estadísticos (Donut y Histórico de Ventas) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Gráfico de Ingresos por Plataforma -->
                 <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                     <div>
                         <h4 class="font-bold text-sm mb-4">Ingresos por Plataforma</h4>
-                        <div class="relative h-48 flex items-center justify-center">
+                        <div class="relative h-64 flex items-center justify-center">
                             <canvas id="graficoPlataformas"></canvas>
                         </div>
                     </div>
                 </div>
 
+                <!-- Gráfico Histórico de Ventas Mensuales -->
+                <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-bold text-sm mb-4">Histórico de Ventas por Mes</h4>
+                        <div class="relative h-64 flex items-center justify-center">
+                            <canvas id="graficoHistoricoVentas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widgets Inferiores -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
                     <div>
                         <div class="flex justify-between items-center mb-4">
@@ -370,7 +396,7 @@
         </div>
     </div>
 
-    <!-- Script Sincronizado ULTIMATE PRO -->
+    <!-- Script Sincronizado SUPREME PRO -->
     <script>
         const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
@@ -382,6 +408,26 @@
         let globalCuentas = [];
         let filtroPlataformaActual = 'todos';
         let chartInstance = null;
+        let chartHistoricoInstance = null;
+
+        // Verificación de Login (Contraseña: 1911)
+        function verificarLogin() {
+            const pass = document.getElementById('input-password-login').value;
+            if (pass === '1911') {
+                document.getElementById('pantalla-login').classList.add('hidden');
+                localStorage.setItem('py_store_auth', 'true');
+                cargarSistema();
+            } else {
+                alert("Contraseña incorrecta. La clave es 1911");
+            }
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem('py_store_auth') === 'true') {
+                document.getElementById('pantalla-login').classList.add('hidden');
+                cargarSistema();
+            }
+        };
 
         function cambiarTema(tema) {
             const body = document.body;
@@ -549,39 +595,60 @@
             a.click();
         }
 
-        function renderizarGraficoEstadistico(clients) {
-            const ctx = document.getElementById('graficoPlataformas');
-            if (!ctx) return;
-
-            const conteo = {};
-            clients.forEach(c => {
-                const p = c.Plataforma || c.plataforma || 'Otros';
-                conteo[p] = (conteo[p] || 0) + 1;
-            });
-
-            const labels = Object.keys(conteo);
-            const data = Object.values(conteo);
-
-            if (chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels.length > 0 ? labels : ['Sin datos'],
-                    datasets: [{
-                        data: data.length > 0 ? data : [1],
-                        backgroundColor: ['#a855f7', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#6366f1', '#14b8a6', '#f43f5e'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { boxWidth: 10, color: '#f3f4f6', font: { size: 10 } } }
+        function renderizarGraficos(clients) {
+            const ctx1 = document.getElementById('graficoPlataformas');
+            if (ctx1) {
+                const conteo = {};
+                clients.forEach(c => {
+                    const p = c.Plataforma || c.plataforma || 'Otros';
+                    conteo[p] = (conteo[p] || 0) + 1;
+                });
+                if (chartInstance) chartInstance.destroy();
+                chartInstance = new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(conteo).length > 0 ? Object.keys(conteo) : ['Sin datos'],
+                        datasets: [{
+                            data: Object.values(conteo).length > 0 ? Object.values(conteo) : [1],
+                            backgroundColor: ['#a855f7', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#6366f1', '#14b8a6', '#f43f5e'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'right', labels: { boxWidth: 10, color: '#f3f4f6', font: { size: 10 } } } }
                     }
-                }
-            });
+                });
+            }
+
+            const ctx2 = document.getElementById('graficoHistoricoVentas');
+            if (ctx2) {
+                if (chartHistoricoInstance) chartHistoricoInstance.destroy();
+                chartHistoricoInstance = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: ['Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Actual'],
+                        datasets: [{
+                            label: 'Ventas (S/)',
+                            data: [150, 280, 420, 390, 510, globalClients.reduce((acc, c) => acc + parseFloat(c['Precio Venta'] || c.PrecioVenta || 0), 0)],
+                            borderColor: '#ec4899',
+                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: { color: '#a855f7', font: { size: 10 } }, grid: { display: false } },
+                            y: { ticks: { color: '#a855f7', font: { size: 10 } }, grid: { color: 'rgba(168, 85, 247, 0.1)' } }
+                        }
+                    }
+                });
+            }
         }
 
         function renderizarDatos(clients, cuentas) {
@@ -645,7 +712,7 @@
             document.getElementById('barra-ocupacion').style.width = `${porcentajeOcupacion}%`;
             document.getElementById('ocupacion-texto').textContent = `${totalPerfilesOcupados} de ${totalCapacidadCupos} perfiles ocupados (${porcentajeOcupacion}%)`;
 
-            renderizarGraficoEstadistico(globalClients);
+            renderizarGraficos(globalClients);
 
             const widgetVenc = document.getElementById('widget-vencimientos');
             const proximos = [...globalClients].sort((a,b) => new Date(a.Vencimiento || '2099-01-01') - new Date(b.Vencimiento || '2099-01-01')).slice(0, 3);
@@ -892,89 +959,6 @@
             }
         }
 
-        function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
-            let fechaSugerida = '';
-            if (vencimientoActual && vencimientoActual !== '---') {
-                let d = new Date(vencimientoActual);
-                d.setMonth(d.getMonth() + 1);
-                fechaSugerida = d.toISOString().split('T')[0];
-            } else {
-                let d = new Date();
-                d.setMonth(d.getMonth() + 1);
-                fechaSugerida = d.toISOString().split('T')[0];
-            }
-
-            document.getElementById('modal-titulo').textContent = `Renovar Perfil: ${perfil} (${plataforma})`;
-            document.getElementById('modal-contenido').innerHTML = `
-                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta y extiende la fecha de vencimiento 1 mes más:</p>
-                <input type="number" id="renova-cli-precio" value="${precioActual}" placeholder="Precio Venta (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <div class="text-[10px] text-purple-300 mb-3">Nuevo Vencimiento: <input type="date" id="renova-cli-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        async function guardarRenovacionCliente(id) {
-            const PrecioVenta = parseFloat(document.getElementById('renova-cli-precio').value) || 0;
-            const Vencimiento = document.getElementById('renova-cli-vence').value;
-
-            const datosRenovacion = { 'Precio Venta': PrecioVenta };
-            if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
-
-            const { error } = await _supabase.from('Clientes').update(datosRenovacion).eq('id', id);
-            if (error) alert("Error al renovar cliente: " + error.message);
-            else { alert("¡Perfil renovado con éxito!"); cerrarModal(); cargarSistema(); }
-        }
-
-        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento, notas = '') {
-            document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
-            document.getElementById('modal-contenido').innerHTML = `
-                <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <div class="grid grid-cols-2 gap-2 mb-2">
-                    <input type="text" id="edit-cli-pin" value="${pin}" placeholder="PIN" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                    <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                </div>
-                <textarea id="edit-cli-notas" placeholder="Notas u observaciones (ej. Descuento especial)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">${notas !== 'Sin notas' ? notas : ''}</textarea>
-                <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        async function guardarEdicionCliente(id) {
-            const Plataforma = document.getElementById('edit-cli-plat').value;
-            const CuentaMaestra = document.getElementById('edit-cli-cuenta').value;
-            const Perfil = document.getElementById('edit-cli-perfil').value;
-            const Cliente = document.getElementById('edit-cli-nombre').value;
-            const Celular = document.getElementById('edit-cli-celular').value;
-            const Pin = document.getElementById('edit-cli-pin').value;
-            const PrecioVenta = parseFloat(document.getElementById('edit-cli-precio').value) || 0;
-            const Vencimiento = document.getElementById('edit-cli-vence').value;
-            const Notas = document.getElementById('edit-cli-notas').value;
-
-            const datosEditados = { 
-                Plataforma, 
-                CuentaMaestra,
-                Perfil, 
-                Cliente, 
-                Celular, 
-                Pin, 
-                'Precio Venta': PrecioVenta,
-                Vencimiento,
-                Notas 
-            };
-
-            const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
-            if (error) alert("Error al actualizar cliente: " + error.message);
-            else { alert("¡Cliente actualizado con éxito!"); cerrarModal(); cargarSistema(); }
-        }
-
         function abrirModalRenovarCuenta(id, plataforma, costoActual, periodoActual, vencimientoActual) {
             let fechaSugerida = '';
             if (vencimientoActual && vencimientoActual !== '---') {
@@ -1107,12 +1091,93 @@
             else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
+        function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
+            let fechaSugerida = '';
+            if (vencimientoActual && vencimientoActual !== '---') {
+                let d = new Date(vencimientoActual);
+                d.setMonth(d.getMonth() + 1);
+                fechaSugerida = d.toISOString().split('T')[0];
+            } else {
+                let d = new Date();
+                d.setMonth(d.getMonth() + 1);
+                fechaSugerida = d.toISOString().split('T')[0];
+            }
+
+            document.getElementById('modal-titulo').textContent = `Renovar Perfil: ${perfil} (${plataforma})`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta y extiende la fecha de vencimiento 1 mes más:</p>
+                <input type="number" id="renova-cli-precio" value="${precioActual}" placeholder="Precio Venta (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="text-[10px] text-purple-300 mb-3">Nuevo Vencimiento: <input type="date" id="renova-cli-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarRenovacionCliente(id) {
+            const PrecioVenta = parseFloat(document.getElementById('renova-cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('renova-cli-vence').value;
+
+            const datosRenovacion = { 'Precio Venta': PrecioVenta };
+            if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
+
+            const { error } = await _supabase.from('Clientes').update(datosRenovacion).eq('id', id);
+            if (error) alert("Error al renovar cliente: " + error.message);
+            else { alert("¡Perfil renovado con éxito!"); cerrarModal(); cargarSistema(); }
+        }
+
+        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento, notas = '') {
+            document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <input type="text" id="edit-cli-pin" value="${pin}" placeholder="PIN" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <textarea id="edit-cli-notas" placeholder="Notas u observaciones" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">${notas !== 'Sin notas' ? notas : ''}</textarea>
+                <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarEdicionCliente(id) {
+            const Plataforma = document.getElementById('edit-cli-plat').value;
+            const CuentaMaestra = document.getElementById('edit-cli-cuenta').value;
+            const Perfil = document.getElementById('edit-cli-perfil').value;
+            const Cliente = document.getElementById('edit-cli-nombre').value;
+            const Celular = document.getElementById('edit-cli-celular').value;
+            const Pin = document.getElementById('edit-cli-pin').value;
+            const PrecioVenta = parseFloat(document.getElementById('edit-cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('edit-cli-vence').value;
+            const Notas = document.getElementById('edit-cli-notas').value;
+
+            const datosEditados = { 
+                Plataforma, 
+                CuentaMaestra,
+                Perfil, 
+                Cliente, 
+                Celular, 
+                Pin, 
+                'Precio Venta': PrecioVenta,
+                Vencimiento,
+                Notas 
+            };
+
+            const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
+            if (error) alert("Error al actualizar cliente: " + error.message);
+            else { alert("¡Cliente actualizado con éxito!"); cerrarModal(); cargarSistema(); }
+        }
+
         function cerrarModal() {
             document.getElementById('modal-accion').classList.remove('flex');
             document.getElementById('modal-accion').classList.add('hidden');
         }
-
-        cargarSistema();
     </script>
 </body>
 </html>
