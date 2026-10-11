@@ -87,16 +87,17 @@
             </div>
         </div>
 
-        <!-- VISTA: RESUMEN (Dashboard Principal) -->
+        <!-- VISTA: RESUMEN (Centro Financiero y de Métricas) -->
         <div id="vista-resumen" class="space-y-8">
             <!-- Banner Bienvenida -->
             <div class="bg-gradient-to-r from-[#191428] via-[#1f1836] to-[#251b3d] border border-purple-900/40 rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-xl">
                 <div class="z-10 max-w-xl">
                     <span class="text-[11px] font-bold text-purple-400 tracking-widest uppercase">Tu negocio, en un vistazo</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1 mb-2">Hola, Yesabella. Hagamos crecer tu tienda.</h2>
-                    <p class="text-sm text-purple-200/70">Vencimientos, cobros, rentabilidad y capacidad de cada cuenta a una vista rápida.</p>
+                    <p class="text-sm text-purple-200/70">Controla tus ingresos, ganancia real frente a proveedores y vencimientos en tiempo real.</p>
                     <div class="flex flex-wrap gap-3 mt-6">
                         <button onclick="abrirModalCuenta()" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition">+ Crear cuenta</button>
+                        <button onclick="abrirModalCliente()" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition">+ Registrar perfil</button>
                     </div>
                 </div>
                 <div class="mt-6 md:mt-0 z-10 hidden lg:block">
@@ -106,56 +107,100 @@
                 </div>
             </div>
 
-            <!-- Tarjetas de Métricas -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- 5 Tarjetas Superiores de Métricas Principales -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
                 <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
-                    <p class="text-xs text-purple-400 uppercase font-medium">Perfiles Activos</p>
-                    <h3 id="total-perfiles" class="text-3xl font-bold text-white mt-1">0</h3>
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-xs text-purple-400 uppercase font-medium">Perfiles activos</p>
+                        <span class="bg-purple-950/60 p-1.5 rounded-xl border border-purple-900/40 text-xs">🔴</span>
+                    </div>
+                    <h3 id="resumen-perfiles" class="text-3xl font-bold text-white">0</h3>
                     <p class="text-xs text-purple-300/60 mt-2">Actualmente en servicio</p>
                 </div>
                 <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
-                    <p class="text-xs text-purple-400 uppercase font-medium">Vencen en 7 días</p>
-                    <h3 id="expiring-soon" class="text-3xl font-bold text-amber-400 mt-1">0</h3>
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-xs text-purple-400 uppercase font-medium">Vencen en 7 días</p>
+                        <span class="bg-purple-950/60 p-1.5 rounded-xl border border-purple-900/40 text-xs">⏳</span>
+                    </div>
+                    <h3 id="resumen-vencen" class="text-3xl font-bold text-amber-400">0</h3>
                     <p class="text-xs text-purple-300/60 mt-2">Requieren seguimiento</p>
                 </div>
                 <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
-                    <p class="text-xs text-purple-400 uppercase font-medium">Ventas Totales</p>
-                    <h3 id="month-sales" class="text-3xl font-bold text-emerald-400 mt-1">S/ 0.00</h3>
-                    <p class="text-xs text-purple-300/60 mt-2">Suma de perfiles</p>
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-xs text-purple-400 uppercase font-medium">Ventas (Ingresos)</p>
+                        <span class="bg-purple-950/60 p-1.5 rounded-xl border border-purple-900/40 text-xs text-emerald-400 font-bold">↗</span>
+                    </div>
+                    <h3 id="resumen-ventas" class="text-3xl font-bold text-white">S/ 0.00</h3>
+                    <p class="text-xs text-purple-300/60 mt-2">Total registrado</p>
                 </div>
                 <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
-                    <p class="text-xs text-purple-400 uppercase font-medium">Cuentas Maestras</p>
-                    <h3 id="total-cuentas" class="text-3xl font-bold text-white mt-1">0</h3>
-                    <p class="text-xs text-purple-300/60 mt-2">Plataformas activas</p>
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-xs text-purple-400 uppercase font-medium">Ganancia Real</p>
+                        <span class="bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-900/40 text-xs text-emerald-400 font-bold">S/</span>
+                    </div>
+                    <h3 id="resumen-ganancia" class="text-3xl font-bold text-emerald-400">S/ 0.00</h3>
+                    <p class="text-xs text-purple-300/60 mt-2">Ventas menos costos</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-xs text-purple-400 uppercase font-medium">Por cobrar</p>
+                        <span class="bg-red-950/60 p-1.5 rounded-xl border border-red-900/40 text-xs text-red-400 font-bold">!</span>
+                    </div>
+                    <h3 id="resumen-por-cobrar" class="text-3xl font-bold text-red-400">S/ 0.00</h3>
+                    <p class="text-xs text-purple-300/60 mt-2">Perfiles próximos a vencer</p>
                 </div>
             </div>
 
-            <!-- Tabla de Cobros rápidos -->
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-base font-bold text-white">Clientes y Cobros por WhatsApp</h3>
-                    <span class="text-xs text-purple-400">Recordatorios automáticos</span>
+            <!-- 3 Tarjetas Inferiores: Próximos Vencimientos, Perfiles Recientes y Estado Financiero -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Próximos Vencimientos -->
+                <div class="bg-[#151221] border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-white text-sm">Próximos vencimientos</h4>
+                            <button onclick="cambiarVista('renovaciones')" class="text-xs text-purple-400 hover:text-purple-300 font-medium">Ver todos</button>
+                        </div>
+                        <div id="widget-vencimientos" class="space-y-2.5 max-h-52 overflow-y-auto">
+                            <p class="text-xs text-purple-400/60 text-center py-6">No hay vencimientos cercanos.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-purple-200">
-                        <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
-                            <tr>
-                                <th class="pb-3 px-3">Perfil / Plataforma</th>
-                                <th class="pb-3 px-3">Cuenta Asignada</th>
-                                <th class="pb-3 px-3">Cliente</th>
-                                <th class="pb-3 px-3">Celular</th>
-                                <th class="pb-3 px-3">PIN</th>
-                                <th class="pb-3 px-3">Precio Venta</th>
-                                <th class="pb-3 px-3">Vencimiento</th>
-                                <th class="pb-3 px-3 text-right">Acción de Cobro</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clientes-table-body">
-                            <tr>
-                                <td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- Perfiles Recientes -->
+                <div class="bg-[#151221] border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-white text-sm">Perfiles recientes</h4>
+                            <button onclick="cambiarVista('perfiles')" class="text-xs text-purple-400 hover:text-purple-300 font-medium">Ver perfiles</button>
+                        </div>
+                        <div id="widget-recientes" class="space-y-2.5 max-h-52 overflow-y-auto">
+                            <p class="text-xs text-purple-400/60 text-center py-6">Aún no hay perfiles registrados.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado Financiero -->
+                <div class="bg-[#151221] border border-purple-900/30 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-white text-sm">Estado financiero</h4>
+                            <span class="text-xs text-purple-400">Resumen contable</span>
+                        </div>
+                        <div class="space-y-4 pt-2">
+                            <div class="flex justify-between items-center border-b border-purple-900/30 pb-3">
+                                <span class="text-xs text-purple-300/80">Ingresos acumulados (Ventas)</span>
+                                <span id="fin-ingresos" class="text-sm font-bold text-emerald-400">S/ 0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-purple-900/30 pb-3">
+                                <span class="text-xs text-purple-300/80">Egresos registrados (Proveedores)</span>
+                                <span id="fin-egresos" class="text-sm font-bold text-red-400">S/ 0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-1">
+                                <span class="text-xs font-bold text-white">Saldo actual (Ganancia)</span>
+                                <span id="fin-saldo" class="text-base font-extrabold text-emerald-400">S/ 0.00</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -211,7 +256,7 @@
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold text-white">Cuentas Maestras (Agrupadas por Correo)</h3>
-                    <p class="text-xs text-purple-300/70">Visualiza los 5 espacios disponibles y los clientes asignados en cada cuenta.</p>
+                    <p class="text-xs text-purple-300/70">Visualiza los espacios disponibles y los clientes asignados en cada cuenta.</p>
                 </div>
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Nueva cuenta</button>
             </div>
@@ -317,11 +362,11 @@
             const diasRestantes = Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24));
 
             if (diasRestantes < 0) {
-                return `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold text-[10px] inline-block">¡Ya venció!</span>`;
+                return `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-full font-bold text-[10px] inline-block">¡Ya venció!</span>`;
             } else if (diasRestantes === 0) {
-                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold text-[10px] inline-block">Vence hoy</span>`;
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold text-[10px] inline-block">Vence hoy</span>`;
             } else if (diasRestantes <= 7) {
-                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-semibold text-[10px] inline-block">Quedan ${diasRestantes} días</span>`;
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-semibold text-[10px] inline-block">Quedan ${diasRestantes} días</span>`;
             } else {
                 return `<span class="text-emerald-400 font-medium">Quedan ${diasRestantes} días</span>`;
             }
@@ -360,7 +405,16 @@
             const listaRenovaciones = document.getElementById('lista-renovaciones');
             
             let ingresosTotales = 0;
+            let egresosTotales = 0;
             let vencenProntoCount = 0;
+            let porCobrarTotal = 0;
+
+            // Calcular egresos sumando costos de cuentas maestras
+            if (cuentas.length > 0) {
+                cuentas.forEach(cu => {
+                    egresosTotales += parseFloat(cu.Costo || cu.costo || 0);
+                });
+            }
 
             if(clients.length > 0) {
                 tablaClientes.innerHTML = '';
@@ -386,7 +440,10 @@
                         const hoy = new Date(); hoy.setHours(0,0,0,0);
                         const vDate = new Date(vencimiento); vDate.setHours(0,0,0,0);
                         const dias = Math.ceil((vDate - hoy) / (1000 * 60 * 60 * 24));
-                        if (dias >= 0 && dias <= 7) vencenProntoCount++;
+                        if (dias >= 0 && dias <= 7) {
+                            vencenProntoCount++;
+                            porCobrarTotal += precio; // Suma a por cobrar si vence pronto
+                        }
                     }
 
                     const celularClean = celular.toString().replace(/\D/g,'');
@@ -464,23 +521,82 @@
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovar</button>
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition">✏️ Editar</button>
+                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
                                 <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
                                 <a href="${whatsappUrl}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">WhatsApp</a>
                             </div>
                         </div>
                     `;
                 });
-                document.getElementById('month-sales').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
-                document.getElementById('expiring-soon').textContent = vencenProntoCount;
+
+                // Rellenar widgets del Resumen
+                document.getElementById('resumen-perfiles').textContent = clients.length;
+                document.getElementById('resumen-vencen').textContent = vencenProntoCount;
+                document.getElementById('resumen-ventas').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
+                
+                const gananciaReal = ingresosTotales - egresosTotales;
+                document.getElementById('resumen-ganancia').textContent = `S/ ${gananciaReal.toFixed(2)}`;
+                document.getElementById('resumen-por-cobrar').textContent = `S/ ${porCobrarTotal.toFixed(2)}`;
+
+                // Estado financiero inferior
+                document.getElementById('fin-ingresos').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
+                document.getElementById('fin-egresos').textContent = `S/ ${egresosTotales.toFixed(2)}`;
+                document.getElementById('fin-saldo').textContent = `S/ ${gananciaReal.toFixed(2)}`;
+
+                // Widget Próximos Vencimientos (Top 3)
+                const widgetVenc = document.getElementById('widget-vencimientos');
+                const proximos = [...clients].sort((a,b) => new Date(a.Vencimiento || '2099-01-01') - new Date(b.Vencimiento || '2099-01-01')).slice(0, 3);
+                widgetVenc.innerHTML = '';
+                proximos.forEach(p => {
+                    const v = p.Vencimiento || p.vencimiento || '---';
+                    const c = p.Cliente || p.cliente || 'Cliente';
+                    const pf = p.Perfil || p.perfil || 'Perfil';
+                    widgetVenc.innerHTML += `
+                        <div class="bg-[#1a152d] p-2.5 rounded-xl flex justify-between items-center text-xs">
+                            <div>
+                                <span class="font-bold text-white">${c}</span> <span class="text-purple-300">(${pf})</span>
+                                <div class="text-[10px] text-amber-400">Vence: ${v}</div>
+                            </div>
+                            <button onclick="cambiarVista('renovaciones')" class="text-[10px] bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 px-2 py-1 rounded-lg">Gestionar</button>
+                        </div>
+                    `;
+                });
+
+                // Widget Perfiles Recientes (Top 3)
+                const widgetRec = document.getElementById('widget-recientes');
+                const recientes = [...clients].reverse().slice(0, 3);
+                widgetRec.innerHTML = '';
+                recientes.forEach(p => {
+                    const c = p.Cliente || p.cliente || 'Cliente';
+                    const pf = p.Perfil || p.perfil || 'Perfil';
+                    const plat = p.Plataforma || p.plataforma || 'Streaming';
+                    const prec = parseFloat(p['Precio Venta'] || p.PrecioVenta || p.precio || 0);
+                    widgetRec.innerHTML += `
+                        <div class="bg-[#1a152d] p-2.5 rounded-xl flex justify-between items-center text-xs">
+                            <div>
+                                <span class="font-bold text-white">${c}</span> <span class="text-purple-300">(${plat} - ${pf})</span>
+                                <div class="text-[10px] text-emerald-400 font-semibold">S/ ${prec.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
             } else {
+                document.getElementById('resumen-perfiles').textContent = '0';
+                document.getElementById('resumen-vencen').textContent = '0';
+                document.getElementById('resumen-ventas').textContent = 'S/ 0.00';
+                document.getElementById('resumen-ganancia').textContent = 'S/ 0.00';
+                document.getElementById('resumen-por-cobrar').textContent = 'S/ 0.00';
+                document.getElementById('fin-ingresos').textContent = 'S/ 0.00';
+                document.getElementById('fin-egresos').textContent = 'S/ 0.00';
+                document.getElementById('fin-saldo').textContent = 'S/ 0.00';
                 tablaClientes.innerHTML = `<tr><td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
                 tablaPerfiles.innerHTML = `<tr><td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
                 listaClientes.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Cuentas Maestras (Agrupación detallada con 5 perfiles por cuenta)
+            // 2. Cuentas Maestras
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (cuentas.length > 0) {
                 document.getElementById('total-cuentas').textContent = cuentas.length;
@@ -497,14 +613,13 @@
                     const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
                     const logoImg = obtenerLogo(plataforma);
 
-                    // Filtrar perfiles asignados a esta cuenta maestra por correo
                     const perfilesAsignados = clients.filter(cli => {
                         const cliCorreo = (cli.CuentaMaestra || cli.cuenta_maestra || cli.CorreoCuenta || '').toLowerCase();
                         const cliPlat = (cli.Plataforma || cli.plataforma || '').toLowerCase();
                         return cliCorreo === correo.toLowerCase() || (cliCorreo === '' && cliPlat === plataforma.toLowerCase());
                     });
 
-                    const totalCupos = 5; // Estándar de 5 perfiles por cuenta maestra
+                    const totalCupos = 5;
                     const perfilesOcupados = perfilesAsignados.length;
                     const perfilesDisponibles = Math.max(0, totalCupos - perfilesOcupados);
 
@@ -527,7 +642,6 @@
                         });
                     }
 
-                    // Rellenar los espacios libres restantes hasta completar los 5 cupos
                     for (let i = perfilesOcupados; i < totalCupos; i++) {
                         perfilesHtml += `
                             <div class="bg-[#120f1d]/50 border border-dashed border-purple-900/30 p-2.5 rounded-xl mb-1.5 flex justify-between items-center text-xs text-purple-400/60">
