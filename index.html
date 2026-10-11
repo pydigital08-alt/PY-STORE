@@ -67,16 +67,15 @@
             <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
                 <button onclick="abrirModalCuenta()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-red-600/20">+ Cuenta Maestra</button>
                 <button onclick="abrirModalCliente()" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition border border-gray-700">+ Nuevo Cliente</button>
-                <button onclick="abrirModalVenta()" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition border border-gray-700">+ Vender Perfil</button>
             </div>
         </div>
 
         <!-- Tarjetas de Indicadores Principales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-medium">Perfiles Activos</p>
+                <p class="text-xs text-gray-400 uppercase font-medium">Perfiles / Clientes</p>
                 <h3 id="total-perfiles" class="text-3xl font-bold text-white mt-1">0</h3>
-                <p class="text-xs text-gray-500 mt-2">Actualmente en servicio</p>
+                <p class="text-xs text-gray-500 mt-2">Registrados en total</p>
             </div>
             <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
                 <p class="text-xs text-gray-400 uppercase font-medium">Vencen en 7 días</p>
@@ -86,7 +85,7 @@
             <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
                 <p class="text-xs text-gray-400 uppercase font-medium">Ventas Totales</p>
                 <h3 id="month-sales" class="text-3xl font-bold text-green-400 mt-1">S/ 0.00</h3>
-                <p class="text-xs text-gray-500 mt-2">Total ingresado</p>
+                <p class="text-xs text-gray-500 mt-2">Ingresos estimados</p>
             </div>
             <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
                 <p class="text-xs text-gray-400 uppercase font-medium">Cuentas Maestras</p>
@@ -95,16 +94,16 @@
             </div>
         </div>
 
-        <!-- Sección de Cuentas Principales -->
+        <!-- Sección de Cuentas Maestras -->
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-white">Cuentas principales</h3>
-                <span class="text-xs text-gray-400">Correos principales de cada plataforma</span>
+                <h3 class="text-lg font-bold text-white">Cuentas Maestras</h3>
+                <span class="text-xs text-gray-400">Correos y accesos principales</span>
             </div>
             
             <div id="cuentas-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 text-center text-gray-400 text-sm">
-                    Cargando cuentas...
+                    Cargando cuentas maestras...
                 </div>
             </div>
         </div>
@@ -112,8 +111,8 @@
         <!-- Sección de Clientes y Cobros por WhatsApp -->
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-white">Clientes y Cobros rápidos</h3>
-                <span class="text-xs text-gray-400">Envía recordatorios directos por WhatsApp</span>
+                <h3 class="text-lg font-bold text-white">Clientes y Cobros por WhatsApp</h3>
+                <span class="text-xs text-gray-400">Envía recordatorios directos</span>
             </div>
             
             <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 overflow-x-auto">
@@ -122,13 +121,14 @@
                         <tr>
                             <th class="pb-3 px-3">Cliente</th>
                             <th class="pb-3 px-3">Celular</th>
+                            <th class="pb-3 px-3">Perfil Asignado</th>
                             <th class="pb-3 px-3">Estado</th>
                             <th class="pb-3 px-3 text-right">Acción de Cobro</th>
                         </tr>
                     </thead>
                     <tbody id="clientes-table-body">
                         <tr>
-                            <td colspan="4" class="py-4 text-center text-gray-500">Cargando clientes...</td>
+                            <td colspan="5" class="py-4 text-center text-gray-500">Cargando clientes...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -147,7 +147,7 @@
         </div>
     </div>
 
-    <!-- Script Principal -->
+    <!-- Script Sincronizado con Supabase -->
     <script>
         const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
@@ -157,8 +157,8 @@
 
         async function cargarSistema() {
             try {
-                // 1. Cargar Clientes desde 'clients' y generar enlaces de WhatsApp
-                const { data: clients } = await _supabase.from('clients').select('*');
+                // 1. Cargar Clientes desde la tabla "Clientes"
+                const { data: clients } = await _supabase.from('Clientes').select('*');
                 if (clients) {
                     document.getElementById('total-perfiles').textContent = clients.length;
                     const tablaClientes = document.getElementById('clientes-table-body');
@@ -166,16 +166,18 @@
                     if(clients.length > 0) {
                         tablaClientes.innerHTML = '';
                         clients.forEach(cli => {
-                            const nombre = cli.cliente || cli.name || 'Cliente';
-                            const telefono = cli.telefono || cli.phone || '999999999';
-                            const telefonoClean = telefono.replace(/\D/g,'');
-                            const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu suscripción. ¿Deseas continuar este mes?`);
-                            const whatsappUrl = `https://wa.me/${telefonoClean}?text=${mensaje}`;
+                            const nombre = cli.Cliente || cli.cliente || 'Cliente';
+                            const celular = cli.Celular || cli.celular || '999999999';
+                            const perfil = cli.Perfil || cli.perfil || 'General';
+                            const celularClean = celular.toString().replace(/\D/g,'');
+                            const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu suscripción de ${perfil}. ¿Deseas continuar este mes?`);
+                            const whatsappUrl = `https://wa.me/${celularClean}?text=${mensaje}`;
 
                             tablaClientes.innerHTML += `
                                 <tr class="border-b border-gray-800/50 hover:bg-gray-800/20 transition">
                                     <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
-                                    <td class="py-3 px-3 text-gray-400">${telefono}</td>
+                                    <td class="py-3 px-3 text-gray-400">${celular}</td>
+                                    <td class="py-3 px-3 text-cyan-400 font-medium">${perfil}</td>
                                     <td class="py-3 px-3"><span class="bg-green-500/10 text-green-400 px-2.5 py-1 rounded-full text-[10px] font-medium border border-green-500/20">Activo</span></td>
                                     <td class="py-3 px-3 text-right">
                                         <a href="${whatsappUrl}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-xl font-medium text-[11px] inline-flex items-center space-x-1 transition shadow-lg shadow-green-600/20">
@@ -186,30 +188,33 @@
                             `;
                         });
                     } else {
-                        tablaClientes.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">No hay clientes registrados aún. Usa "+ Nuevo Cliente".</td></tr>`;
+                        tablaClientes.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-gray-500">No hay clientes registrados aún. Usa "+ Nuevo Cliente".</td></tr>`;
                     }
                 }
 
-                // 2. Cargar Cuentas Maestras desde 'accounts'
-                const { data: cuentas } = await _supabase.from('accounts').select('*');
+                // 2. Cargar Cuentas Maestras desde la tabla "Cuenta Maestra"
+                const { data: cuentas } = await _supabase.from('Cuenta Maestra').select('*');
                 const contenedorCuentas = document.getElementById('cuentas-container');
                 
                 if (cuentas && cuentas.length > 0) {
                     document.getElementById('total-cuentas').textContent = cuentas.length;
-                    document.getElementById('pending-count').textContent = cuentas.length;
                     
                     contenedorCuentas.innerHTML = '';
                     cuentas.forEach(sub => {
+                        const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
+                        const correo = sub.Correo || sub.correo || 'Sin correo';
+                        const password = sub.Contraseña || sub.contrasena || sub.password || '••••••';
+                        
                         contenedorCuentas.innerHTML += `
                             <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 shadow-sm relative overflow-hidden">
                                 <div class="flex justify-between items-start mb-4">
                                     <div class="flex items-center space-x-3">
                                         <div class="bg-red-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm">
-                                            ${sub.plataforma ? sub.plataforma.charAt(0).toUpperCase() : 'S'}
+                                            ${plataforma.charAt(0).toUpperCase()}
                                         </div>
                                         <div>
-                                            <h4 class="font-bold text-white text-sm">${sub.plataforma || sub.name || 'Plataforma'}</h4>
-                                            <p class="text-xs text-gray-400">${sub.correo || sub.email || 'Sin correo'}</p>
+                                            <h4 class="font-bold text-white text-sm">${plataforma}</h4>
+                                            <p class="text-xs text-gray-400">${correo}</p>
                                         </div>
                                     </div>
                                     <span class="bg-red-600/10 text-red-500 border border-red-500/20 text-xs px-2.5 py-1 rounded-full font-semibold">Activa</span>
@@ -217,13 +222,9 @@
                                 <div class="w-full bg-gray-800 rounded-full h-2 mb-4">
                                     <div class="bg-red-600 h-2 rounded-full" style="width: 70%"></div>
                                 </div>
-                                <div class="flex justify-between text-xs text-gray-400 mb-4 bg-gray-900/50 p-3 rounded-xl">
-                                    <div>Costo: <span class="text-white font-semibold">S/ ${sub.costo || sub.cost || '0.00'}</span></div>
-                                    <div>Precio: <span class="text-white font-semibold">S/ ${sub.precio || sub.price || '0.00'}</span></div>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-lg border border-yellow-500/20 font-medium">⏳ Al día</span>
-                                    <button class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg transition">Gestionar</button>
+                                <div class="flex justify-between items-center text-xs text-gray-400">
+                                    <span>Pass: <code class="bg-gray-900 px-2 py-0.5 rounded text-white">${password}</code></span>
+                                    <button class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg transition">Gestionar</button>
                                 </div>
                             </div>
                         `;
@@ -244,10 +245,9 @@
         function abrirModalCuenta() {
             document.getElementById('modal-titulo').textContent = "Registrar Cuenta Maestra";
             document.getElementById('modal-contenido').innerHTML = `
-                <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix, Max)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <input type="number" id="cu-costo" placeholder="Costo proveedor (S/)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <input type="number" id="cu-precio" placeholder="Precio venta total (S/)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-pass" placeholder="Contraseña de acceso" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <button onclick="guardarCuentaSupabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar Cuenta</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
@@ -258,44 +258,34 @@
             document.getElementById('modal-titulo').textContent = "Registrar Nuevo Cliente";
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cli-celular" placeholder="Número de celular (ej. 912345678)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-perfil" placeholder="Perfil asignado (ej. Myra, Perfil 1)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <button onclick="guardarClienteSupabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar Cliente</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
         }
 
-        function abrirModalVenta() {
-            document.getElementById('modal-titulo').textContent = "Registrar Venta de Perfil";
-            document.getElementById('modal-contenido').innerHTML = `
-                <input type="text" placeholder="Plataforma" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" placeholder="Nombre del cliente" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <button onclick="alert('Venta registrada'); cerrarModal();" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar Venta</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
         async function guardarCuentaSupabase() {
-            const plataforma = document.getElementById('cu-plat').value;
-            const correo = document.getElementById('cu-correo').value;
-            const costo = parseFloat(document.getElementById('cu-costo').value) || 0;
-            const precio = parseFloat(document.getElementById('cu-precio').value) || 0;
+            const Plataforma = document.getElementById('cu-plat').value;
+            const Correo = document.getElementById('cu-correo').value;
+            const Contraseña = document.getElementById('cu-pass').value;
 
-            if(!plataforma || !correo) { alert("Completa los campos obligatorios"); return; }
+            if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
-            const { error } = await _supabase.from('accounts').insert([{ plataforma, correo, costo, precio }]);
+            const { error } = await _supabase.from('Cuenta Maestra').insert([{ Plataforma, Correo, Contraseña }]);
             if(error) alert("Error al guardar: " + error.message);
             else { alert("¡Cuenta maestra guardada con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         async function guardarClienteSupabase() {
-            const cliente = document.getElementById('cli-nombre').value;
-            const telefono = document.getElementById('cli-celular').value;
+            const Cliente = document.getElementById('cli-nombre').value;
+            const Celular = document.getElementById('cli-celular').value;
+            const Perfil = document.getElementById('cli-perfil').value;
 
-            if(!cliente) { alert("Ingresa el nombre del cliente"); return; }
+            if(!Cliente) { alert("Ingresa el nombre del cliente"); return; }
 
-            const { error } = await _supabase.from('clients').insert([{ cliente, telefono }]);
+            const { error } = await _supabase.from('Clientes').insert([{ Cliente, Celular, Perfil }]);
             if(error) alert("Error al guardar: " + error.message);
             else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
         }
