@@ -70,11 +70,11 @@
     <!-- Contenido Principal -->
     <main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#0b0914]">
         
-        <!-- Barra Superior de Acciones -->
+        <!-- Barra Superior con Buscador Funcional -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-[#151221] border border-purple-900/30 p-4 rounded-2xl">
             <div class="flex items-center space-x-3 w-full md:w-96 bg-[#1a162b] border border-purple-900/40 px-3 py-2 rounded-xl">
                 <span class="text-purple-400">🔍</span>
-                <input type="text" placeholder="Buscar clientes, cuentas o perfiles..." class="bg-transparent text-xs text-white focus:outline-none w-full">
+                <input type="text" id="input-buscador" oninput="filtrarDatos()" placeholder="Buscar clientes, cuentas o perfiles..." class="bg-transparent text-xs text-white focus:outline-none w-full">
             </div>
             <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
                 <span class="text-xs bg-purple-950/60 border border-purple-800/40 text-purple-300 px-3 py-2 rounded-xl flex items-center space-x-1.5">
@@ -217,18 +217,18 @@
             </div>
         </div>
 
-        <!-- VISTA: RENOVACIONES -->
+        <!-- VISTA: RENOVACIONES (Con botones Renovó / No renovó) -->
         <div id="vista-renovaciones" class="space-y-6 hidden">
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
                 <h3 class="text-lg font-bold text-white mb-1">Renovaciones y Vencimientos</h3>
-                <p class="text-xs text-purple-300/70 mb-4">Seguimiento de perfiles próximos a vencer.</p>
+                <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio.</p>
                 <div id="lista-renovaciones" class="space-y-3">
                     <p class="text-xs text-purple-400/60 text-center py-4">No hay renovaciones pendientes.</p>
                 </div>
             </div>
         </div>
 
-        <!-- VISTA: PLATAFORMAS (Todas las subidas) -->
+        <!-- VISTA: PLATAFORMAS -->
         <div id="vista-plataformas" class="space-y-6 hidden">
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
@@ -238,86 +238,22 @@
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Servicio</button>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="netflix.png" alt="Netflix" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Netflix</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="disney.png" alt="Disney+" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Disney+</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="canva.png" alt="Canva" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Canva</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="hbomax.png" alt="Max" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Max</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="primevideo.png" alt="Prime Video" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Prime Video</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="crunchyroll.png" alt="Crunchyroll" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Crunchyroll</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="spotify.png" alt="Spotify" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Spotify</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="youtubepremium.png" alt="YouTube" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">YouTube Premium</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="appletv.png" alt="Apple TV" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Apple TV</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="dgo.png" alt="DGO" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">DGO</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="paramount.png" alt="Paramount+" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Paramount+</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="viki.png" alt="Viki" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Viki</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="capcut.png" alt="CapCut" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">CapCut</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="chatgpt.png" alt="ChatGPT" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">ChatGPT</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="claude.png" alt="Claude" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Claude</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
-                    <img src="coursera.png" alt="Coursera" class="w-12 h-12 rounded-xl object-contain mb-2">
-                    <h4 class="font-bold text-white text-xs">Coursera</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
-                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="netflix.png" alt="Netflix" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Netflix</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="disney.png" alt="Disney+" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Disney+</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="canva.png" alt="Canva" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Canva</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="hbomax.png" alt="Max" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Max</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="primevideo.png" alt="Prime Video" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Prime Video</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="crunchyroll.png" alt="Crunchyroll" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Crunchyroll</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="spotify.png" alt="Spotify" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Spotify</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="youtubepremium.png" alt="YouTube" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">YouTube Premium</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="appletv.png" alt="Apple TV" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Apple TV</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="dgo.png" alt="DGO" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">DGO</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="paramount.png" alt="Paramount+" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Paramount+</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="viki.png" alt="Viki" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Viki</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="capcut.png" alt="CapCut" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">CapCut</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="chatgpt.png" alt="ChatGPT" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">ChatGPT</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="claude.png" alt="Claude" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Claude</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center"><img src="coursera.png" alt="Coursera" class="w-12 h-12 rounded-xl object-contain mb-2"><h4 class="font-bold text-white text-xs">Coursera</h4><p class="text-[10px] text-purple-400 mt-1">Disponible</p></div>
             </div>
         </div>
     </main>
@@ -340,6 +276,9 @@
 
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let globalClients = [];
+        let globalCuentas = [];
 
         function obtenerLogo(plataforma) {
             const p = plataforma.toLowerCase();
@@ -375,140 +314,202 @@
 
         async function cargarSistema() {
             try {
-                // 1. Cargar Clientes / Perfiles
                 const { data: clients } = await _supabase.from('Clientes').select('*');
-                if (clients) {
-                    document.getElementById('total-perfiles').textContent = clients.length;
-                    const tablaClientes = document.getElementById('clientes-table-body');
-                    const tablaPerfiles = document.getElementById('perfiles-table-body');
-                    const listaClientes = document.getElementById('lista-clientes-completa');
-                    const listaRenovaciones = document.getElementById('lista-renovaciones');
-                    
-                    let ingresosTotales = 0;
-
-                    if(clients.length > 0) {
-                        tablaClientes.innerHTML = '';
-                        tablaPerfiles.innerHTML = '';
-                        listaClientes.innerHTML = '';
-                        listaRenovaciones.innerHTML = '';
-
-                        clients.forEach(cli => {
-                            const perfil = cli.Perfil || cli.perfil || 'Perfil';
-                            const nombre = cli.Cliente || cli.cliente || 'Cliente';
-                            const celular = cli.Celular || cli.celular || '999999999';
-                            const pin = cli.Pin || cli.pin || '----';
-                            const precio = parseFloat(cli.Precio || cli.precio || 0);
-                            const vencimiento = cli.Vencimiento || cli.vencimiento || '---';
-
-                            ingresosTotales += precio;
-
-                            const celularClean = celular.toString().replace(/\D/g,'');
-                            const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} (vence: ${vencimiento}). ¿Deseas continuar este mes?`);
-                            const whatsappUrl = `https://wa.me/${celularClean}?text=${mensaje}`;
-
-                            // Tabla Dashboard
-                            tablaClientes.innerHTML += `
-                                <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
-                                    <td class="py-3 px-3 font-semibold text-purple-300">${perfil}</td>
-                                    <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
-                                    <td class="py-3 px-3 text-purple-300/70">${celular}</td>
-                                    <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
-                                    <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
-                                    <td class="py-3 px-3 text-purple-300/70">${vencimiento}</td>
-                                    <td class="py-3 px-3 text-right">
-                                        <a href="${whatsappUrl}" target="_blank" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3 py-1.5 rounded-xl font-medium text-[11px] inline-flex items-center space-x-1 shadow-md shadow-emerald-900/30 transition">
-                                            <span>💬 Cobrar</span>
-                                        </a>
-                                    </td>
-                                </tr>
-                            `;
-
-                            // Tabla Vista Perfiles
-                            tablaPerfiles.innerHTML += `
-                                <tr class="border-b border-purple-900/20">
-                                    <td class="py-3 px-3 font-semibold text-purple-300">${perfil}</td>
-                                    <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
-                                    <td class="py-3 px-3 text-purple-300/70">${celular}</td>
-                                    <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
-                                    <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
-                                    <td class="py-3 px-3 text-purple-300/70">${vencimiento}</td>
-                                </tr>
-                            `;
-
-                            // Vista Clientes
-                            listaClientes.innerHTML += `
-                                <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
-                                    <div>
-                                        <h4 class="font-bold text-white text-xs">${nombre}</h4>
-                                        <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Perfil: ${perfil}</p>
-                                    </div>
-                                    <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
-                                </div>
-                            `;
-
-                            // Vista Renovaciones
-                            listaRenovaciones.innerHTML += `
-                                <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
-                                    <div>
-                                        <h4 class="font-bold text-white text-xs">${nombre} (${perfil})</h4>
-                                        <p class="text-[11px] text-amber-400">Vence: ${vencimiento}</p>
-                                    </div>
-                                    <a href="${whatsappUrl}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-xl text-xs font-medium">Recordar cobro</a>
-                                </div>
-                            `;
-                        });
-                        document.getElementById('month-sales').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
-                    } else {
-                        tablaClientes.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-purple-400/60">No hay perfiles registrados aún.</td></tr>`;
-                    }
-                }
-
-                // 2. Cargar Cuentas Maestras
                 const { data: cuentas } = await _supabase.from('Cuenta Maestra').select('*');
-                const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
                 
-                if (cuentas && cuentas.length > 0) {
-                    document.getElementById('total-cuentas').textContent = cuentas.length;
-                    
-                    let htmlCuentas = '';
-                    cuentas.forEach(sub => {
-                        const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
-                        const correo = sub.Correo || sub.correo || 'Sin correo';
-                        const password = sub.Contraseña || sub.contrasena || sub.password || '••••••';
-                        const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
-                        const costo = parseFloat(sub.Costo || sub.costo || 0);
-                        const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
-                        const logoImg = obtenerLogo(plataforma);
-                        
-                        htmlCuentas += `
-                            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden">
-                                <div class="flex justify-between items-start mb-3">
-                                    <div class="flex items-center space-x-3">
-                                        <img src="${logoImg}" alt="${plataforma}" class="w-10 h-10 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
-                                        <div>
-                                            <h4 class="font-bold text-white text-sm">${plataforma}</h4>
-                                            <p class="text-xs text-purple-300/70">${correo}</p>
-                                        </div>
-                                    </div>
-                                    <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
-                                </div>
-                                <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
-                                    <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
-                                    <div class="flex justify-between text-purple-300/70"><span>Vencimiento:</span> <span class="text-amber-400 font-semibold">${vencimientoCuenta}</span></div>
-                                </div>
-                                <div class="flex justify-between items-center text-xs text-purple-300">
-                                    <span>Pass: <code class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">${password}</code></span>
-                                    <span class="text-emerald-400 font-medium text-[11px]">Activa</span>
-                                </div>
-                            </div>
-                        `;
-                    });
+                globalClients = clients || [];
+                globalCuentas = cuentas || [];
 
-                    if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = htmlCuentas;
-                }
+                renderizarDatos(globalClients, globalCuentas);
             } catch (err) {
                 console.error("Error general:", err);
             }
+        }
+
+        function renderizarDatos(clients, cuentas) {
+            // 1. Clientes / Perfiles
+            document.getElementById('total-perfiles').textContent = clients.length;
+            const tablaClientes = document.getElementById('clientes-table-body');
+            const tablaPerfiles = document.getElementById('perfiles-table-body');
+            const listaClientes = document.getElementById('lista-clientes-completa');
+            const listaRenovaciones = document.getElementById('lista-renovaciones');
+            
+            let ingresosTotales = 0;
+
+            if(clients.length > 0) {
+                tablaClientes.innerHTML = '';
+                tablaPerfiles.innerHTML = '';
+                listaClientes.innerHTML = '';
+                listaRenovaciones.innerHTML = '';
+
+                clients.forEach(cli => {
+                    const id = cli.id || cli.ID;
+                    const perfil = cli.Perfil || cli.perfil || 'Perfil';
+                    const nombre = cli.Cliente || cli.cliente || 'Cliente';
+                    const celular = cli.Celular || cli.celular || '999999999';
+                    const pin = cli.Pin || cli.pin || '----';
+                    const precio = parseFloat(cli.Precio || cli.precio || 0);
+                    const vencimiento = cli.Vencimiento || cli.vencimiento || '---';
+
+                    ingresosTotales += precio;
+
+                    const celularClean = celular.toString().replace(/\D/g,'');
+                    const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} (vence: ${vencimiento}). ¿Deseas continuar este mes?`);
+                    const whatsappUrl = `https://wa.me/${celularClean}?text=${mensaje}`;
+
+                    tablaClientes.innerHTML += `
+                        <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
+                            <td class="py-3 px-3 font-semibold text-purple-300">${perfil}</td>
+                            <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
+                            <td class="py-3 px-3 text-purple-300/70">${celular}</td>
+                            <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
+                            <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
+                            <td class="py-3 px-3 text-purple-300/70">${vencimiento}</td>
+                            <td class="py-3 px-3 text-right">
+                                <a href="${whatsappUrl}" target="_blank" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3 py-1.5 rounded-xl font-medium text-[11px] inline-flex items-center space-x-1 shadow-md shadow-emerald-900/30 transition">
+                                    <span>💬 Cobrar</span>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+
+                    tablaPerfiles.innerHTML += `
+                        <tr class="border-b border-purple-900/20">
+                            <td class="py-3 px-3 font-semibold text-purple-300">${perfil}</td>
+                            <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
+                            <td class="py-3 px-3 text-purple-300/70">${celular}</td>
+                            <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
+                            <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
+                            <td class="py-3 px-3 text-purple-300/70">${vencimiento}</td>
+                        </tr>
+                    `;
+
+                    listaClientes.innerHTML += `
+                        <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-white text-xs">${nombre}</h4>
+                                <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Perfil: ${perfil}</p>
+                            </div>
+                            <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
+                        </div>
+                    `;
+
+                    // Vista Renovaciones con botones Renovó / No renovó
+                    listaRenovaciones.innerHTML += `
+                        <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                                <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil}</span></h4>
+                                <p class="text-[11px] text-amber-400 mt-0.5">Vence: ${vencimiento}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="marcarRenovado('${id}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovó</button>
+                                <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
+                                <a href="${whatsappUrl}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">WhatsApp</a>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('month-sales').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
+            } else {
+                tablaClientes.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                tablaPerfiles.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No hay renovaciones pendientes.</p>`;
+            }
+
+            // 2. Cuentas Maestras
+            const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
+            if (cuentas.length > 0) {
+                document.getElementById('total-cuentas').textContent = cuentas.length;
+                let htmlCuentas = '';
+                cuentas.forEach(sub => {
+                    const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
+                    const correo = sub.Correo || sub.correo || 'Sin correo';
+                    const password = sub.Contraseña || sub.contrasena || sub.password || '••••••';
+                    const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
+                    const costo = parseFloat(sub.Costo || sub.costo || 0);
+                    const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
+                    const logoImg = obtenerLogo(plataforma);
+                    
+                    htmlCuentas += `
+                        <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <img src="${logoImg}" alt="${plataforma}" class="w-10 h-10 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
+                                    <div>
+                                        <h4 class="font-bold text-white text-sm">${plataforma}</h4>
+                                        <p class="text-xs text-purple-300/70">${correo}</p>
+                                    </div>
+                                </div>
+                                <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
+                            </div>
+                            <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
+                                <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
+                                <div class="flex justify-between text-purple-300/70"><span>Vencimiento:</span> <span class="text-amber-400 font-semibold">${vencimientoCuenta}</span></div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs text-purple-300">
+                                <span>Pass: <code class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">${password}</code></span>
+                                <span class="text-emerald-400 font-medium text-[11px]">Activa</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = htmlCuentas;
+            } else {
+                if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4 col-span-3">No se encontraron cuentas maestras.</p>`;
+            }
+        }
+
+        async function marcarRenovado(id, fechaActual) {
+            let nuevaFecha;
+            if (fechaActual && fechaActual !== '---') {
+                let d = new Date(fechaActual);
+                d.setMonth(d.getMonth() + 1);
+                nuevaFecha = d.toISOString().split('T')[0];
+            } else {
+                let d = new Date();
+                d.setMonth(d.getMonth() + 1);
+                nuevaFecha = d.toISOString().split('T')[0];
+            }
+
+            const { error } = await _supabase.from('Clientes').update({ Vencimiento: nuevaFecha }).eq('id', id);
+            if (error) {
+                alert("Error al actualizar renovación: " + error.message);
+            } else {
+                alert("¡Renovación exitosa! Se actualizó la fecha 1 mes más.");
+                cargarSistema();
+            }
+        }
+
+        async function marcarNoRenovado(id) {
+            if (confirm("¿Estás segura de eliminar o marcar este perfil como no renovado?")) {
+                const { error } = await _supabase.from('Clientes').delete().eq('id', id);
+                if (error) {
+                    alert("Error al procesar: " + error.message);
+                } else {
+                    alert("Registro actualizado.");
+                    cargarSistema();
+                }
+            }
+        }
+
+        function filtrarDatos() {
+            const query = document.getElementById('input-buscador').value.toLowerCase();
+            
+            const clientesFiltrados = globalClients.filter(cli => {
+                const nombre = (cli.Cliente || cli.cliente || '').toLowerCase();
+                const perfil = (cli.Perfil || cli.perfil || '').toLowerCase();
+                const celular = (cli.Celular || cli.celular || '').toLowerCase();
+                return nombre.includes(query) || perfil.includes(query) || celular.includes(query);
+            });
+
+            const cuentasFiltradas = globalCuentas.filter(cu => {
+                const plat = (cu.Plataforma || cu.plataforma || '').toLowerCase();
+                const correo = (cu.Correo || cu.correo || '').toLowerCase();
+                const prov = (cu.Proveedor || cu.proveedor || '').toLowerCase();
+                return plat.includes(query) || correo.includes(query) || prov.includes(query);
+            });
+
+            renderizarDatos(clientesFiltrados, cuentasFiltradas);
         }
 
         function abrirModalCuenta() {
