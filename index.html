@@ -151,7 +151,7 @@
                         </thead>
                         <tbody id="clientes-table-body">
                             <tr>
-                                <td colspan="7" class="py-4 text-center text-purple-400/60">Cargando datos...</td>
+                                <td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -170,7 +170,7 @@
             </div>
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
                 <div id="lista-clientes-completa" class="space-y-3">
-                    <p class="text-xs text-purple-400/60 text-center py-4">Cargando lista de clientes...</p>
+                    <p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>
                 </div>
             </div>
         </div>
@@ -197,7 +197,7 @@
                         </tr>
                     </thead>
                     <tbody id="perfiles-table-body">
-                        <tr><td colspan="6" class="py-4 text-center text-purple-400/60">Cargando perfiles...</td></tr>
+                        <tr><td colspan="6" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -213,17 +213,17 @@
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Nueva cuenta</button>
             </div>
             <div id="cuentas-grid-completo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <p class="text-xs text-purple-400/60 text-center py-4">Cargando cuentas...</p>
+                <p class="text-xs text-purple-400/60 text-center py-4 col-span-3">No se encontraron resultados.</p>
             </div>
         </div>
 
-        <!-- VISTA: RENOVACIONES (Con botones Renovó / No renovó) -->
+        <!-- VISTA: RENOVACIONES -->
         <div id="vista-renovaciones" class="space-y-6 hidden">
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
                 <h3 class="text-lg font-bold text-white mb-1">Renovaciones y Vencimientos</h3>
                 <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio.</p>
                 <div id="lista-renovaciones" class="space-y-3">
-                    <p class="text-xs text-purple-400/60 text-center py-4">No hay renovaciones pendientes.</p>
+                    <p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>
                 </div>
             </div>
         </div>
@@ -394,7 +394,6 @@
                         </div>
                     `;
 
-                    // Vista Renovaciones con botones Renovó / No renovó
                     listaRenovaciones.innerHTML += `
                         <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <div>
@@ -413,7 +412,8 @@
             } else {
                 tablaClientes.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
                 tablaPerfiles.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
-                listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No hay renovaciones pendientes.</p>`;
+                listaClientes.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
+                listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
             // 2. Cuentas Maestras
@@ -455,7 +455,7 @@
                 });
                 if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = htmlCuentas;
             } else {
-                if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4 col-span-3">No se encontraron cuentas maestras.</p>`;
+                if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4 col-span-3">No se encontraron resultados.</p>`;
             }
         }
 
@@ -587,6 +587,10 @@
             document.getElementById('modal-accion').classList.add('hidden');
         }
 
+        cargarSistema();
+    </script>
+</body>
+</html>
         cargarSistema();
     </script>
 </body>
