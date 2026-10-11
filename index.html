@@ -424,7 +424,7 @@
                 cuentas.forEach(sub => {
                     const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
                     const correo = sub.Correo || sub.correo || 'Sin correo';
-                    const password = sub.Contraseña || sub.contrasena || sub.password || '••••••';
+                    const password = sub.Contraseña || sub.contrasena || sub.Password || sub.password || '••••••';
                     const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
                     const costo = parseFloat(sub.Costo || sub.costo || 0);
                     const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
@@ -553,7 +553,7 @@
         async function guardarCuentaSupabase() {
             const Plataforma = document.getElementById('cu-plat').value;
             const Correo = document.getElementById('cu-correo').value;
-            const Contraseña = document.getElementById('cu-pass').value;
+            const passwordVal = document.getElementById('cu-pass').value;
             const Proveedor = document.getElementById('cu-prov').value;
             const Costo = parseFloat(document.getElementById('cu-costo').value) || 0;
             const FechaCompra = document.getElementById('cu-fcompra').value;
@@ -561,7 +561,17 @@
 
             if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
-            const { error } = await _supabase.from('Cuenta Maestra').insert([{ Plataforma, Correo, Contraseña, Proveedor, Costo, FechaCompra, Vencimiento }]);
+            // Guardamos usando la columna exacta 'Contraseña' tal como está en tu Supabase
+            const { error } = await _supabase.from('Cuenta Maestra').insert([{ 
+                Plataforma, 
+                Correo, 
+                Contraseña: passwordVal, 
+                Proveedor, 
+                Costo, 
+                FechaCompra, 
+                Vencimiento 
+            }]);
+
             if(error) alert("Error al guardar: " + error.message);
             else { alert("¡Cuenta maestra guardada con éxito!"); cerrarModal(); cargarSistema(); }
         }
@@ -587,10 +597,6 @@
             document.getElementById('modal-accion').classList.add('hidden');
         }
 
-        cargarSistema();
-    </script>
-</body>
-</html>
         cargarSistema();
     </script>
 </body>
