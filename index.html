@@ -141,6 +141,7 @@
                         <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
                             <tr>
                                 <th class="pb-3 px-3">Perfil / Plataforma</th>
+                                <th class="pb-3 px-3">Cuenta Asignada</th>
                                 <th class="pb-3 px-3">Cliente</th>
                                 <th class="pb-3 px-3">Celular</th>
                                 <th class="pb-3 px-3">PIN</th>
@@ -151,7 +152,7 @@
                         </thead>
                         <tbody id="clientes-table-body">
                             <tr>
-                                <td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td>
+                                <td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -180,7 +181,7 @@
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold text-white">Perfiles y Gestión</h3>
-                    <p class="text-xs text-purple-300/70">Perfiles vendidos con opción de editar o renovar mes.</p>
+                    <p class="text-xs text-purple-300/70">Perfiles vendidos vinculados a sus respectivas cuentas maestras.</p>
                 </div>
                 <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
             </div>
@@ -189,6 +190,7 @@
                     <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
                         <tr>
                             <th class="pb-3 px-3">Perfil / Plataforma</th>
+                            <th class="pb-3 px-3">Cuenta Asignada</th>
                             <th class="pb-3 px-3">Cliente</th>
                             <th class="pb-3 px-3">Celular</th>
                             <th class="pb-3 px-3">PIN</th>
@@ -198,7 +200,7 @@
                         </tr>
                     </thead>
                     <tbody id="perfiles-table-body">
-                        <tr><td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
+                        <tr><td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -208,8 +210,8 @@
         <div id="vista-cuentas" class="space-y-6 hidden">
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-bold text-white">Cuentas Maestras</h3>
-                    <p class="text-xs text-purple-300/70">Correos principales de cada plataforma y costo con proveedor.</p>
+                    <h3 class="text-lg font-bold text-white">Cuentas Maestras (Agrupadas por Correo)</h3>
+                    <p class="text-xs text-purple-300/70">Visualiza los 5 espacios disponibles y los clientes asignados en cada cuenta.</p>
                 </div>
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Nueva cuenta</button>
             </div>
@@ -222,7 +224,7 @@
         <div id="vista-renovaciones" class="space-y-6 hidden">
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
                 <h3 class="text-lg font-bold text-white mb-1">Renovaciones y Vencimientos</h3>
-                <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio, actualiza precios, corrige fechas o edita datos.</p>
+                <p class="text-xs text-purple-300/70 mb-4">Gestiona si el cliente renovó o no su servicio, actualiza precios y extiende fechas.</p>
                 <div id="lista-renovaciones" class="space-y-3">
                     <p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>
                 </div>
@@ -315,11 +317,11 @@
             const diasRestantes = Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24));
 
             if (diasRestantes < 0) {
-                return `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-full font-bold text-[11px] inline-block">¡Ya venció!</span>`;
+                return `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold text-[10px] inline-block">¡Ya venció!</span>`;
             } else if (diasRestantes === 0) {
-                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold text-[11px] inline-block">Vence hoy</span>`;
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold text-[10px] inline-block">Vence hoy</span>`;
             } else if (diasRestantes <= 7) {
-                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-semibold text-[11px] inline-block">Quedan ${diasRestantes} días</span>`;
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-semibold text-[10px] inline-block">Quedan ${diasRestantes} días</span>`;
             } else {
                 return `<span class="text-emerald-400 font-medium">Quedan ${diasRestantes} días</span>`;
             }
@@ -370,6 +372,7 @@
                     const id = cli.id || cli.ID;
                     const perfil = cli.Perfil || cli.perfil || 'Perfil';
                     const plataforma = cli.Plataforma || cli.plataforma || 'Netflix';
+                    const cuentaMaestra = cli.CuentaMaestra || cli.cuenta_maestra || cli.CorreoCuenta || 'Sin asignar';
                     const nombre = cli.Cliente || cli.cliente || 'Cliente';
                     const celular = cli.Celular || cli.celular || '999999999';
                     const pin = cli.Pin || cli.pin || '----';
@@ -400,11 +403,13 @@
                         </div>
                     `;
 
+                    const cuentaHtml = `<span class="text-purple-300 text-[11px] font-mono bg-purple-950/50 px-2 py-0.5 rounded border border-purple-950">${cuentaMaestra}</span>`;
                     const estadoVencimientoHtml = calcularEstadoVencimiento(vencimiento);
 
                     tablaClientes.innerHTML += `
                         <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
                             <td class="py-3 px-3">${colPerfilHtml}</td>
+                            <td class="py-3 px-3">${cuentaHtml}</td>
                             <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
                             <td class="py-3 px-3 text-purple-300/70">${celular}</td>
                             <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
@@ -421,13 +426,14 @@
                     tablaPerfiles.innerHTML += `
                         <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
                             <td class="py-3 px-3">${colPerfilHtml}</td>
+                            <td class="py-3 px-3">${cuentaHtml}</td>
                             <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
                             <td class="py-3 px-3 text-purple-300/70">${celular}</td>
                             <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
                             <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
                             <td class="py-3 px-3">${estadoVencimientoHtml}</td>
                             <td class="py-3 px-3 text-right space-x-1">
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-lg text-[11px] font-semibold transition">✏️ Editar</button>
+                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-lg text-[11px] font-semibold transition">✏️ Editar</button>
                                 <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-lg text-[11px] font-semibold transition">✅ Renovar</button>
                             </td>
                         </tr>
@@ -439,7 +445,7 @@
                                 <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
                                 <div>
                                     <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
-                                    <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Pago: S/ ${precio.toFixed(2)} | Vence: ${vencimiento}</p>
+                                    <p class="text-[11px] text-purple-300/70">Cuenta: ${cuentaMaestra} | Cel: ${celular} | Vence: ${vencimiento}</p>
                                 </div>
                             </div>
                             <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
@@ -452,12 +458,13 @@
                                 <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
                                 <div>
                                     <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
+                                    <p class="text-[11px] text-purple-300">Cuenta: ${cuentaMaestra}</p>
                                     <p class="text-[11px] text-amber-400 mt-0.5">Vencimiento: ${vencimiento} (${estadoVencimientoHtml})</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovar</button>
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
+                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition">✏️ Editar</button>
                                 <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
                                 <a href="${whatsappUrl}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">WhatsApp</a>
                             </div>
@@ -467,13 +474,13 @@
                 document.getElementById('month-sales').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
                 document.getElementById('expiring-soon').textContent = vencenProntoCount;
             } else {
-                tablaClientes.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
-                tablaPerfiles.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                tablaClientes.innerHTML = `<tr><td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                tablaPerfiles.innerHTML = `<tr><td colspan="8" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
                 listaClientes.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Cuentas Maestras
+            // 2. Cuentas Maestras (Agrupación detallada con 5 perfiles por cuenta)
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (cuentas.length > 0) {
                 document.getElementById('total-cuentas').textContent = cuentas.length;
@@ -489,26 +496,73 @@
                     const fechaCompra = sub.FechaCompra || sub.fecha_compra || '---';
                     const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
                     const logoImg = obtenerLogo(plataforma);
+
+                    // Filtrar perfiles asignados a esta cuenta maestra por correo
+                    const perfilesAsignados = clients.filter(cli => {
+                        const cliCorreo = (cli.CuentaMaestra || cli.cuenta_maestra || cli.CorreoCuenta || '').toLowerCase();
+                        const cliPlat = (cli.Plataforma || cli.plataforma || '').toLowerCase();
+                        return cliCorreo === correo.toLowerCase() || (cliCorreo === '' && cliPlat === plataforma.toLowerCase());
+                    });
+
+                    const totalCupos = 5; // Estándar de 5 perfiles por cuenta maestra
+                    const perfilesOcupados = perfilesAsignados.length;
+                    const perfilesDisponibles = Math.max(0, totalCupos - perfilesOcupados);
+
+                    let perfilesHtml = '';
+                    if (perfilesOcupados > 0) {
+                        perfilesAsignados.forEach(p => {
+                            const pNombre = p.Perfil || p.perfil || 'Perfil';
+                            const pCliente = p.Cliente || p.cliente || 'Cliente';
+                            const pPin = p.Pin || p.pin || '----';
+                            const pVence = p.Vencimiento || p.vencimiento || '---';
+                            perfilesHtml += `
+                                <div class="bg-[#120f1d] border border-purple-900/40 p-2.5 rounded-xl mb-1.5 flex justify-between items-center text-xs">
+                                    <div>
+                                        <span class="font-bold text-white">👤 ${pNombre}</span> <span class="text-purple-300">(${pCliente})</span>
+                                        <div class="text-[10px] text-purple-400 mt-0.5">PIN: <code>${pPin}</code> | Vence: ${pVence}</div>
+                                    </div>
+                                    <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">Ocupado</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    // Rellenar los espacios libres restantes hasta completar los 5 cupos
+                    for (let i = perfilesOcupados; i < totalCupos; i++) {
+                        perfilesHtml += `
+                            <div class="bg-[#120f1d]/50 border border-dashed border-purple-900/30 p-2.5 rounded-xl mb-1.5 flex justify-between items-center text-xs text-purple-400/60">
+                                <span>➕ Espacio libre #${i + 1}</span>
+                                <span class="bg-purple-950/60 border border-purple-800/30 px-2 py-0.5 rounded-full text-[10px] text-purple-300">Disponible</span>
+                            </div>
+                        `;
+                    }
                     
                     htmlCuentas += `
-                        <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden">
-                            <div class="flex justify-between items-start mb-3">
-                                <div class="flex items-center space-x-3">
-                                    <img src="${logoImg}" alt="${plataforma}" class="w-10 h-10 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
-                                    <div>
-                                        <h4 class="font-bold text-white text-sm">${plataforma}</h4>
-                                        <p class="text-xs text-purple-300/70">${correo}</p>
+                        <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="${logoImg}" alt="${plataforma}" class="w-10 h-10 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
+                                        <div>
+                                            <h4 class="font-bold text-white text-sm">${plataforma}</h4>
+                                            <p class="text-xs text-purple-300 font-mono">${correo}</p>
+                                        </div>
+                                    </div>
+                                    <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
+                                </div>
+                                <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
+                                    <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="text-purple-200 font-semibold">${periodo}</span></div>
+                                    <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
+                                    <div class="flex justify-between text-purple-300/70"><span>Espacios Libres:</span> <span class="text-pink-400 font-bold">${perfilesDisponibles} de ${totalCupos} libres</span></div>
+                                </div>
+                                <div class="mb-4">
+                                    <p class="text-[10px] font-bold text-purple-400 uppercase mb-2">Perfiles en esta cuenta:</p>
+                                    <div class="max-h-56 overflow-y-auto space-y-1 pr-1">
+                                        ${perfilesHtml}
                                     </div>
                                 </div>
-                                <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
                             </div>
-                            <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
-                                <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="text-purple-200 font-semibold">${periodo}</span></div>
-                                <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
-                                <div class="flex justify-between text-purple-300/70"><span>Compra:</span> <span class="text-purple-200">${fechaCompra}</span></div>
-                                <div class="flex justify-between text-purple-300/70"><span>Vencimiento:</span> <span class="text-amber-400 font-semibold">${vencimientoCuenta}</span></div>
-                            </div>
-                            <div class="flex justify-between items-center text-xs text-purple-300">
+                            <div class="flex justify-between items-center text-xs text-purple-300 pt-3 border-t border-purple-900/30">
                                 <span>Pass: <code class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">${clave}</code></span>
                                 <button onclick="abrirModalRenovarCuenta('${id}', '${plataforma}', '${costo}', '${periodo}', '${vencimientoCuenta}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🔄 Renovar / Mes</button>
                             </div>
@@ -574,10 +628,11 @@
             }
         }
 
-        function abrirModalEditarCliente(id, plat, perfil, cliente, celular, pin, precio, vencimiento) {
+        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento) {
             document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra asignada" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
                 <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
@@ -594,6 +649,7 @@
 
         async function guardarEdicionCliente(id) {
             const Plataforma = document.getElementById('edit-cli-plat').value;
+            const CuentaMaestra = document.getElementById('edit-cli-cuenta').value;
             const Perfil = document.getElementById('edit-cli-perfil').value;
             const Cliente = document.getElementById('edit-cli-nombre').value;
             const Celular = document.getElementById('edit-cli-celular').value;
@@ -603,6 +659,7 @@
 
             const datosEditados = { 
                 Plataforma, 
+                CuentaMaestra,
                 Perfil, 
                 Cliente, 
                 Celular, 
@@ -614,7 +671,15 @@
             const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
 
             if (error) {
-                alert("Error al actualizar cliente: " + error.message);
+                delete datosEditados['CuentaMaestra'];
+                let segundoIntento = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
+                if (segundoIntento.error) {
+                    alert("Error al actualizar cliente: " + segundoIntento.error.message);
+                } else {
+                    alert("¡Cliente actualizado con éxito!");
+                    cerrarModal();
+                    cargarSistema();
+                }
             } else {
                 alert("¡Cliente actualizado con éxito!");
                 cerrarModal();
@@ -679,7 +744,8 @@
                 const perfil = (cli.Perfil || cli.perfil || '').toLowerCase();
                 const celular = (cli.Celular || cli.celular || '').toLowerCase();
                 const plat = (cli.Plataforma || cli.plataforma || '').toLowerCase();
-                return nombre.includes(query) || perfil.includes(query) || celular.includes(query) || plat.includes(query);
+                const cuenta = (cli.CuentaMaestra || cli.cuenta_maestra || cli.CorreoCuenta || '').toLowerCase();
+                return nombre.includes(query) || perfil.includes(query) || celular.includes(query) || plat.includes(query) || cuenta.includes(query);
             });
 
             const cuentasFiltradas = globalCuentas.filter(cu => {
@@ -715,6 +781,7 @@
             document.getElementById('modal-titulo').textContent = "Registrar Cliente y Perfil";
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" id="cli-plat" placeholder="Plataforma (ej. Netflix, Disney+, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-cuenta" placeholder="Correo de Cuenta Maestra (ej. correo@netflix.com)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-perfil" placeholder="Perfil (ej. Perfil 1, Myra)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
@@ -779,6 +846,7 @@
 
         async function guardarClienteSupabase() {
             const Plataforma = document.getElementById('cli-plat').value;
+            const CuentaMaestra = document.getElementById('cli-cuenta').value;
             const Perfil = document.getElementById('cli-perfil').value;
             const Cliente = document.getElementById('cli-nombre').value;
             const Celular = document.getElementById('cli-celular').value;
@@ -791,6 +859,7 @@
 
             const datosCliente = { 
                 Plataforma, 
+                CuentaMaestra,
                 Perfil, 
                 Cliente, 
                 Celular, 
@@ -804,13 +873,14 @@
             const { error } = await _supabase.from('Clientes').insert([datosCliente]);
 
             if(error) {
+                delete datosCliente['CuentaMaestra'];
                 delete datosCliente['Vencimiento'];
                 delete datosCliente['Fecha Compra'];
                 let segundoIntento = await _supabase.from('Clientes').insert([datosCliente]);
                 if(segundoIntento.error) {
                     alert("Error al guardar cliente: " + segundoIntento.error.message);
                 } else {
-                    alert("¡Cliente guardado con éxito!");
+                    alert("¡Cliente guardado con éxito! (Nota: Añade la columna 'CuentaMaestra' en la tabla Clientes si deseas guardar el correo asignado).");
                     cerrarModal();
                     cargarSistema();
                 }
