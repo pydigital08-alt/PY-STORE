@@ -72,7 +72,7 @@
     <!-- Contenido Principal -->
     <main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#0b0914]">
         
-        <!-- Barra Superior de Acciones (Con un solo botón central claro) -->
+        <!-- Barra Superior de Acciones (Botón único arriba a la derecha) -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-[#151221] border border-purple-900/30 p-4 rounded-2xl">
             <div class="flex items-center space-x-3 w-full md:w-96 bg-[#1a162b] border border-purple-900/40 px-3 py-2 rounded-xl">
                 <span class="text-purple-400">🔍</span>
@@ -91,7 +91,7 @@
 
         <!-- VISTA: RESUMEN (Dashboard Principal) -->
         <div id="vista-resumen" class="space-y-8">
-            <!-- Banner Bienvenida -->
+            <!-- Banner Bienvenida (Limpio de botones repetidos) -->
             <div class="bg-gradient-to-r from-[#191428] via-[#1f1836] to-[#251b3d] border border-purple-900/40 rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-xl">
                 <div class="z-10 max-w-xl">
                     <span class="text-[11px] font-bold text-purple-400 tracking-widest uppercase">Tu negocio, en un vistazo</span>
@@ -99,7 +99,6 @@
                     <p class="text-sm text-purple-200/70">Vencimientos, cobros, rentabilidad y capacidad de cada cuenta a una vista rápida.</p>
                     <div class="flex flex-wrap gap-3 mt-6">
                         <button onclick="abrirModalCuenta()" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition">+ Crear cuenta</button>
-                        <button onclick="abrirModalCliente()" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition">+ Registrar Cliente</button>
                     </div>
                 </div>
                 <div class="mt-6 md:mt-0 z-10 hidden lg:block">
@@ -116,180 +115,4 @@
                     <h3 id="total-perfiles" class="text-3xl font-bold text-white mt-1">0</h3>
                     <p class="text-xs text-purple-300/60 mt-2">Actualmente en servicio</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
-                    <p class="text-xs text-purple-400 uppercase font-medium">Vencen en 7 días</p>
-                    <h3 id="expiring-soon" class="text-3xl font-bold text-amber-400 mt-1">0</h3>
-                    <p class="text-xs text-purple-300/60 mt-2">Requieren seguimiento</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
-                    <p class="text-xs text-purple-400 uppercase font-medium">Ventas Totales</p>
-                    <h3 id="month-sales" class="text-3xl font-bold text-emerald-400 mt-1">S/ 0.00</h3>
-                    <p class="text-xs text-purple-300/60 mt-2">Suma de perfiles</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
-                    <p class="text-xs text-purple-400 uppercase font-medium">Cuentas Maestras</p>
-                    <h3 id="total-cuentas" class="text-3xl font-bold text-white mt-1">0</h3>
-                    <p class="text-xs text-purple-300/60 mt-2">Plataformas activas</p>
-                </div>
-            </div>
-
-            <!-- Tabla de Cobros rápidos -->
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-base font-bold text-white">Clientes y Cobros por WhatsApp</h3>
-                    <span class="text-xs text-purple-400">Recordatorios automáticos</span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-purple-200">
-                        <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
-                            <tr>
-                                <th class="pb-3 px-3">Perfil</th>
-                                <th class="pb-3 px-3">Cliente</th>
-                                <th class="pb-3 px-3">Celular</th>
-                                <th class="pb-3 px-3">PIN</th>
-                                <th class="pb-3 px-3">Precio</th>
-                                <th class="pb-3 px-3">Vencimiento</th>
-                                <th class="pb-3 px-3 text-right">Acción de Cobro</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clientes-table-body">
-                            <tr>
-                                <td colspan="7" class="py-4 text-center text-purple-400/60">Cargando datos...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- VISTA: CLIENTES -->
-        <div id="vista-clientes" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
-                <div>
-                    <h3 class="text-lg font-bold text-white">Clientes</h3>
-                    <p class="text-xs text-purple-300/70">Personas que compran perfiles o servicios.</p>
-                </div>
-                <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
-            </div>
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
-                <div id="lista-clientes-completa" class="space-y-3">
-                    <p class="text-xs text-purple-400/60 text-center py-4">Cargando lista de clientes...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- VISTA: PERFILES -->
-        <div id="vista-perfiles" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
-                <div>
-                    <h3 class="text-lg font-bold text-white">Perfiles</h3>
-                    <p class="text-xs text-purple-300/70">Perfiles vendidos o asignados a clientes.</p>
-                </div>
-                <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
-            </div>
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 overflow-x-auto">
-                <table class="w-full text-left text-xs text-purple-200">
-                    <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
-                        <tr>
-                            <th class="pb-3 px-3">Perfil</th>
-                            <th class="pb-3 px-3">Cliente</th>
-                            <th class="pb-3 px-3">Celular</th>
-                            <th class="pb-3 px-3">PIN</th>
-                            <th class="pb-3 px-3">Precio</th>
-                            <th class="pb-3 px-3">Vencimiento</th>
-                        </tr>
-                    </thead>
-                    <tbody id="perfiles-table-body">
-                        <tr><td colspan="6" class="py-4 text-center text-purple-400/60">Cargando perfiles...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- VISTA: CUENTAS -->
-        <div id="vista-cuentas" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
-                <div>
-                    <h3 class="text-lg font-bold text-white">Cuentas Maestras</h3>
-                    <p class="text-xs text-purple-300/70">Correos principales de cada plataforma y proveedores.</p>
-                </div>
-                <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Nueva cuenta</button>
-            </div>
-            <div id="cuentas-grid-completo" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <p class="text-xs text-purple-400/60 text-center py-4">Cargando cuentas...</p>
-            </div>
-        </div>
-
-        <!-- VISTA: RENOVACIONES -->
-        <div id="vista-renovaciones" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6">
-                <h3 class="text-lg font-bold text-white mb-1">Renovaciones y Vencimientos</h3>
-                <p class="text-xs text-purple-300/70 mb-4">Seguimiento de perfiles próximos a vencer.</p>
-                <div id="lista-renovaciones" class="space-y-3">
-                    <p class="text-xs text-purple-400/60 text-center py-4">No hay renovaciones pendientes.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- VISTA: PLATAFORMAS -->
-        <div id="vista-plataformas" class="space-y-6 hidden">
-            <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
-                <div>
-                    <h3 class="text-lg font-bold text-white">Plataformas</h3>
-                    <p class="text-xs text-purple-300/70">Servicios disponibles en tu tienda.</p>
-                </div>
-                <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Servicio</button>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" id="plataformas-grid">
-                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-red-600/20 text-red-500 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">N</div>
-                    <h4 class="font-bold text-white text-xs">Netflix</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-blue-600/20 text-blue-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">D+</div>
-                    <h4 class="font-bold text-white text-xs">Disney+</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-cyan-600/20 text-cyan-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">C</div>
-                    <h4 class="font-bold text-white text-xs">Canva</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
-                </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-purple-600/20 text-purple-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">M</div>
-                    <h4 class="font-bold text-white text-xs">Max</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal Dinámico en Tonos Lila -->
-    <div id="modal-accion" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-[#161225] border border-purple-900/50 rounded-2xl p-6 w-full max-w-md shadow-2xl shadow-purple-950">
-            <h3 id="modal-titulo" class="text-base font-bold text-white mb-4">Acción</h3>
-            <div id="modal-contenido" class="space-y-3"></div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button onclick="cerrarModal()" class="px-4 py-2 rounded-xl text-xs bg-purple-950/60 hover:bg-purple-900/60 text-purple-300 border border-purple-800/30">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Script Sincronizado con Supabase -->
-    <script>
-        const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
-
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        function cambiarVista(vista) {
-            ['resumen', 'clientes', 'perfiles', 'cuentas', 'renovaciones', 'plataformas'].forEach(v => {
-                document.getElementById(`vista-${v}`).classList.add('hidden');
-                document.getElementById(`nav-${v}`).classList.remove('active-tab');
-                document.getElementById(`nav-${v}`).classList.add('sidebar-item', 'text-purple-300');
-            });
-            document.getElementById(`vista-${vista}`).classList.remove('hidden');
-            document.getElementById(`nav-${vista}`).classList.add('active-tab');
-            document.getElementById(`nav-${vista}`).classList.remove('
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded
