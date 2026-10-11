@@ -208,7 +208,7 @@
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold text-white">Cuentas Maestras</h3>
-                    <p class="text-xs text-purple-300/70">Correos principales de cada plataforma y proveedores.</p>
+                    <p class="text-xs text-purple-300/70">Correos principales de cada plataforma y costo con proveedor.</p>
                 </div>
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Nueva cuenta</button>
             </div>
@@ -327,7 +327,7 @@
         }
 
         function renderizarDatos(clients, cuentas) {
-            // 1. Clientes / Perfiles
+            // 1. Clientes / Perfiles (Suman las ventas de cada perfil)
             document.getElementById('total-perfiles').textContent = clients.length;
             const tablaClientes = document.getElementById('clientes-table-body');
             const tablaPerfiles = document.getElementById('perfiles-table-body');
@@ -388,7 +388,7 @@
                         <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
                             <div>
                                 <h4 class="font-bold text-white text-xs">${nombre}</h4>
-                                <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Perfil: ${perfil}</p>
+                                <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Perfil: ${perfil} | Pago: S/ ${precio.toFixed(2)}</p>
                             </div>
                             <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
                         </div>
@@ -398,7 +398,7 @@
                         <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <div>
                                 <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil}</span></h4>
-                                <p class="text-[11px] text-amber-400 mt-0.5">Vence: ${vencimiento}</p>
+                                <p class="text-[11px] text-amber-400 mt-0.5">Vence: ${vencimiento} | Monto: S/ ${precio.toFixed(2)}</p>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button onclick="marcarRenovado('${id}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovó</button>
@@ -416,7 +416,7 @@
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Cuentas Maestras
+            // 2. Cuentas Maestras (Muestra solo costo de proveedor, sin precio de venta)
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (cuentas.length > 0) {
                 document.getElementById('total-cuentas').textContent = cuentas.length;
@@ -427,9 +427,6 @@
                     const clave = sub.Clave || sub.clave || '••••••';
                     const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
                     const costo = parseFloat(sub.Costo || sub.costo || 0);
-                    const precioCuenta = parseFloat(sub.Precio || sub.precio || 0);
-                    const fechaCompraCuenta = sub.FechaCompra || sub.fecha_compra || '---';
-                    const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
                     const logoImg = obtenerLogo(plataforma);
                     
                     htmlCuentas += `
@@ -446,9 +443,6 @@
                             </div>
                             <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
                                 <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
-                                <div class="flex justify-between text-purple-300/70"><span>Precio Venta:</span> <span class="text-purple-300 font-semibold">S/ ${precioCuenta.toFixed(2)}</span></div>
-                                <div class="flex justify-between text-purple-300/70"><span>Compra:</span> <span class="text-purple-200">${fechaCompraCuenta}</span></div>
-                                <div class="flex justify-between text-purple-300/70"><span>Vencimiento:</span> <span class="text-amber-400 font-semibold">${vencimientoCuenta}</span></div>
                             </div>
                             <div class="flex justify-between items-center text-xs text-purple-300">
                                 <span>Pass: <code class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">${clave}</code></span>
@@ -521,16 +515,9 @@
             document.getElementById('modal-contenido').innerHTML = `
                 <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cu-pass" placeholder="Contraseña de acceso" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cu-prov" placeholder="Proveedor (ej. YO - BOLIVIA, KIRA)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="cu-costo" placeholder="Costo proveedor (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                    <input type="number" id="cu-precio" placeholder="Precio venta (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
-                    <div>Compra: <input type="date" id="cu-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                    <div>Vencimiento: <input type="date" id="cu-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                </div>
+                <input type="text" id="cu-pass" placeholder="Contraseña (Clave)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-prov" placeholder="Proveedor (ej. YO)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="number" id="cu-costo" placeholder="Costo proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
@@ -563,42 +550,19 @@
             const Clave = document.getElementById('cu-pass').value;
             const Proveedor = document.getElementById('cu-prov').value;
             const Costo = parseFloat(document.getElementById('cu-costo').value) || 0;
-            const Precio = parseFloat(document.getElementById('cu-precio').value) || 0;
-            const FechaCompra = document.getElementById('cu-fcompra').value;
-            const Vencimiento = document.getElementById('cu-vence').value;
 
             if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
-            const datosCuenta = { 
+            const { error } = await _supabase.from('Cuenta Maestra').insert([{ 
                 Plataforma, 
                 Correo, 
                 Clave, 
                 Proveedor, 
-                Costo, 
-                Precio 
-            };
-
-            if (FechaCompra) datosCuenta['FechaCompra'] = FechaCompra;
-            if (Vencimiento) datosCuenta['Vencimiento'] = Vencimiento;
-
-            const { error } = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
+                Costo 
+            }]);
 
             if(error) {
-                // Si la tabla de Supabase aún no tiene esas columnas de fechas creadas en su interfaz, reintentamos guardando sin las fechas para no bloquearte
-                if(error.message.includes('FechaCompra') || error.message.includes('Vencimiento')) {
-                    delete datosCuenta['FechaCompra'];
-                    delete datosCuenta['Vencimiento'];
-                    let segundoIntento = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
-                    if(segundoIntento.error) {
-                        alert("Error al guardar: " + segundoIntento.error.message);
-                    } else {
-                        alert("¡Cuenta guardada con éxito! (Nota: Añade las columnas FechaCompra y Vencimiento en Supabase si deseas guardarlas).");
-                        cerrarModal();
-                        cargarSistema();
-                    }
-                } else {
-                    alert("Error al guardar: " + error.message);
-                }
+                alert("Error al guardar: " + error.message);
             } else {
                 alert("¡Cuenta maestra guardada con éxito!");
                 cerrarModal();
