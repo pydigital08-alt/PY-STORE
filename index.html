@@ -34,19 +34,15 @@
                 </a>
                 <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 text-sm transition">
                     <span>👥</span>
-                    <span>Clientes</span>
+                    <span>Clientes y Perfiles</span>
                 </a>
                 <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 text-sm transition">
                     <span>📱</span>
-                    <span>Cuentas y Perfiles</span>
+                    <span>Cuentas Maestras</span>
                 </a>
                 <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 text-sm transition">
                     <span>🔔</span>
                     <span>Renovaciones <span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full ml-auto" id="pending-count">0</span></span>
-                </a>
-                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 text-sm transition">
-                    <span>🛍️</span>
-                    <span>Proveedores</span>
                 </a>
             </nav>
         </div>
@@ -61,44 +57,44 @@
         <!-- Banner de Bienvenida -->
         <div class="mb-8 bg-gradient-to-r from-[#161b22] to-[#1f2937] border border-gray-800 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center shadow-sm">
             <div>
-                <h2 class="text-2xl font-bold text-white mb-1">Hola, PY Digital. Administra tus cuentas al máximo.</h2>
-                <p class="text-sm text-gray-400">Vencimientos, cobros, rentabilidad y capacidad de cada cuenta a una vista rápida.</p>
+                <h2 class="text-2xl font-bold text-white mb-1">Hola, PY Digital. Control total de tus plataformas.</h2>
+                <p class="text-sm text-gray-400">Gestiona cuentas, costos, perfiles de clientes y cobros automáticos por WhatsApp.</p>
             </div>
             <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
                 <button onclick="abrirModalCuenta()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-red-600/20">+ Cuenta Maestra</button>
-                <button onclick="abrirModalCliente()" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition border border-gray-700">+ Nuevo Cliente</button>
+                <button onclick="abrirModalCliente()" class="bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition border border-gray-700">+ Asignar Perfil / Cliente</button>
             </div>
         </div>
 
         <!-- Tarjetas de Indicadores Principales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-medium">Perfiles / Clientes</p>
+                <p class="text-xs text-gray-400 uppercase font-medium">Perfiles Activos</p>
                 <h3 id="total-perfiles" class="text-3xl font-bold text-white mt-1">0</h3>
-                <p class="text-xs text-gray-500 mt-2">Registrados en total</p>
+                <p class="text-xs text-gray-500 mt-2">Clientes alquilando</p>
             </div>
             <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-medium">Vencen en 7 días</p>
+                <p class="text-xs text-gray-400 uppercase font-medium">Vencen pronto</p>
                 <h3 id="expiring-soon" class="text-3xl font-bold text-yellow-500 mt-1">0</h3>
-                <p class="text-xs text-gray-500 mt-2">Requieren seguimiento</p>
+                <p class="text-xs text-gray-500 mt-2">Próximos a vencer</p>
             </div>
             <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-medium">Ventas Totales</p>
+                <p class="text-xs text-gray-400 uppercase font-medium">Ingresos Estimados</p>
                 <h3 id="month-sales" class="text-3xl font-bold text-green-400 mt-1">S/ 0.00</h3>
-                <p class="text-xs text-gray-500 mt-2">Ingresos estimados</p>
+                <p class="text-xs text-gray-500 mt-2">Suma de perfiles</p>
             </div>
             <div class="bg-[#161b22] border border-gray-800 p-5 rounded-2xl shadow-sm">
                 <p class="text-xs text-gray-400 uppercase font-medium">Cuentas Maestras</p>
                 <h3 id="total-cuentas" class="text-3xl font-bold text-white mt-1">0</h3>
-                <p class="text-xs text-gray-500 mt-2">Plataformas activas</p>
+                <p class="text-xs text-gray-500 mt-2">Plataformas registradas</p>
             </div>
         </div>
 
         <!-- Sección de Cuentas Maestras -->
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-white">Cuentas Maestras</h3>
-                <span class="text-xs text-gray-400">Correos y accesos principales</span>
+                <h3 class="text-lg font-bold text-white">Cuentas Maestras (Proveedores y Accesos)</h3>
+                <span class="text-xs text-gray-400">Control de correos y costos</span>
             </div>
             
             <div id="cuentas-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -111,24 +107,26 @@
         <!-- Sección de Clientes y Cobros por WhatsApp -->
         <div class="mb-8">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-white">Clientes y Cobros por WhatsApp</h3>
-                <span class="text-xs text-gray-400">Envía recordatorios directos</span>
+                <h3 class="text-lg font-bold text-white">Perfiles de Clientes y Cobros por WhatsApp</h3>
+                <span class="text-xs text-gray-400">Recordatorios directos</span>
             </div>
             
             <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 overflow-x-auto">
                 <table class="w-full text-left text-xs text-gray-300">
                     <thead class="border-b border-gray-800 text-gray-400 uppercase">
                         <tr>
+                            <th class="pb-3 px-3">Perfil</th>
                             <th class="pb-3 px-3">Cliente</th>
                             <th class="pb-3 px-3">Celular</th>
-                            <th class="pb-3 px-3">Perfil Asignado</th>
-                            <th class="pb-3 px-3">Estado</th>
+                            <th class="pb-3 px-3">PIN</th>
+                            <th class="pb-3 px-3">Precio</th>
+                            <th class="pb-3 px-3">Vencimiento</th>
                             <th class="pb-3 px-3 text-right">Acción de Cobro</th>
                         </tr>
                     </thead>
                     <tbody id="clientes-table-body">
                         <tr>
-                            <td colspan="5" class="py-4 text-center text-gray-500">Cargando clientes...</td>
+                            <td colspan="7" class="py-4 text-center text-gray-500">Cargando clientes...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -157,38 +155,49 @@
 
         async function cargarSistema() {
             try {
-                // 1. Cargar Clientes desde la tabla "Clientes"
+                // 1. Cargar Clientes / Perfiles desde la tabla "Clientes"
                 const { data: clients } = await _supabase.from('Clientes').select('*');
                 if (clients) {
                     document.getElementById('total-perfiles').textContent = clients.length;
                     const tablaClientes = document.getElementById('clientes-table-body');
                     
+                    let ingresosTotales = 0;
+
                     if(clients.length > 0) {
                         tablaClientes.innerHTML = '';
                         clients.forEach(cli => {
+                            const perfil = cli.Perfil || cli.perfil || 'Perfil';
                             const nombre = cli.Cliente || cli.cliente || 'Cliente';
                             const celular = cli.Celular || cli.celular || '999999999';
-                            const perfil = cli.Perfil || cli.perfil || 'General';
+                            const pin = cli.Pin || cli.pin || '----';
+                            const precio = parseFloat(cli.Precio || cli.precio || 0);
+                            const vencimiento = cli.Vencimiento || cli.vencimiento || '2026-10-30';
+
+                            ingresosTotales += precio;
+
                             const celularClean = celular.toString().replace(/\D/g,'');
-                            const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu suscripción de ${perfil}. ¿Deseas continuar este mes?`);
+                            const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} (${vencimiento}). ¿Deseas continuar este mes?`);
                             const whatsappUrl = `https://wa.me/${celularClean}?text=${mensaje}`;
 
                             tablaClientes.innerHTML += `
                                 <tr class="border-b border-gray-800/50 hover:bg-gray-800/20 transition">
+                                    <td class="py-3 px-3 font-semibold text-cyan-400">${perfil}</td>
                                     <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
                                     <td class="py-3 px-3 text-gray-400">${celular}</td>
-                                    <td class="py-3 px-3 text-cyan-400 font-medium">${perfil}</td>
-                                    <td class="py-3 px-3"><span class="bg-green-500/10 text-green-400 px-2.5 py-1 rounded-full text-[10px] font-medium border border-green-500/20">Activo</span></td>
+                                    <td class="py-3 px-3"><code class="bg-gray-900 px-1.5 py-0.5 rounded text-white">${pin}</code></td>
+                                    <td class="py-3 px-3 text-green-400 font-semibold">S/ ${precio.toFixed(2)}</td>
+                                    <td class="py-3 px-3 text-gray-300">${vencimiento}</td>
                                     <td class="py-3 px-3 text-right">
                                         <a href="${whatsappUrl}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-xl font-medium text-[11px] inline-flex items-center space-x-1 transition shadow-lg shadow-green-600/20">
-                                            <span>💬 Cobrar por WhatsApp</span>
+                                            <span>💬 Cobrar</span>
                                         </a>
                                     </td>
                                 </tr>
                             `;
                         });
+                        document.getElementById('month-sales').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
                     } else {
-                        tablaClientes.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-gray-500">No hay clientes registrados aún. Usa "+ Nuevo Cliente".</td></tr>`;
+                        tablaClientes.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-gray-500">No hay perfiles registrados aún. Usa "+ Asignar Perfil / Cliente".</td></tr>`;
                     }
                 }
 
@@ -204,10 +213,13 @@
                         const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
                         const correo = sub.Correo || sub.correo || 'Sin correo';
                         const password = sub.Contraseña || sub.contrasena || sub.password || '••••••';
+                        const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
+                        const costo = parseFloat(sub.Costo || sub.costo || 0);
+                        const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || 'Sin fecha';
                         
                         contenedorCuentas.innerHTML += `
                             <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-5 shadow-sm relative overflow-hidden">
-                                <div class="flex justify-between items-start mb-4">
+                                <div class="flex justify-between items-start mb-3">
                                     <div class="flex items-center space-x-3">
                                         <div class="bg-red-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm">
                                             ${plataforma.charAt(0).toUpperCase()}
@@ -217,14 +229,15 @@
                                             <p class="text-xs text-gray-400">${correo}</p>
                                         </div>
                                     </div>
-                                    <span class="bg-red-600/10 text-red-500 border border-red-500/20 text-xs px-2.5 py-1 rounded-full font-semibold">Activa</span>
+                                    <span class="bg-gray-800 text-gray-300 border border-gray-700 text-[10px] px-2 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
                                 </div>
-                                <div class="w-full bg-gray-800 rounded-full h-2 mb-4">
-                                    <div class="bg-red-600 h-2 rounded-full" style="width: 70%"></div>
+                                <div class="bg-gray-900/60 p-3 rounded-xl mb-3 text-xs space-y-1">
+                                    <div class="flex justify-between text-gray-400"><span>Costo Proveedor:</span> <span class="text-white font-semibold">S/ ${costo.toFixed(2)}</span></div>
+                                    <div class="flex justify-between text-gray-400"><span>Vence Cuenta:</span> <span class="text-yellow-400 font-semibold">${vencimientoCuenta}</span></div>
                                 </div>
                                 <div class="flex justify-between items-center text-xs text-gray-400">
                                     <span>Pass: <code class="bg-gray-900 px-2 py-0.5 rounded text-white">${password}</code></span>
-                                    <button class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg transition">Gestionar</button>
+                                    <span class="text-green-400 font-medium text-[11px]">Activa</span>
                                 </div>
                             </div>
                         `;
@@ -248,6 +261,11 @@
                 <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix, Max)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cu-pass" placeholder="Contraseña de acceso" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-prov" placeholder="Proveedor (ej. YO - BOLIVIA, KIRA)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="cu-costo" placeholder="Costo (S/)" class="bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                    <input type="date" id="cu-vence" class="bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                </div>
                 <button onclick="guardarCuentaSupabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar Cuenta</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
@@ -255,12 +273,17 @@
         }
 
         function abrirModalCliente() {
-            document.getElementById('modal-titulo').textContent = "Registrar Nuevo Cliente";
+            document.getElementById('modal-titulo').textContent = "Asignar Perfil / Cliente";
             document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="cli-perfil" placeholder="Perfil (ej. Perfil 1, Myra)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cli-perfil" placeholder="Perfil asignado (ej. Myra, Perfil 1)" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
-                <button onclick="guardarClienteSupabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar Cliente</button>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="cli-pin" placeholder="PIN (ej. 1234)" class="bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="cli-precio" placeholder="Precio venta (S/)" class="bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <input type="date" id="cli-vence" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-2.5 text-xs text-white">
+                <button onclick="guardarClienteSupabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-xs transition">Guardar Perfil / Cliente</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
@@ -270,24 +293,30 @@
             const Plataforma = document.getElementById('cu-plat').value;
             const Correo = document.getElementById('cu-correo').value;
             const Contraseña = document.getElementById('cu-pass').value;
+            const Proveedor = document.getElementById('cu-prov').value;
+            const Costo = parseFloat(document.getElementById('cu-costo').value) || 0;
+            const Vencimiento = document.getElementById('cu-vence').value;
 
             if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
-            const { error } = await _supabase.from('Cuenta Maestra').insert([{ Plataforma, Correo, Contraseña }]);
+            const { error } = await _supabase.from('Cuenta Maestra').insert([{ Plataforma, Correo, Contraseña, Proveedor, Costo, Vencimiento }]);
             if(error) alert("Error al guardar: " + error.message);
             else { alert("¡Cuenta maestra guardada con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         async function guardarClienteSupabase() {
+            const Perfil = document.getElementById('cli-perfil').value;
             const Cliente = document.getElementById('cli-nombre').value;
             const Celular = document.getElementById('cli-celular').value;
-            const Perfil = document.getElementById('cli-perfil').value;
+            const Pin = document.getElementById('cli-pin').value;
+            const Precio = parseFloat(document.getElementById('cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('cli-vence').value;
 
-            if(!Cliente) { alert("Ingresa el nombre del cliente"); return; }
+            if(!Cliente || !Perfil) { alert("Ingresa el perfil y el cliente"); return; }
 
-            const { error } = await _supabase.from('Clientes').insert([{ Cliente, Celular, Perfil }]);
+            const { error } = await _supabase.from('Clientes').insert([{ Perfil, Cliente, Celular, Pin, Precio, Vencimiento }]);
             if(error) alert("Error al guardar: " + error.message);
-            else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
+            else { alert("¡Cliente y perfil guardados con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function cerrarModal() {
@@ -295,6 +324,10 @@
             document.getElementById('modal-accion').classList.add('hidden');
         }
 
+        cargarSistema();
+    </script>
+</body>
+</html>
         cargarSistema();
     </script>
 </body>
