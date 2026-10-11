@@ -17,14 +17,12 @@
 </head>
 <body class="min-h-screen flex flex-col md:flex-row">
 
-    <!-- Menú Lateral (Sidebar) en tonos Lila -->
+    <!-- Menú Lateral (Sidebar) con tu logo oficial -->
     <aside class="w-full md:w-64 bg-[#120f1d] border-r border-purple-900/30 p-4 flex flex-col justify-between">
         <div>
             <!-- Logotipo PY STORE -->
             <div class="flex items-center space-x-3 mb-8 px-2 pt-2">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-purple-500/20">
-                    PY
-                </div>
+                <img src="logo.png" alt="PY STORE" class="w-11 h-11 rounded-full object-cover border-2 border-purple-500 shadow-lg shadow-purple-500/30">
                 <div>
                     <h1 class="font-bold text-white text-sm tracking-wider">PY STORE</h1>
                     <p class="text-[11px] text-purple-300">GESTOR DE STREAMING</p>
@@ -108,7 +106,7 @@
                 </div>
             </div>
 
-            <!-- Tarjetas de Métricas (Restauradas) -->
+            <!-- Tarjetas de Métricas -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl shadow-sm">
                     <p class="text-xs text-purple-400 uppercase font-medium">Perfiles Activos</p>
@@ -239,26 +237,46 @@
                 </div>
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Servicio</button>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" id="plataformas-grid">
-                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-red-600/20 text-red-500 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">N</div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="netflix.png" alt="Netflix" class="w-12 h-12 rounded-xl object-contain mb-2">
                     <h4 class="font-bold text-white text-xs">Netflix</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-blue-600/20 text-blue-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">D+</div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="disney.png" alt="Disney+" class="w-12 h-12 rounded-xl object-contain mb-2">
                     <h4 class="font-bold text-white text-xs">Disney+</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-cyan-600/20 text-cyan-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">C</div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="canva.png" alt="Canva" class="w-12 h-12 rounded-xl object-contain mb-2">
                     <h4 class="font-bold text-white text-xs">Canva</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
                 </div>
-                <div class="bg-[#151221] border border-purple-900/30 p-4 rounded-2xl text-center">
-                    <div class="w-12 h-12 bg-purple-600/20 text-purple-400 rounded-xl mx-auto flex items-center justify-center font-bold mb-2">M</div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="hbomax.png" alt="Max" class="w-12 h-12 rounded-xl object-contain mb-2">
                     <h4 class="font-bold text-white text-xs">Max</h4>
-                    <p class="text-[10px] text-purple-400 mt-1">Gestionada</p>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="primevideo.png" alt="Prime Video" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">Prime Video</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="crunchyroll.png" alt="Crunchyroll" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">Crunchyroll</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="spotify.png" alt="Spotify" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">Spotify</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
+                </div>
+                <div class="bg-[#151221] border border-purple-900/30 p-5 rounded-2xl text-center flex flex-col items-center">
+                    <img src="youtubepremium.png" alt="YouTube" class="w-12 h-12 rounded-xl object-contain mb-2">
+                    <h4 class="font-bold text-white text-xs">YouTube Premium</h4>
+                    <p class="text-[10px] text-purple-400 mt-1">Disponible</p>
                 </div>
             </div>
         </div>
@@ -282,6 +300,23 @@
 
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function obtenerLogo(plataforma) {
+            const p = plataforma.toLowerCase();
+            if (p.includes('netflix')) return 'netflix.png';
+            if (p.includes('disney')) return 'disney.png';
+            if (p.includes('canva')) return 'canva.png';
+            if (p.includes('max') || p.includes('hbo')) return 'hbomax.png';
+            if (p.includes('prime')) return 'primevideo.png';
+            if (p.includes('crunchy')) return 'crunchyroll.png';
+            if (p.includes('spotify')) return 'spotify.png';
+            if (p.includes('paramount')) return 'paramount.png';
+            if (p.includes('apple')) return 'appletv.png';
+            if (p.includes('dgo') || p.includes('directv')) return 'dgo.png';
+            if (p.includes('viki')) return 'viki.png';
+            if (p.includes('youtube')) return 'youtubepremium.png';
+            return 'logo.png';
+        }
 
         function cambiarVista(vista) {
             ['resumen', 'clientes', 'perfiles', 'cuentas', 'renovaciones', 'plataformas'].forEach(v => {
@@ -386,7 +421,6 @@
 
                 // 2. Cargar Cuentas Maestras
                 const { data: cuentas } = await _supabase.from('Cuenta Maestra').select('*');
-                const contenedorCuentas = document.getElementById('cuentas-container');
                 const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
                 
                 if (cuentas && cuentas.length > 0) {
@@ -400,14 +434,13 @@
                         const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
                         const costo = parseFloat(sub.Costo || sub.costo || 0);
                         const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
+                        const logoImg = obtenerLogo(plataforma);
                         
                         htmlCuentas += `
                             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden">
                                 <div class="flex justify-between items-start mb-3">
                                     <div class="flex items-center space-x-3">
-                                        <div class="bg-gradient-to-tr from-purple-600 to-pink-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-md">
-                                            ${plataforma.charAt(0).toUpperCase()}
-                                        </div>
+                                        <img src="${logoImg}" alt="${plataforma}" class="w-10 h-10 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
                                         <div>
                                             <h4 class="font-bold text-white text-sm">${plataforma}</h4>
                                             <p class="text-xs text-purple-300/70">${correo}</p>
