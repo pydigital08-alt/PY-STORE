@@ -100,7 +100,7 @@
 
         <!-- VISTA: RESUMEN -->
         <div id="vista-resumen" class="space-y-8">
-            <!-- Banner Bienvenida -->
+            <!-- Banner Bienvenida Dinámico -->
             <div class="bg-gradient-to-r from-[#191428] via-[#1f1836] to-[#251b3d] border border-purple-900/40 rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-center shadow-xl">
                 <div class="z-10 max-w-xl">
                     <span class="text-[11px] font-bold text-purple-400 tracking-widest uppercase">Todas tus plataformas en un solo lugar</span>
@@ -461,17 +461,6 @@
                 return coincideTexto && coincidePlataforma;
             });
 
-            const cuentasFiltradas = globalCuentas.filter(cu => {
-                const plat = (cu.Plataforma || cu.plataforma || '').toLowerCase();
-                const correo = (cu.Correo || cu.correo || '').toLowerCase();
-                const prov = (cu.Proveedor || cu.proveedor || '').toLowerCase();
-                
-                const coincideTexto = plat.includes(query) || correo.includes(query) || prov.includes(query);
-                const coincidePlataforma = filtroPlataformaActual === 'todos' || plat.includes(filtroPlataformaActual.toLowerCase());
-
-                return coincideTexto && coincidePlataforma;
-            });
-
             renderizarDatos(clientesFiltrados, globalCuentas);
         }
 
@@ -482,8 +471,20 @@
             });
         }
 
+        // Función para alternar la visibilidad de la contraseña con el ícono del ojo
+        function togglePassword(id, claveReal) {
+            const spanEl = document.getElementById(`pass-text-${id}`);
+            const btnEl = document.getElementById(`pass-btn-${id}`);
+            if (spanEl.textContent === '••••••') {
+                spanEl.textContent = claveReal;
+                btnEl.textContent = '🙈 Ocultar';
+            } else {
+                spanEl.textContent = '••••••';
+                btnEl.textContent = '👁️ Ver';
+            }
+        }
+
         function renderizarDatos(clients, cuentas) {
-            // Métricas globales siempre calculadas sobre TODOS los clientes y cuentas reales
             document.getElementById('total-perfiles').textContent = globalClients.length;
             const tablaClientes = document.getElementById('clientes-table-body');
             const tablaPerfiles = document.getElementById('perfiles-table-body');
@@ -521,7 +522,6 @@
                 });
             }
 
-            // Actualizar tarjetas de resumen superior
             document.getElementById('resumen-perfiles').textContent = globalClients.length;
             document.getElementById('resumen-vencen').textContent = vencenProntoCount;
             document.getElementById('resumen-ventas').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
@@ -533,12 +533,11 @@
             document.getElementById('fin-egresos').textContent = `S/ ${egresosTotales.toFixed(2)}`;
             document.getElementById('fin-saldo').textContent = `S/ ${gananciaReal.toFixed(2)}`;
 
-            // Barra de Ocupación Global
             const porcentajeOcupacion = totalCapacidadCupos > 0 ? Math.min(100, Math.round((totalPerfilesOcupados / totalCapacidadCupos) * 100)) : 0;
             document.getElementById('barra-ocupacion').style.width = `${porcentajeOcupacion}%`;
             document.getElementById('ocupacion-texto').textContent = `${totalPerfilesOcupados} de ${totalCapacidadCupos} perfiles ocupados (${porcentajeOcupacion}%)`;
 
-            // Widgets del Resumen
+            // Widgets
             const widgetVenc = document.getElementById('widget-vencimientos');
             const proximos = [...globalClients].sort((a,b) => new Date(a.Vencimiento || '2099-01-01') - new Date(b.Vencimiento || '2099-01-01')).slice(0, 3);
             widgetVenc.innerHTML = '';
@@ -577,7 +576,6 @@
                 `;
             }
 
-            // Renderizar tablas con los clientes filtrados
             if(clients.length > 0) {
                 tablaClientes.innerHTML = '';
                 tablaPerfiles.innerHTML = '';
@@ -613,7 +611,6 @@
                     const cuentaHtml = `<span class="text-purple-300 text-[11px] font-mono bg-purple-950/50 px-2 py-0.5 rounded border border-purple-950">${cuentaMaestra}</span>`;
                     const estadoVencimientoHtml = calcularEstadoVencimiento(vencimiento);
 
-                    // Buscar la clave de la cuenta maestra asociada si existe
                     let claveCuenta = '••••••';
                     const cuentaObj = globalCuentas.find(c => (c.Correo || c.correo || '').toLowerCase() === cuentaMaestra.toLowerCase());
                     if (cuentaObj) claveCuenta = cuentaObj.Clave || cuentaObj.clave || '••••••';
@@ -692,7 +689,7 @@
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Renderizar Cuentas Maestras
+            // 2. Renderizar Cuentas Maestras con el botón de Ver/Ocultar contraseña (Ojo)
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (globalCuentas.length > 0) {
                 document.getElementById('total-cuentas').textContent = globalCuentas.length;
@@ -772,7 +769,10 @@
                                 </div>
                             </div>
                             <div class="flex justify-between items-center text-xs text-purple-300 pt-3 border-t border-purple-900/30">
-                                <span>Pass: <code class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">${clave}</code></span>
+                                <div class="flex items-center space-x-2">
+                                    <span>Pass: <code id="pass-text-${id}" class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded text-white">••••••</code></span>
+                                    <button id="pass-btn-${id}" onclick="togglePassword('${id}', '${clave}')" class="text-[10px] bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-md transition">👁️ Ver</button>
+                                </div>
                                 <button onclick="abrirModalRenovarCuenta('${id}', '${plataforma}', '${costo}', '${periodo}', '${vencimientoCuenta}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🔄 Renovar / Mes</button>
                             </div>
                         </div>
