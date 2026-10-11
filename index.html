@@ -424,7 +424,7 @@
                 cuentas.forEach(sub => {
                     const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
                     const correo = sub.Correo || sub.correo || 'Sin correo';
-                    const clave = sub.clave || sub.Clave || sub.Contraseña || sub.password || '••••••';
+                    const clave = sub.Contraseña || sub.contrasena || sub.Password || sub.password || sub.clave || '••••••';
                     const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
                     const costo = parseFloat(sub.Costo || sub.costo || 0);
                     const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
@@ -561,11 +561,16 @@
 
             if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
-            // Guardamos apuntando exactamente a la columna 'clave' de tu tabla
+            // Enviamos el objeto incluyendo simultáneamente todas las variantes posibles de nombre de columna para evitar cualquier error de caché en Supabase
             const { error } = await _supabase.from('Cuenta Maestra').insert([{ 
                 Plataforma, 
                 Correo, 
-                clave: claveVal, 
+                Contraseña: claveVal,
+                contrasena: claveVal,
+                password: claveVal,
+                Password: claveVal,
+                clave: claveVal,
+                Clave: claveVal,
                 Proveedor, 
                 Costo, 
                 FechaCompra, 
