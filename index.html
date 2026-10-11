@@ -140,7 +140,7 @@
                     <table class="w-full text-left text-xs text-purple-200">
                         <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
                             <tr>
-                                <th class="pb-3 px-3">Perfil</th>
+                                <th class="pb-3 px-3">Perfil / Plataforma</th>
                                 <th class="pb-3 px-3">Cliente</th>
                                 <th class="pb-3 px-3">Celular</th>
                                 <th class="pb-3 px-3">PIN</th>
@@ -180,7 +180,7 @@
             <div class="bg-[#151221] border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold text-white">Perfiles</h3>
-                    <p class="text-xs text-purple-300/70">Perfiles vendidos o asignados a clientes.</p>
+                    <p class="text-xs text-purple-300/70">Perfiles vendidos o asignados a clientes con su respectiva plataforma.</p>
                 </div>
                 <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
             </div>
@@ -188,7 +188,7 @@
                 <table class="w-full text-left text-xs text-purple-200">
                     <thead class="border-b border-purple-900/30 text-purple-400 uppercase">
                         <tr>
-                            <th class="pb-3 px-3">Perfil</th>
+                            <th class="pb-3 px-3">Perfil / Plataforma</th>
                             <th class="pb-3 px-3">Cliente</th>
                             <th class="pb-3 px-3">Celular</th>
                             <th class="pb-3 px-3">PIN</th>
@@ -281,6 +281,7 @@
         let globalCuentas = [];
 
         function obtenerLogo(plataforma) {
+            if (!plataforma) return 'logo.png';
             const p = plataforma.toLowerCase();
             if (p.includes('netflix')) return 'netflix.png';
             if (p.includes('disney')) return 'disney.png';
@@ -345,21 +346,33 @@
                 clients.forEach(cli => {
                     const id = cli.id || cli.ID;
                     const perfil = cli.Perfil || cli.perfil || 'Perfil';
+                    const plataforma = cli.Plataforma || cli.plataforma || 'Netflix';
                     const nombre = cli.Cliente || cli.cliente || 'Cliente';
                     const celular = cli.Celular || cli.celular || '999999999';
                     const pin = cli.Pin || cli.pin || '----';
                     const precio = parseFloat(cli.Precio || cli.precio || 0);
                     const vencimiento = cli.Vencimiento || cli.vencimiento || '---';
+                    const logoImg = obtenerLogo(plataforma);
 
                     ingresosTotales += precio;
 
                     const celularClean = celular.toString().replace(/\D/g,'');
-                    const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} (vence: ${vencimiento}). ¿Deseas continuar este mes?`);
+                    const mensaje = encodeURIComponent(`¡Hola ${nombre}! Te escribo de PY STORE para recordarte sobre la renovación de tu perfil ${perfil} de ${plataforma} (vence: ${vencimiento}). ¿Deseas continuar este mes?`);
                     const whatsappUrl = `https://wa.me/${celularClean}?text=${mensaje}`;
+
+                    const colPerfilHtml = `
+                        <div class="flex items-center space-x-2.5">
+                            <img src="${logoImg}" alt="${plataforma}" class="w-7 h-7 rounded-lg object-contain bg-purple-950/40 p-0.5 border border-purple-900/40">
+                            <div>
+                                <span class="font-semibold text-white">${perfil}</span>
+                                <span class="block text-[10px] text-purple-400">${plataforma}</span>
+                            </div>
+                        </div>
+                    `;
 
                     tablaClientes.innerHTML += `
                         <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
-                            <td class="py-3 px-3 font-semibold text-purple-300">${perfil}</td>
+                            <td class="py-3 px-3">${colPerfilHtml}</td>
                             <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
                             <td class="py-3 px-3 text-purple-300/70">${celular}</td>
                             <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
@@ -375,7 +388,7 @@
 
                     tablaPerfiles.innerHTML += `
                         <tr class="border-b border-purple-900/20">
-                            <td class="py-3 px-3 font-semibold text-purple-300">${perfil}</td>
+                            <td class="py-3 px-3">${colPerfilHtml}</td>
                             <td class="py-3 px-3 font-semibold text-white">${nombre}</td>
                             <td class="py-3 px-3 text-purple-300/70">${celular}</td>
                             <td class="py-3 px-3"><code class="bg-purple-950/60 border border-purple-800/35 px-1.5 py-0.5 rounded text-purple-200">${pin}</code></td>
@@ -386,9 +399,12 @@
 
                     listaClientes.innerHTML += `
                         <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
-                            <div>
-                                <h4 class="font-bold text-white text-xs">${nombre}</h4>
-                                <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Perfil: ${perfil} | Pago: S/ ${precio.toFixed(2)}</p>
+                            <div class="flex items-center space-x-3">
+                                <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
+                                <div>
+                                    <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
+                                    <p class="text-[11px] text-purple-300/70">Celular: ${celular} | Pago: S/ ${precio.toFixed(2)}</p>
+                                </div>
                             </div>
                             <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
                         </div>
@@ -396,9 +412,12 @@
 
                     listaRenovaciones.innerHTML += `
                         <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                            <div>
-                                <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil}</span></h4>
-                                <p class="text-[11px] text-amber-400 mt-0.5">Vence: ${vencimiento} | Monto: S/ ${precio.toFixed(2)}</p>
+                            <div class="flex items-center space-x-3">
+                                <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
+                                <div>
+                                    <h4 class="font-bold text-white text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
+                                    <p class="text-[11px] text-amber-400 mt-0.5">Vence: ${vencimiento} | Monto: S/ ${precio.toFixed(2)}</p>
+                                </div>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button onclick="marcarRenovado('${id}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovó</button>
@@ -416,7 +435,7 @@
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Cuentas Maestras (Muestra periodo, costo, fecha de compra y vencimiento)
+            // 2. Cuentas Maestras
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (cuentas.length > 0) {
                 document.getElementById('total-cuentas').textContent = cuentas.length;
@@ -553,7 +572,8 @@
                 const nombre = (cli.Cliente || cli.cliente || '').toLowerCase();
                 const perfil = (cli.Perfil || cli.perfil || '').toLowerCase();
                 const celular = (cli.Celular || cli.celular || '').toLowerCase();
-                return nombre.includes(query) || perfil.includes(query) || celular.includes(query);
+                const plat = (cli.Plataforma || cli.plataforma || '').toLowerCase();
+                return nombre.includes(query) || perfil.includes(query) || celular.includes(query) || plat.includes(query);
             });
 
             const cuentasFiltradas = globalCuentas.filter(cu => {
@@ -588,6 +608,7 @@
         function abrirModalCliente() {
             document.getElementById('modal-titulo').textContent = "Registrar Cliente y Perfil";
             document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="cli-plat" placeholder="Plataforma (ej. Netflix, Disney+, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-perfil" placeholder="Perfil (ej. Perfil 1, Myra)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
                 <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
@@ -651,6 +672,7 @@
         }
 
         async function guardarClienteSupabase() {
+            const Plataforma = document.getElementById('cli-plat').value;
             const Perfil = document.getElementById('cli-perfil').value;
             const Cliente = document.getElementById('cli-nombre').value;
             const Celular = document.getElementById('cli-celular').value;
@@ -659,9 +681,9 @@
             const FechaCompra = document.getElementById('cli-fcompra').value;
             const Vencimiento = document.getElementById('cli-vence').value;
 
-            if(!Cliente || !Perfil) { alert("Ingresa el perfil y el cliente"); return; }
+            if(!Cliente || !Perfil || !Plataforma) { alert("Ingresa la plataforma, el perfil y el cliente"); return; }
 
-            const { error } = await _supabase.from('Clientes').insert([{ Perfil, Cliente, Celular, Pin, Precio, FechaCompra, Vencimiento }]);
+            const { error } = await _supabase.from('Clientes').insert([{ Plataforma, Perfil, Cliente, Celular, Pin, Precio, FechaCompra, Vencimiento }]);
             if(error) alert("Error al guardar: " + error.message);
             else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
         }
