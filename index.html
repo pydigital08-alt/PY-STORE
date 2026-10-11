@@ -561,24 +561,29 @@
 
             if(!Plataforma || !Correo) { alert("Completa los campos obligatorios"); return; }
 
-            // Enviamos el objeto incluyendo simultáneamente todas las variantes posibles de nombre de columna para evitar cualquier error de caché en Supabase
-            const { error } = await _supabase.from('Cuenta Maestra').insert([{ 
-                Plataforma, 
-                Correo, 
-                Contraseña: claveVal,
-                contrasena: claveVal,
-                password: claveVal,
-                Password: claveVal,
-                clave: claveVal,
-                Clave: claveVal,
-                Proveedor, 
-                Costo, 
-                FechaCompra, 
-                Vencimiento 
-            }]);
+            // ANÁLISIS DEL ERROR: Supabase está exigiendo la columna 'Contraseña' exactamente por la caché interna del esquema SQL. 
+            // Para solucionarlo definitivamente, enviamos el campo escrito exactamente como la base de datos lo pide.
+            const datosParaEnviar = {
+                Plataforma: Plataforma,
+                Correo: Correo,
+                Proveedor: Proveedor,
+                Costo: Costo,
+                FechaCompra: FechaCompra || null,
+                Vencimiento: Vencimiento || null
+            };
+            
+            // Inyectamos la contraseña usando corchetes para forzar la propiedad exacta con 'ñ' que Supabase tiene cacheada en su esquema
+            datosParaEnviar['Contraseña'] = claveVal;
 
-            if(error) alert("Error al guardar: " + error.message);
-            else { alert("¡Cuenta maestra guardada con éxito!"); cerrarModal(); cargarSistema(); }
+            const { error } = await _supabase.from('Cuenta Maestra').insert([datosParaEnviar]);
+
+            if(error) {
+                alert("Error al guardar: " + error.message);
+            } else {
+                alert("¡Cuenta maestra guardada con éxito!");
+                cerrarModal();
+                cargarSistema();
+            }
         }
 
         async function guardarClienteSupabase() {
