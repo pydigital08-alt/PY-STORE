@@ -27,6 +27,10 @@
 </head>
 <body class="min-h-screen flex flex-col md:flex-row theme-oscuro-femenino">
 
+    <!-- Elemento auxiliar oculto para evitar errores de referencia -->
+    <span id="total-perfiles" class="hidden">0</span>
+    <span id="total-cuentas" class="hidden">0</span>
+
     <!-- PANTALLA DE LOGIN / BLOQUEO DE SEGURIDAD (Clave: 1911) -->
     <div id="pantalla-login" class="fixed inset-0 bg-[#0b0914] z-50 flex items-center justify-center p-4">
         <div class="bg-[#151221] border border-purple-900/50 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl shadow-purple-950">
@@ -663,7 +667,12 @@
         }
 
         function renderizarDatos(clients, cuentas) {
-            document.getElementById('total-perfiles').textContent = globalClients.length;
+            const elTotalPerfiles = document.getElementById('total-perfiles');
+            if(elTotalPerfiles) elTotalPerfiles.textContent = globalClients.length;
+
+            const elTotalCuentas = document.getElementById('total-cuentas');
+            if(elTotalCuentas) elTotalCuentas.textContent = globalCuentas.length;
+
             const tablaClientes = document.getElementById('clientes-table-body');
             const tablaPerfiles = document.getElementById('perfiles-table-body');
             const listaClientes = document.getElementById('lista-clientes-completa');
@@ -701,57 +710,78 @@
             }
 
             const badge = document.getElementById('badge-alerta');
-            if (vencenProntoCount > 0) {
-                badge.textContent = vencenProntoCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
+            if (badge) {
+                if (vencenProntoCount > 0) {
+                    badge.textContent = vencenProntoCount;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
             }
 
-            document.getElementById('resumen-perfiles').textContent = globalClients.length;
-            document.getElementById('resumen-vencen').textContent = vencenProntoCount;
-            document.getElementById('resumen-ventas').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
-            const gananciaReal = ingresosTotales - egresosTotales;
-            document.getElementById('resumen-ganancia').textContent = `S/ ${gananciaReal.toFixed(2)}`;
-            document.getElementById('resumen-por-cobrar').textContent = `S/ ${porCobrarTotal.toFixed(2)}`;
+            const elResPerfiles = document.getElementById('resumen-perfiles');
+            if(elResPerfiles) elResPerfiles.textContent = globalClients.length;
 
-            document.getElementById('fin-ingresos').textContent = `S/ ${ingresosTotales.toFixed(2)}`;
-            document.getElementById('fin-egresos').textContent = `S/ ${egresosTotales.toFixed(2)}`;
-            document.getElementById('fin-saldo').textContent = `S/ ${gananciaReal.toFixed(2)}`;
+            const elResVencen = document.getElementById('resumen-vencen');
+            if(elResVencen) elResVencen.textContent = vencenProntoCount;
+
+            const elResVentas = document.getElementById('resumen-ventas');
+            if(elResVentas) elResVentas.textContent = `S/ ${ingresosTotales.toFixed(2)}`;
+
+            const gananciaReal = ingresosTotales - egresosTotales;
+            const elResGanancia = document.getElementById('resumen-ganancia');
+            if(elResGanancia) elResGanancia.textContent = `S/ ${gananciaReal.toFixed(2)}`;
+
+            const elResCobrar = document.getElementById('resumen-por-cobrar');
+            if(elResCobrar) elResCobrar.textContent = `S/ ${porCobrarTotal.toFixed(2)}`;
+
+            const elFinIngresos = document.getElementById('fin-ingresos');
+            if(elFinIngresos) elFinIngresos.textContent = `S/ ${ingresosTotales.toFixed(2)}`;
+
+            const elFinEgresos = document.getElementById('fin-egresos');
+            if(elFinEgresos) elFinEgresos.textContent = `S/ ${egresosTotales.toFixed(2)}`;
+
+            const elFinSaldo = document.getElementById('fin-saldo');
+            if(elFinSaldo) elFinSaldo.textContent = `S/ ${gananciaReal.toFixed(2)}`;
 
             const porcentajeOcupacion = totalCapacidadCupos > 0 ? Math.min(100, Math.round((totalPerfilesOcupados / totalCapacidadCupos) * 100)) : 0;
-            document.getElementById('barra-ocupacion').style.width = `${porcentajeOcupacion}%`;
-            document.getElementById('ocupacion-texto').textContent = `${totalPerfilesOcupados} de ${totalCapacidadCupos} perfiles ocupados (${porcentajeOcupacion}%)`;
+            const barraOcupacion = document.getElementById('barra-ocupacion');
+            if(barraOcupacion) barraOcupacion.style.width = `${porcentajeOcupacion}%`;
+
+            const ocupacionTexto = document.getElementById('ocupacion-texto');
+            if(ocupacionTexto) ocupacionTexto.textContent = `${totalPerfilesOcupados} de ${totalCapacidadCupos} perfiles ocupados (${porcentajeOcupacion}%)`;
 
             renderizarGraficos(globalClients);
 
             const widgetVenc = document.getElementById('widget-vencimientos');
-            const proximos = [...globalClients].sort((a,b) => new Date(a.Vencimiento || '2099-01-01') - new Date(b.Vencimiento || '2099-01-01')).slice(0, 3);
-            widgetVenc.innerHTML = '';
-            if(proximos.length > 0) {
-                proximos.forEach(p => {
-                    const v = p.Vencimiento || p.vencimiento || '---';
-                    const c = p.Cliente || p.cliente || 'Cliente';
-                    const pf = p.Perfil || p.perfil || 'Perfil';
-                    widgetVenc.innerHTML += `
-                        <div class="bg-[#1a152d] p-2.5 rounded-xl flex justify-between items-center text-xs">
-                            <div>
-                                <span class="font-bold text-white">${c}</span> <span class="text-purple-300">(${pf})</span>
-                                <div class="text-[10px] text-amber-400">Vence: ${v}</div>
+            if(widgetVenc) {
+                const proximos = [...globalClients].sort((a,b) => new Date(a.Vencimiento || '2099-01-01') - new Date(b.Vencimiento || '2099-01-01')).slice(0, 3);
+                widgetVenc.innerHTML = '';
+                if(proximos.length > 0) {
+                    proximos.forEach(p => {
+                        const v = p.Vencimiento || p.vencimiento || '---';
+                        const c = p.Cliente || p.cliente || 'Cliente';
+                        const pf = p.Perfil || p.perfil || 'Perfil';
+                        widgetVenc.innerHTML += `
+                            <div class="bg-[#1a152d] p-2.5 rounded-xl flex justify-between items-center text-xs">
+                                <div>
+                                    <span class="font-bold text-white">${c}</span> <span class="text-purple-300">(${pf})</span>
+                                    <div class="text-[10px] text-amber-400">Vence: ${v}</div>
+                                </div>
+                                <button onclick="cambiarVista('renovaciones')" class="text-[10px] bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg">Gestionar</button>
                             </div>
-                            <button onclick="cambiarVista('renovaciones')" class="text-[10px] bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg">Gestionar</button>
-                        </div>
-                    `;
-                });
-            } else {
-                widgetVenc.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-6">No hay vencimientos cercanos.</p>`;
+                        `;
+                    });
+                } else {
+                    widgetVenc.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-6">No hay vencimientos cercanos.</p>`;
+                }
             }
 
             if(clients.length > 0) {
-                tablaClientes.innerHTML = '';
-                tablaPerfiles.innerHTML = '';
-                listaClientes.innerHTML = '';
-                listaRenovaciones.innerHTML = '';
+                if(tablaClientes) tablaClientes.innerHTML = '';
+                if(tablaPerfiles) tablaPerfiles.innerHTML = '';
+                if(listaClientes) listaClientes.innerHTML = '';
+                if(listaRenovaciones) listaRenovaciones.innerHTML = '';
 
                 clients.forEach(cli => {
                     const id = cli.id || cli.ID;
@@ -788,176 +818,186 @@
                     const cuentaObj = globalCuentas.find(c => (c.Correo || c.correo || '').toLowerCase() === cuentaMaestra.toLowerCase());
                     if (cuentaObj) claveCuenta = cuentaObj.Clave || cuentaObj.clave || '••••••';
 
-                    tablaClientes.innerHTML += `
-                        <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
-                            <td class="py-3 px-3">${colPerfilHtml}</td>
-                            <td class="py-3 px-3">${cuentaHtml}</td>
-                            <td class="py-3 px-3 font-semibold">${nombre}</td>
-                            <td class="py-3 px-3 text-purple-300/70">${celular}</td>
-                            <td class="py-3 px-3"><code>${pin}</code></td>
-                            <td class="py-3 px-3">${metodoPagoBadge}</td>
-                            <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
-                            <td class="py-3 px-3">${estadoVencimientoHtml}</td>
-                            <td class="py-3 px-3 text-purple-300/70 text-[11px]">${notas}</td>
-                            <td class="py-3 px-3 text-right space-x-1">
-                                <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/30 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-lg text-[11px]">📋 Copiar</button>
-                                <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[11px] inline-flex items-center space-x-1"><span>💬 Cobrar</span></a>
-                            </td>
-                        </tr>
-                    `;
+                    if(tablaClientes) {
+                        tablaClientes.innerHTML += `
+                            <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
+                                <td class="py-3 px-3">${colPerfilHtml}</td>
+                                <td class="py-3 px-3">${cuentaHtml}</td>
+                                <td class="py-3 px-3 font-semibold">${nombre}</td>
+                                <td class="py-3 px-3 text-purple-300/70">${celular}</td>
+                                <td class="py-3 px-3"><code>${pin}</code></td>
+                                <td class="py-3 px-3">${metodoPagoBadge}</td>
+                                <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
+                                <td class="py-3 px-3">${estadoVencimientoHtml}</td>
+                                <td class="py-3 px-3 text-purple-300/70 text-[11px]">${notas}</td>
+                                <td class="py-3 px-3 text-right space-x-1">
+                                    <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/30 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-lg text-[11px]">📋 Copiar</button>
+                                    <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[11px] inline-flex items-center space-x-1"><span>💬 Cobrar</span></a>
+                                </td>
+                            </tr>
+                        `;
+                    }
 
-                    tablaPerfiles.innerHTML += `
-                        <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
-                            <td class="py-3 px-3">${colPerfilHtml}</td>
-                            <td class="py-3 px-3">${cuentaHtml}</td>
-                            <td class="py-3 px-3 font-semibold">${nombre}</td>
-                            <td class="py-3 px-3 text-purple-300/70">${celular}</td>
-                            <td class="py-3 px-3"><code>${pin}</code></td>
-                            <td class="py-3 px-3">${metodoPagoBadge}</td>
-                            <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
-                            <td class="py-3 px-3">${estadoVencimientoHtml}</td>
-                            <td class="py-3 px-3 text-purple-300/70 text-[11px]">${notas}</td>
-                            <td class="py-3 px-3 text-right space-x-1">
-                                <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-[10px]">📋</button>
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}', '${notas}')" class="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-[10px]">✏️</button>
-                                <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded-lg text-[10px]">✅</button>
-                            </td>
-                        </tr>
-                    `;
+                    if(tablaPerfiles) {
+                        tablaPerfiles.innerHTML += `
+                            <tr class="border-b border-purple-900/20 hover:bg-purple-950/20 transition">
+                                <td class="py-3 px-3">${colPerfilHtml}</td>
+                                <td class="py-3 px-3">${cuentaHtml}</td>
+                                <td class="py-3 px-3 font-semibold">${nombre}</td>
+                                <td class="py-3 px-3 text-purple-300/70">${celular}</td>
+                                <td class="py-3 px-3"><code>${pin}</code></td>
+                                <td class="py-3 px-3">${metodoPagoBadge}</td>
+                                <td class="py-3 px-3 text-emerald-400 font-semibold">S/ ${precio.toFixed(2)}</td>
+                                <td class="py-3 px-3">${estadoVencimientoHtml}</td>
+                                <td class="py-3 px-3 text-purple-300/70 text-[11px]">${notas}</td>
+                                <td class="py-3 px-3 text-right space-x-1">
+                                    <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-[10px]">📋</button>
+                                    <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}', '${notas}')" class="bg-purple-600/30 text-purple-200 px-2 py-1 rounded-lg text-[10px]">✏️</button>
+                                    <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded-lg text-[10px]">✅</button>
+                                </td>
+                            </tr>
+                        `;
+                    }
 
-                    listaClientes.innerHTML += `
-                        <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
-                            <div class="flex items-center space-x-3">
-                                <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
-                                <div>
-                                    <h4 class="font-bold text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
-                                    <p class="text-[11px] text-purple-300/70">Cuenta: ${cuentaMaestra} | Pago: Plin (BBVA) | Vence: ${vencimiento}</p>
-                                    <p class="text-[10px] text-purple-400 mt-0.5">Nota: ${notas}</p>
+                    if(listaClientes) {
+                        listaClientes.innerHTML += `
+                            <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex justify-between items-center">
+                                <div class="flex items-center space-x-3">
+                                    <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
+                                    <div>
+                                        <h4 class="font-bold text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
+                                        <p class="text-[11px] text-purple-300/70">Cuenta: ${cuentaMaestra} | Pago: Plin (BBVA) | Vence: ${vencimiento}</p>
+                                        <p class="text-[10px] text-purple-400 mt-0.5">Nota: ${notas}</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">📋 Copiar</button>
+                                    <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
                                 </div>
                             </div>
-                            <div class="flex space-x-2">
-                                <button onclick="copiarPlantillaWhatsApp('${plataforma}', '${cuentaMaestra}', '${claveCuenta}', '${pin}', '${vencimiento}', '${nombre}')" class="bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">📋 Copiar</button>
-                                <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold">WhatsApp</a>
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    }
 
-                    listaRenovaciones.innerHTML += `
-                        <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                            <div class="flex items-center space-x-3">
-                                <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
-                                <div>
-                                    <h4 class="font-bold text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
-                                    <p class="text-[11px] text-purple-300">Cuenta: ${cuentaMaestra}</p>
-                                    <p class="text-[11px] text-amber-400 mt-0.5">Vencimiento: ${vencimiento} (${estadoVencimientoHtml})</p>
+                    if(listaRenovaciones) {
+                        listaRenovaciones.innerHTML += `
+                            <div class="bg-[#1a152d] border border-purple-900/30 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                <div class="flex items-center space-x-3">
+                                    <img src="${logoImg}" alt="${plataforma}" class="w-9 h-9 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
+                                    <div>
+                                        <h4 class="font-bold text-xs">${nombre} — <span class="text-purple-300">${perfil} (${plataforma})</span></h4>
+                                        <p class="text-[11px] text-purple-300">Cuenta: ${cuentaMaestra}</p>
+                                        <p class="text-[11px] text-amber-400 mt-0.5">Vencimiento: ${vencimiento} (${estadoVencimientoHtml})</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovar</button>
+                                    <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}', '${notas}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
+                                    <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <button onclick="abrirModalRenovarCliente('${id}', '${plataforma}', '${perfil}', '${precio}', '${vencimiento}')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✅ Renovar</button>
-                                <button onclick="abrirModalEditarCliente('${id}', '${plataforma}', '${cuentaMaestra}', '${perfil}', '${nombre}', '${celular}', '${pin}', '${precio}', '${vencimiento}', '${notas}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ Editar</button>
-                                <button onclick="marcarNoRenovado('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">❌ No renovó</button>
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 });
             } else {
-                tablaClientes.innerHTML = `<tr><td colspan="10" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
-                tablaPerfiles.innerHTML = `<tr><td colspan="10" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
-                listaClientes.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
-                listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
+                if(tablaClientes) tablaClientes.innerHTML = `<tr><td colspan="10" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                if(tablaPerfiles) tablaPerfiles.innerHTML = `<tr><td colspan="10" class="py-4 text-center text-purple-400/60">No se encontraron resultados.</td></tr>`;
+                if(listaClientes) listaClientes.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
+                if(listaRenovaciones) listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
             // 2. Renderizar Cuentas Maestras
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
-            if (globalCuentas.length > 0) {
-                let htmlCuentas = '';
-                globalCuentas.forEach(sub => {
-                    const id = sub.id || sub.ID;
-                    const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
-                    const correo = sub.Correo || sub.correo || 'Sin correo';
-                    const clave = sub.Clave || sub.clave || '••••••';
-                    const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
-                    const costo = parseFloat(sub.Costo || sub.costo || sub.Precio || 0);
-                    const periodo = sub.Periodo || sub.periodo || 'Mes Actual';
-                    const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
-                    const logoImg = obtenerLogo(plataforma);
+            if (contenedorCuentasFull) {
+                if (globalCuentas.length > 0) {
+                    let htmlCuentas = '';
+                    globalCuentas.forEach(sub => {
+                        const id = sub.id || sub.ID;
+                        const plataforma = sub.Plataforma || sub.plataforma || 'Plataforma';
+                        const correo = sub.Correo || sub.correo || 'Sin correo';
+                        const clave = sub.Clave || sub.clave || '••••••';
+                        const proveedor = sub.Proveedor || sub.proveedor || 'No especificado';
+                        const costo = parseFloat(sub.Costo || sub.costo || sub.Precio || 0);
+                        const periodo = sub.Periodo || sub.periodo || 'Mes Actual';
+                        const vencimientoCuenta = sub.Vencimiento || sub.vencimiento || '---';
+                        const logoImg = obtenerLogo(plataforma);
 
-                    const perfilesAsignados = globalClients.filter(cli => {
-                        const cliCorreo = (cli.CuentaMaestra || cli.cuenta_maestra || cli.CorreoCuenta || '').toLowerCase();
-                        const cliPlat = (cli.Plataforma || cli.plataforma || '').toLowerCase();
-                        return cliCorreo === correo.toLowerCase() || (cliCorreo === '' && cliPlat === plataforma.toLowerCase());
-                    });
+                        const perfilesAsignados = globalClients.filter(cli => {
+                            const cliCorreo = (cli.CuentaMaestra || cli.cuenta_maestra || cli.CorreoCuenta || '').toLowerCase();
+                            const cliPlat = (cli.Plataforma || cli.plataforma || '').toLowerCase();
+                            return cliCorreo === correo.toLowerCase() || (cliCorreo === '' && cliPlat === plataforma.toLowerCase());
+                        });
 
-                    const totalCupos = 5;
-                    const perfilesOcupados = perfilesAsignados.length;
-                    const perfilesDisponibles = Math.max(0, totalCupos - perfilesOcupados);
+                        const totalCupos = 5;
+                        const perfilesOcupados = perfilesAsignados.length;
+                        const perfilesDisponibles = Math.max(0, totalCupos - perfilesOcupados);
 
-                    let perfilesHtml = '';
-                    if (perfilesOcupados > 0) {
-                        perfilesAsignados.forEach(p => {
-                            const pNombre = p.Perfil || p.perfil || 'Perfil';
-                            const pCliente = p.Cliente || p.cliente || 'Cliente';
-                            const pPin = p.Pin || p.pin || '----';
-                            const pVence = p.Vencimiento || p.vencimiento || '---';
-                            perfilesHtml += `
-                                <div class="bg-[#120f1d] border border-purple-900/40 p-2.5 rounded-xl mb-1.5 flex justify-between items-center text-xs">
-                                    <div>
-                                        <span class="font-bold">👤 ${pNombre}</span> <span class="text-purple-300">(${pCliente})</span>
-                                        <div class="text-[10px] text-purple-400 mt-0.5">PIN: <code>${pPin}</code> | Vence: ${pVence}</div>
+                        let perfilesHtml = '';
+                        if (perfilesOcupados > 0) {
+                            perfilesAsignados.forEach(p => {
+                                const pNombre = p.Perfil || p.perfil || 'Perfil';
+                                const pCliente = p.Cliente || p.cliente || 'Cliente';
+                                const pPin = p.Pin || p.pin || '----';
+                                const pVence = p.Vencimiento || p.vencimiento || '---';
+                                perfilesHtml += `
+                                    <div class="bg-[#120f1d] border border-purple-900/40 p-2.5 rounded-xl mb-1.5 flex justify-between items-center text-xs">
+                                        <div>
+                                            <span class="font-bold">👤 ${pNombre}</span> <span class="text-purple-300">(${pCliente})</span>
+                                            <div class="text-[10px] text-purple-400 mt-0.5">PIN: <code>${pPin}</code> | Vence: ${pVence}</div>
+                                        </div>
+                                        <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">Ocupado</span>
                                     </div>
-                                    <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">Ocupado</span>
+                                `;
+                            });
+                        }
+
+                        for (let i = perfilesOcupados; i < totalCupos; i++) {
+                            perfilesHtml += `
+                                <div class="bg-[#120f1d]/50 border border-dashed border-purple-900/30 p-2.5 rounded-xl mb-1.5 flex justify-between items-center text-xs text-purple-400/60">
+                                    <span>➕ Espacio libre #${i + 1}</span>
+                                    <span class="bg-purple-950/60 border border-purple-800/30 px-2 py-0.5 rounded-full text-[10px] text-purple-300">Disponible</span>
                                 </div>
                             `;
-                        });
-                    }
-
-                    for (let i = perfilesOcupados; i < totalCupos; i++) {
-                        perfilesHtml += `
-                            <div class="bg-[#120f1d]/50 border border-dashed border-purple-900/30 p-2.5 rounded-xl mb-1.5 flex justify-between items-center text-xs text-purple-400/60">
-                                <span>➕ Espacio libre #${i + 1}</span>
-                                <span class="bg-purple-950/60 border border-purple-800/30 px-2 py-0.5 rounded-full text-[10px] text-purple-300">Disponible</span>
-                            </div>
-                        `;
-                    }
-                    
-                    htmlCuentas += `
-                        <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden flex flex-col justify-between">
-                            <div>
-                                <div class="flex justify-between items-start mb-3">
-                                    <div class="flex items-center space-x-3">
-                                        <img src="${logoImg}" alt="${plataforma}" class="w-10 h-10 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
-                                        <div>
-                                            <h4 class="font-bold text-sm">${plataforma}</h4>
-                                            <p class="text-xs text-purple-300 font-mono">${correo}</p>
+                        }
+                        
+                        htmlCuentas += `
+                            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-5 shadow-sm relative overflow-hidden flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="${logoImg}" alt="${plataforma}" class="w-10 h-10 rounded-xl object-contain bg-purple-950/40 p-1 border border-purple-900/40">
+                                            <div>
+                                                <h4 class="font-bold text-sm">${plataforma}</h4>
+                                                <p class="text-xs text-purple-300 font-mono">${correo}</p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
+                                    </div>
+                                    <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
+                                        <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="font-semibold">${periodo}</span></div>
+                                        <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
+                                        <div class="flex justify-between text-purple-300/70"><span>Espacios Libres:</span> <span class="text-pink-400 font-bold">${perfilesDisponibles} de ${totalCupos} libres</span></div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <p class="text-[10px] font-bold text-purple-400 uppercase mb-2">Perfiles en esta cuenta:</p>
+                                        <div class="max-h-56 overflow-y-auto space-y-1 pr-1">
+                                            ${perfilesHtml}
                                         </div>
                                     </div>
-                                    <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
                                 </div>
-                                <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
-                                    <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="font-semibold">${periodo}</span></div>
-                                    <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
-                                    <div class="flex justify-between text-purple-300/70"><span>Espacios Libres:</span> <span class="text-pink-400 font-bold">${perfilesDisponibles} de ${totalCupos} libres</span></div>
-                                </div>
-                                <div class="mb-4">
-                                    <p class="text-[10px] font-bold text-purple-400 uppercase mb-2">Perfiles en esta cuenta:</p>
-                                    <div class="max-h-56 overflow-y-auto space-y-1 pr-1">
-                                        ${perfilesHtml}
+                                <div class="flex justify-between items-center text-xs pt-3 border-t border-purple-900/30">
+                                    <div class="flex items-center space-x-2">
+                                        <span>Pass: <code id="pass-text-${id}" class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded">••••••</code></span>
+                                        <button id="pass-btn-${id}" onclick="togglePassword('${id}', '${clave}')" class="text-[10px] bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-md transition">👁️ Ver</button>
                                     </div>
+                                    <button onclick="abrirModalRenovarCuenta('${id}', '${plataforma}', '${costo}', '${periodo}', '${vencimientoCuenta}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🔄 Renovar / Mes</button>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-center text-xs pt-3 border-t border-purple-900/30">
-                                <div class="flex items-center space-x-2">
-                                    <span>Pass: <code id="pass-text-${id}" class="bg-purple-950/60 border border-purple-800/35 px-2 py-0.5 rounded">••••••</code></span>
-                                    <button id="pass-btn-${id}" onclick="togglePassword('${id}', '${clave}')" class="text-[10px] bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-md transition">👁️ Ver</button>
-                                </div>
-                                <button onclick="abrirModalRenovarCuenta('${id}', '${plataforma}', '${costo}', '${periodo}', '${vencimientoCuenta}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">🔄 Renovar / Mes</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = htmlCuentas;
-            } else {
-                if(contenedorCuentasFull) contenedorCuentasFull.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4 col-span-3">No se encontraron resultados.</p>`;
+                        `;
+                    });
+                    contenedorCuentasFull.innerHTML = htmlCuentas;
+                } else {
+                    contenedorCuentasFull.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4 col-span-3">No se encontraron resultados.</p>`;
+                }
             }
         }
 
