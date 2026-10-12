@@ -302,7 +302,7 @@
             <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold">Perfiles y Gestión</h3>
-                    <p class="text-xs text-purple-300/70">Perfiles vendidos con método de pago Plin (BBVA) y notas.</p>
+                    <p class="text-xs text-purple-300/70">Perfiles vendidos con método de pago Plin (BBVA).</p>
                 </div>
                 <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Registrar Cliente</button>
             </div>
@@ -402,7 +402,7 @@
         </div>
     </div>
 
-    <!-- Script Sincronizado SUPREME PRO (Ajustado a tus columnas exactas de Supabase) -->
+    <!-- Script Sincronizado SUPREME PRO -->
     <script>
         const SUPABASE_URL = 'https://nmrqbkzdqjjifnznxaji.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_XuKR-HV_Uq6E0LZhODqaNA_Bv80hO8M';
@@ -516,18 +516,15 @@
         async function cargarSistema() {
             actualizarSaludo();
             try {
-                const { data: clients, error: errC } = await _supabase.from('Clientes').select('*');
-                const { data: cuentas, error: errQ } = await _supabase.from('Cuenta Maestra').select('*');
+                const resClientes = await _supabase.from('Clientes').select('*');
+                const resCuentas = await _supabase.from('Cuenta Maestra').select('*');
                 
-                if (errC) console.error("Error cargando Clientes:", errC.message);
-                if (errQ) console.error("Error cargando Cuenta Maestra:", errQ.message);
-
-                globalClients = clients || [];
-                globalCuentas = cuentas || [];
+                globalClients = resClientes.data || [];
+                globalCuentas = resCuentas.data || [];
 
                 filtrarDatos();
             } catch (err) {
-                console.error("Error general de conexión con Supabase:", err);
+                console.error("Error al conectar con Supabase:", err);
             }
         }
 
@@ -599,7 +596,7 @@
         function exportarReporteExcel() {
             let csv = "Perfil,Plataforma,Cuenta Asignada,Cliente,Celular,PIN,MetodoPago,PrecioVenta,Vencimiento,Notas\n";
             globalClients.forEach(c => {
-                csv += `"${c.Perfil || c.perfil}","${c.Plataforma || c.plataforma}","${c.CuentaMaestra || c.cuenta_maestra || ''}","${c.Cliente || c.cliente}","${c.Celular || c.celular}","${c.Pin || c.pin}","Plin (BBVA)","S/ ${c['Precio Venta'] || c.PrecioVenta || c.precio || 0}","${c.Vencimiento || c.vencimiento}","${c.Notas || c.notas || ''}"\n`;
+                csv += `"${c.Perfil || c.perfil || ''}","${c.Plataforma || c.plataforma || ''}","${c.CuentaMaestra || c.cuenta_maestra || ''}","${c.Cliente || c.cliente || ''}","${c.Celular || c.celular || ''}","${c.Pin || c.pin || ''}","Plin (BBVA)","S/ ${c['Precio Venta'] || c.PrecioVenta || c.precio || 0}","${c.Vencimiento || c.vencimiento || ''}","${c.Notas || c.notas || ''}"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -681,7 +678,7 @@
 
             if (globalCuentas.length > 0) {
                 globalCuentas.forEach(cu => {
-                    egresosTotales += parseFloat(cu.Costo || cu.costo || 0);
+                    egresosTotales += parseFloat(cu.Costo || cu.costo || cu.Precio || 0);
                 });
             }
 
@@ -870,10 +867,9 @@
                 listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Renderizar Cuentas Maestras (Alineadas con los nombres exactos de tu Supabase: Costo, Periodo, FechaCompra, Vencimiento)
+            // 2. Renderizar Cuentas Maestras
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (globalCuentas.length > 0) {
-                document.getElementById('total-cuentas').textContent = globalCuentas.length;
                 let htmlCuentas = '';
                 globalCuentas.forEach(sub => {
                     const id = sub.id || sub.ID;
@@ -971,152 +967,6 @@
                 if (error) alert("Error al procesar: " + error.message);
                 else { alert("Registro eliminado."); cargarSistema(); }
             }
-        }
-
-        function abrirModalRenovarCuenta(id, plataforma, costoActual, periodoActual, vencimientoActual) {
-            let fechaSugerida = '';
-            if (vencimientoActual && vencimientoActual !== '---') {
-                let d = new Date(vencimientoActual);
-                d.setMonth(d.getMonth() + 1);
-                fechaSugerida = d.toISOString().split('T')[0];
-            }
-
-            document.getElementById('modal-titulo').textContent = `Renovar ${plataforma} (Nuevo Mes)`;
-            document.getElementById('modal-contenido').innerHTML = `
-                <p class="text-xs text-purple-300 mb-2">Actualiza el periodo, costo del proveedor y nuevo vencimiento al renovar:</p>
-                <input type="text" id="renova-periodo" placeholder="Periodo (ej. Noviembre 2026)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="number" id="renova-costo" value="${costoActual}" placeholder="Costo proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <div class="text-[10px] text-purple-300 mb-2">Nuevo Vencimiento: <input type="date" id="renova-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarRenovacionCuenta('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Renovación</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        async function guardarRenovacionCuenta(id) {
-            const Periodo = document.getElementById('renova-periodo').value;
-            const Costo = parseFloat(document.getElementById('renova-costo').value) || 0;
-            const Vencimiento = document.getElementById('renova-vence').value;
-
-            if(!Periodo) { alert("Ingresa el periodo o mes"); return; }
-
-            const datosRenovacion = { Periodo, Costo };
-            if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
-
-            const { error } = await _supabase.from('Cuenta Maestra').update(datosRenovacion).eq('id', id);
-            if (error) alert("Error al renovar: " + error.message);
-            else { alert("¡Cuenta renovada con éxito!"); cerrarModal(); cargarSistema(); }
-        }
-
-        function abrirModalCuenta() {
-            document.getElementById('modal-titulo').textContent = "Registrar Cuenta Maestra";
-            document.getElementById('modal-contenido').innerHTML = `
-                <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cu-pass" placeholder="Contraseña (Clave)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cu-prov" placeholder="Proveedor (ej. YO)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cu-periodo" placeholder="Periodo (ej. Octubre 2026)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="number" id="cu-costo" placeholder="Costo proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
-                    <div>Compra: <input type="date" id="cu-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                    <div>Vencimiento: <input type="date" id="cu-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                </div>
-                <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        function abrirModalCliente() {
-            document.getElementById('modal-titulo').textContent = "Registrar Cliente y Perfil";
-            document.getElementById('modal-contenido').innerHTML = `
-                <input type="text" id="cli-plat" placeholder="Plataforma (ej. Netflix, Disney+, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cli-cuenta" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cli-perfil" placeholder="Perfil (ej. Perfil 1, Myra)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="cli-pin" placeholder="PIN (ej. 1234)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                    <input type="number" id="cli-precio" placeholder="Precio venta (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                </div>
-                <div class="text-[11px] text-blue-400 bg-blue-950/40 p-2 rounded-xl">💳 Método de Pago: <b>Plin (BBVA)</b></div>
-                <textarea id="cli-notas" placeholder="Notas u observaciones (opcional)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white"></textarea>
-                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
-                    <div>Compra: <input type="date" id="cli-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                    <div>Vencimiento: <input type="date" id="cli-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                </div>
-                <button onclick="guardarClienteSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cliente</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        // Función corregida y adaptada exactamente a los campos de tu tabla "Cuenta Maestra"
-        async function guardarCuentaSupabase() {
-            const Plataforma = document.getElementById('cu-plat').value;
-            const Correo = document.getElementById('cu-correo').value;
-            const Clave = document.getElementById('cu-pass').value;
-            const Proveedor = document.getElementById('cu-prov').value;
-            const Periodo = document.getElementById('cu-periodo').value;
-            const Costo = parseFloat(document.getElementById('cu-costo').value) || 0;
-            const FechaCompra = document.getElementById('cu-fcompra').value;
-            const Vencimiento = document.getElementById('cu-vence').value;
-
-            if(!Plataforma || !Correo) { alert("Completa al menos la plataforma y el correo"); return; }
-
-            const datosCuenta = { 
-                Plataforma, 
-                Correo, 
-                Clave, 
-                Proveedor, 
-                Periodo, 
-                Costo 
-            };
-
-            if (FechaCompra) datosCuenta['FechaCompra'] = FechaCompra;
-            if (Vencimiento) datosCuenta['Vencimiento'] = Vencimiento;
-
-            const { error } = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
-            if(error) {
-                alert("Error al guardar cuenta maestra: " + error.message);
-            } else {
-                alert("¡Cuenta maestra guardada con éxito!");
-                cerrarModal();
-                cargarSistema();
-            }
-        }
-
-        async function guardarClienteSupabase() {
-            const Plataforma = document.getElementById('cli-plat').value;
-            const CuentaMaestra = document.getElementById('cli-cuenta').value;
-            const Perfil = document.getElementById('cli-perfil').value;
-            const Cliente = document.getElementById('cli-nombre').value;
-            const Celular = document.getElementById('cli-celular').value;
-            const Pin = document.getElementById('cli-pin').value;
-            const PrecioVenta = parseFloat(document.getElementById('cli-precio').value) || 0;
-            const Notas = document.getElementById('cli-notas').value;
-            const FechaCompra = document.getElementById('cli-fcompra').value;
-            const Vencimiento = document.getElementById('cli-vence').value;
-
-            if(!Cliente || !Perfil || !Plataforma) { alert("Ingresa la plataforma, el perfil y el cliente"); return; }
-
-            const datosCliente = { 
-                Plataforma, 
-                CuentaMaestra,
-                Perfil, 
-                Cliente, 
-                Celular, 
-                Pin, 
-                'Precio Venta': PrecioVenta,
-                Notas,
-                Vencimiento 
-            };
-            
-            if (FechaCompra) datosCliente['Fecha Compra'] = FechaCompra;
-
-            const { error } = await _supabase.from('Clientes').insert([datosCliente]);
-            if(error) alert("Error al guardar cliente: " + error.message);
-            else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
@@ -1235,6 +1085,116 @@
             const { error } = await _supabase.from('Cuenta Maestra').update(datosRenovacion).eq('id', id);
             if (error) alert("Error al renovar: " + error.message);
             else { alert("¡Cuenta renovada con éxito!"); cerrarModal(); cargarSistema(); }
+        }
+
+        function abrirModalCuenta() {
+            document.getElementById('modal-titulo').textContent = "Registrar Cuenta Maestra";
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="cu-plat" placeholder="Plataforma (ej. Netflix, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="email" id="cu-correo" placeholder="Correo principal" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-pass" placeholder="Contraseña (Clave)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-prov" placeholder="Proveedor (ej. YO)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cu-periodo" placeholder="Periodo (ej. Octubre 2026)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="number" id="cu-costo" placeholder="Costo proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
+                    <div>Compra: <input type="date" id="cu-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                    <div>Vencimiento: <input type="date" id="cu-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                </div>
+                <button onclick="guardarCuentaSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cuenta</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        function abrirModalCliente() {
+            document.getElementById('modal-titulo').textContent = "Registrar Cliente y Perfil";
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="cli-plat" placeholder="Plataforma (ej. Netflix, Disney+, Max)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-cuenta" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-perfil" placeholder="Perfil (ej. Perfil 1, Myra)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="cli-pin" placeholder="PIN (ej. 1234)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="cli-precio" placeholder="Precio venta (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <div class="text-[11px] text-blue-400 bg-blue-950/40 p-2 rounded-xl">💳 Método de Pago: <b>Plin (BBVA)</b></div>
+                <textarea id="cli-notas" placeholder="Notas u observaciones (opcional)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white"></textarea>
+                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
+                    <div>Compra: <input type="date" id="cli-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                    <div>Vencimiento: <input type="date" id="cli-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                </div>
+                <button onclick="guardarClienteSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cliente</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarCuentaSupabase() {
+            const Plataforma = document.getElementById('cu-plat').value;
+            const Correo = document.getElementById('cu-correo').value;
+            const Clave = document.getElementById('cu-pass').value;
+            const Proveedor = document.getElementById('cu-prov').value;
+            const Periodo = document.getElementById('cu-periodo').value;
+            const Costo = parseFloat(document.getElementById('cu-costo').value) || 0;
+            const FechaCompra = document.getElementById('cu-fcompra').value;
+            const Vencimiento = document.getElementById('cu-vence').value;
+
+            if(!Plataforma || !Correo) { alert("Completa al menos la plataforma y el correo"); return; }
+
+            const datosCuenta = { 
+                Plataforma, 
+                Correo, 
+                Clave, 
+                Proveedor, 
+                Periodo, 
+                Costo 
+            };
+
+            if (FechaCompra) datosCuenta['FechaCompra'] = FechaCompra;
+            if (Vencimiento) datosCuenta['Vencimiento'] = Vencimiento;
+
+            const { error } = await _supabase.from('Cuenta Maestra').insert([datosCuenta]);
+            if(error) {
+                alert("Error al guardar cuenta maestra: " + error.message);
+            } else {
+                alert("¡Cuenta maestra guardada con éxito!");
+                cerrarModal();
+                cargarSistema();
+            }
+        }
+
+        async function guardarClienteSupabase() {
+            const Plataforma = document.getElementById('cli-plat').value;
+            const CuentaMaestra = document.getElementById('cli-cuenta').value;
+            const Perfil = document.getElementById('cli-perfil').value;
+            const Cliente = document.getElementById('cli-nombre').value;
+            const Celular = document.getElementById('cli-celular').value;
+            const Pin = document.getElementById('cli-pin').value;
+            const PrecioVenta = parseFloat(document.getElementById('cli-precio').value) || 0;
+            const Notas = document.getElementById('cli-notas').value;
+            const FechaCompra = document.getElementById('cli-fcompra').value;
+            const Vencimiento = document.getElementById('cli-vence').value;
+
+            if(!Cliente || !Perfil || !Plataforma) { alert("Ingresa la plataforma, el perfil y el cliente"); return; }
+
+            const datosCliente = { 
+                Plataforma, 
+                CuentaMaestra,
+                Perfil, 
+                Cliente, 
+                Celular, 
+                Pin, 
+                'Precio Venta': PrecioVenta,
+                Notas,
+                Vencimiento 
+            };
+            
+            if (FechaCompra) datosCliente['Fecha Compra'] = FechaCompra;
+
+            const { error } = await _supabase.from('Clientes').insert([datosCliente]);
+            if(error) alert("Error al guardar cliente: " + error.message);
+            else { alert("¡Cliente guardado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function cerrarModal() {
