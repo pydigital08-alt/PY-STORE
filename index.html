@@ -27,7 +27,7 @@
 </head>
 <body class="min-h-screen flex flex-col md:flex-row theme-oscuro-femenino">
 
-    <!-- Elemento auxiliar oculto para evitar errores de referencia -->
+    <!-- Elementos auxiliares ocultos para evitar errores de referencia -->
     <span id="total-perfiles" class="hidden">0</span>
     <span id="total-cuentas" class="hidden">0</span>
 
@@ -500,7 +500,7 @@
             } else if (diasRestantes === 0) {
                 return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold text-[10px]">Vence hoy</span>`;
             } else if (diasRestantes <= 7) {
-                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-semibold text-[10px]">Quedan ${diasRestantes} días</span>`;
+                return `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-semibold text-[10px]">Quedan ${diasRestantes} días</span>`;
             } else {
                 return `<span class="text-emerald-400 font-medium">Quedan ${diasRestantes} días</span>`;
             }
@@ -905,7 +905,7 @@
                 if(listaRenovaciones) listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Renderizar Cuentas Maestras
+            // 2. Renderizar Cuentas Maestras con Botones de Editar y Eliminar
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (contenedorCuentasFull) {
                 if (globalCuentas.length > 0) {
@@ -970,7 +970,11 @@
                                                 <p class="text-xs text-purple-300 font-mono">${correo}</p>
                                             </div>
                                         </div>
-                                        <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
+                                        <div class="flex items-center space-x-1">
+                                            <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
+                                            <button onclick="abrirModalEditarCuenta('${id}', '${plataforma}', '${correo}', '${clave}', '${proveedor}', '${periodo}', '${costo}', '${vencimientoCuenta}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 px-2 py-1 rounded-lg text-[10px]" title="Editar cuenta">✏️</button>
+                                            <button onclick="eliminarCuentaSupabase('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 px-2 py-1 rounded-lg text-[10px]" title="Eliminar cuenta">🗑️</button>
+                                        </div>
                                     </div>
                                     <div class="bg-purple-950/30 border border-purple-900/20 p-3 rounded-xl mb-3 text-xs space-y-1">
                                         <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="font-semibold">${periodo}</span></div>
@@ -1007,6 +1011,47 @@
                 if (error) alert("Error al procesar: " + error.message);
                 else { alert("Registro eliminado."); cargarSistema(); }
             }
+        }
+
+        async function eliminarCuentaSupabase(id) {
+            if (confirm("¿Estás segura de eliminar esta cuenta maestra? (Asegúrate de no dejar perfiles huérfanos).")) {
+                const { error } = await _supabase.from('Cuenta Maestra').delete().eq('id', id);
+                if (error) alert("Error al eliminar cuenta: " + error.message);
+                else { alert("¡Cuenta maestra eliminada con éxito!"); cargarSistema(); }
+            }
+        }
+
+        function abrirModalEditarCuenta(id, plat, correo, clave, prov, periodo, costo, vence) {
+            document.getElementById('modal-titulo').textContent = `Editar Cuenta Maestra: ${plat}`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="edit-cu-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="email" id="edit-cu-correo" value="${correo}" placeholder="Correo principal" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cu-pass" value="${clave}" placeholder="Contraseña (Clave)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cu-prov" value="${prov}" placeholder="Proveedor" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cu-periodo" value="${periodo}" placeholder="Periodo" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="number" id="edit-cu-costo" value="${costo}" placeholder="Costo proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cu-vence" value="${vence !== '---' ? vence : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarEdicionCuenta('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarEdicionCuenta(id) {
+            const Plataforma = document.getElementById('edit-cu-plat').value;
+            const Correo = document.getElementById('edit-cu-correo').value;
+            const Clave = document.getElementById('edit-cu-pass').value;
+            const Proveedor = document.getElementById('edit-cu-prov').value;
+            const Periodo = document.getElementById('edit-cu-periodo').value;
+            const Costo = parseFloat(document.getElementById('edit-cu-costo').value) || 0;
+            const Vencimiento = document.getElementById('edit-cu-vence').value;
+
+            const datosCuenta = { Plataforma, Correo, Clave, Proveedor, Periodo, Costo };
+            if (Vencimiento) datosCuenta['Vencimiento'] = Vencimiento;
+
+            const { error } = await _supabase.from('Cuenta Maestra').update(datosCuenta).eq('id', id);
+            if (error) alert("Error al actualizar cuenta: " + error.message);
+            else { alert("¡Cuenta maestra actualizada con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
