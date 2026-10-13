@@ -30,6 +30,7 @@
     <!-- Elementos auxiliares ocultos para evitar errores de referencia -->
     <span id="total-perfiles" class="hidden">0</span>
     <span id="total-cuentas" class="hidden">0</span>
+    <input type="text" id="input-buscador" class="hidden" oninput="filtrarDatos()">
 
     <!-- PANTALLA DE LOGIN / BLOQUEO DE SEGURIDAD (Clave: 1911) -->
     <div id="pantalla-login" class="fixed inset-0 bg-[#0b0914] z-50 flex items-center justify-center p-4">
@@ -104,52 +105,6 @@
     <!-- Contenido Principal -->
     <main class="flex-1 p-6 md:p-8 overflow-y-auto">
         
-        <!-- Barra Superior PRO -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-[#151221] bg-card-pro border border-purple-900/30 p-4 rounded-2xl shadow-sm">
-            <div class="flex items-center space-x-3 w-full md:w-80 bg-[#1a162b] border border-purple-900/40 px-3 py-2 rounded-xl">
-                <span class="text-purple-400">🔍</span>
-                <input type="text" id="input-buscador" oninput="filtrarDatos()" placeholder="Buscar clientes, cuentas o perfiles..." class="bg-transparent text-xs focus:outline-none w-full">
-            </div>
-            
-            <div class="flex items-center space-x-3 w-full md:w-auto justify-end flex-wrap gap-2">
-                <!-- Desplegable de Todas las Plataformas -->
-                <select id="filtro-plataforma-select" onchange="filtrarPorPlataforma(this.value)" class="bg-[#1a162b] text-purple-200 text-xs px-3 py-2 rounded-xl border border-purple-900/40 focus:outline-none">
-                    <option value="todos">📺 Plataforma (Todas)</option>
-                    <option value="Netflix">Netflix</option>
-                    <option value="Disney">Disney+</option>
-                    <option value="Max">Max</option>
-                    <option value="Prime">Prime Video</option>
-                    <option value="Crunchyroll">Crunchyroll</option>
-                    <option value="Spotify">Spotify</option>
-                    <option value="YouTube">YouTube Premium</option>
-                    <option value="Apple">Apple TV</option>
-                    <option value="DGO">DGO</option>
-                    <option value="Paramount">Paramount+</option>
-                    <option value="Viki">Viki</option>
-                    <option value="CapCut">CapCut</option>
-                    <option value="ChatGPT">ChatGPT</option>
-                    <option value="Claude">Claude</option>
-                    <option value="Coursera">Coursera</option>
-                    <option value="Canva">Canva</option>
-                </select>
-
-                <!-- Selector de Tema PRO -->
-                <select id="selector-tema" onchange="cambiarTema(this.value)" class="bg-[#1a162b] text-purple-200 text-xs px-3 py-2 rounded-xl border border-purple-900/40 focus:outline-none">
-                    <option value="oscuro">💜 Femenino Oscuro</option>
-                    <option value="blanco">🤍 Lila con Blanco</option>
-                </select>
-
-                <!-- Botón Exportar Excel -->
-                <button onclick="exportarReporteExcel()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/35 hover:bg-emerald-600/30 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1">
-                    <span>📊</span><span>Exportar Excel</span>
-                </button>
-
-                <button onclick="abrirModalCliente()" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-purple-600/30">
-                    + Registrar Cliente
-                </button>
-            </div>
-        </div>
-
         <!-- VISTA: RESUMEN -->
         <div id="vista-resumen" class="space-y-8">
             <!-- Banner Bienvenida Dinámico -->
@@ -214,17 +169,6 @@
                 </div>
             </div>
 
-            <!-- Barra de Ocupación Global -->
-            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm">
-                <div class="flex justify-between items-center mb-2">
-                    <h4 class="font-bold text-sm">Ocupación global de cuentas maestras</h4>
-                    <span id="ocupacion-texto" class="text-xs text-purple-300 font-semibold">0 de 0 perfiles ocupados</span>
-                </div>
-                <div class="w-full bg-purple-950/60 border border-purple-900/40 rounded-full h-3 overflow-hidden">
-                    <div id="barra-ocupacion" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
-
             <!-- Gráficos y Secciones de Alertas -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Ingresos por Plataforma -->
@@ -237,7 +181,7 @@
                     </div>
                 </div>
 
-                <!-- Cuentas Maestras Próximas a Vencer (Reemplazo del Histórico) -->
+                <!-- Cuentas Maestras Próximas a Vencer -->
                 <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-4">
@@ -658,8 +602,6 @@
             let egresosTotales = 0;
             let vencenProntoCount = 0;
             let porCobrarTotal = 0;
-            let totalCapacidadCupos = globalCuentas.length * 5;
-            let totalPerfilesOcupados = globalClients.length;
 
             if (globalCuentas.length > 0) {
                 globalCuentas.forEach(cu => {
@@ -719,13 +661,6 @@
 
             const elFinSaldo = document.getElementById('fin-saldo');
             if(elFinSaldo) elFinSaldo.textContent = `S/ ${gananciaReal.toFixed(2)}`;
-
-            const porcentajeOcupacion = totalCapacidadCupos > 0 ? Math.min(100, Math.round((totalPerfilesOcupados / totalCapacidadCupos) * 100)) : 0;
-            const barraOcupacion = document.getElementById('barra-ocupacion');
-            if(barraOcupacion) barraOcupacion.style.width = `${porcentajeOcupacion}%`;
-
-            const ocupacionTexto = document.getElementById('ocupacion-texto');
-            if(ocupacionTexto) ocupacionTexto.textContent = `${totalPerfilesOcupados} de ${totalCapacidadCupos} perfiles ocupados (${porcentajeOcupacion}%)`;
 
             renderizarGraficos(globalClients);
 
