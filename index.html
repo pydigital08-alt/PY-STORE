@@ -338,7 +338,7 @@
             <div class="bg-[#151221] bg-card-pro border border-purple-900/30 rounded-2xl p-6 flex justify-between items-center">
                 <div>
                     <h3 class="text-lg font-bold">Cuentas Maestras (Agrupadas por Correo)</h3>
-                    <p class="text-xs text-purple-300/70">Visualiza los espacios disponibles y la contraseña protegida con visor.</p>
+                    <p class="text-xs text-purple-300/70">Visualiza los espacios disponibles y añade perfiles directamente.</p>
                 </div>
                 <button onclick="abrirModalCuenta()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg">+ Nueva cuenta</button>
             </div>
@@ -905,7 +905,7 @@
                 if(listaRenovaciones) listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Renderizar Cuentas Maestras con Botones de Editar y Eliminar
+            // 2. Renderizar Cuentas Maestras con Botón de Añadir Perfil y Proveedor reubicado
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (contenedorCuentasFull) {
                 if (globalCuentas.length > 0) {
@@ -927,7 +927,7 @@
                             return cliCorreo === correo.toLowerCase() || (cliCorreo === '' && cliPlat === plataforma.toLowerCase());
                         });
 
-                        const totalCupos = 5;
+                        const totalCupos = 5; // Base de 5 perfiles por defecto
                         const perfilesOcupados = perfilesAsignados.length;
                         const perfilesDisponibles = Math.max(0, totalCupos - perfilesOcupados);
 
@@ -971,7 +971,6 @@
                                             </div>
                                         </div>
                                         <div class="flex items-center space-x-1">
-                                            <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 text-[10px] px-2 py-0.5 rounded-full font-medium">Prov: ${proveedor}</span>
                                             <button onclick="abrirModalEditarCuenta('${id}', '${plataforma}', '${correo}', '${clave}', '${proveedor}', '${periodo}', '${costo}', '${vencimientoCuenta}')" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 px-2 py-1 rounded-lg text-[10px]" title="Editar cuenta">✏️</button>
                                             <button onclick="eliminarCuentaSupabase('${id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 px-2 py-1 rounded-lg text-[10px]" title="Eliminar cuenta">🗑️</button>
                                         </div>
@@ -980,9 +979,14 @@
                                         <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="font-semibold">${periodo}</span></div>
                                         <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
                                         <div class="flex justify-between text-purple-300/70"><span>Espacios Libres:</span> <span class="text-pink-400 font-bold">${perfilesDisponibles} de ${totalCupos} libres</span></div>
+                                        <!-- Proveedor ubicado debajo de espacios libres para mayor orden -->
+                                        <div class="flex justify-between text-purple-300/70 pt-1 border-t border-purple-900/20"><span>Proveedor:</span> <span class="text-purple-200 font-medium">${proveedor}</span></div>
                                     </div>
                                     <div class="mb-4">
-                                        <p class="text-[10px] font-bold text-purple-400 uppercase mb-2">Perfiles en esta cuenta:</p>
+                                        <div class="flex justify-between items-center mb-2">
+                                            <p class="text-[10px] font-bold text-purple-400 uppercase">Perfiles en esta cuenta:</p>
+                                            <button onclick="abrirModalAgregarPerfilDesdeCuenta('${plataforma}', '${correo}')" class="text-[10px] bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 px-2 py-0.5 rounded-md font-semibold transition">+ Añadir perfil</button>
+                                        </div>
                                         <div class="max-h-56 overflow-y-auto space-y-1 pr-1">
                                             ${perfilesHtml}
                                         </div>
@@ -1021,6 +1025,30 @@
             }
         }
 
+        function abrirModalAgregarPerfilDesdeCuenta(plat, correoCuenta) {
+            document.getElementById('modal-titulo').textContent = `Añadir Perfil a ${plat}`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="hidden" id="cli-plat" value="${plat}">
+                <input type="hidden" id="cli-cuenta" value="${correoCuenta}">
+                <input type="text" id="cli-perfil" placeholder="Nombre de Perfil (ej. Perfil 1, Ana)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-nombre" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="cli-celular" placeholder="Celular (ej. 912345678)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="cli-pin" placeholder="PIN (ej. 1234)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="cli-precio" placeholder="Precio venta (S/)" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <div class="text-[11px] text-blue-400 bg-blue-950/40 p-2 rounded-xl">💳 Método de Pago: <b>Plin (BBVA)</b></div>
+                <textarea id="cli-notas" placeholder="Notas u observaciones (opcional)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white"></textarea>
+                <div class="grid grid-cols-2 gap-2 text-[10px] text-purple-300">
+                    <div>Compra: <input type="date" id="cli-fcompra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                    <div>Vencimiento: <input type="date" id="cli-vence" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                </div>
+                <button onclick="guardarClienteSupabase()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Perfil</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
         function abrirModalEditarCuenta(id, plat, correo, clave, prov, periodo, costo, vence) {
             document.getElementById('modal-titulo').textContent = `Editar Cuenta Maestra: ${plat}`;
             document.getElementById('modal-contenido').innerHTML = `
@@ -1052,89 +1080,6 @@
             const { error } = await _supabase.from('Cuenta Maestra').update(datosCuenta).eq('id', id);
             if (error) alert("Error al actualizar cuenta: " + error.message);
             else { alert("¡Cuenta maestra actualizada con éxito!"); cerrarModal(); cargarSistema(); }
-        }
-
-        function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
-            let fechaSugerida = '';
-            if (vencimientoActual && vencimientoActual !== '---') {
-                let d = new Date(vencimientoActual);
-                d.setMonth(d.getMonth() + 1);
-                fechaSugerida = d.toISOString().split('T')[0];
-            } else {
-                let d = new Date();
-                d.setMonth(d.getMonth() + 1);
-                fechaSugerida = d.toISOString().split('T')[0];
-            }
-
-            document.getElementById('modal-titulo').textContent = `Renovar Perfil: ${perfil} (${plataforma})`;
-            document.getElementById('modal-contenido').innerHTML = `
-                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta y extiende la fecha de vencimiento 1 mes más:</p>
-                <input type="number" id="renova-cli-precio" value="${precioActual}" placeholder="Precio Venta (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <div class="text-[10px] text-purple-300 mb-3">Nuevo Vencimiento: <input type="date" id="renova-cli-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        async function guardarRenovacionCliente(id) {
-            const PrecioVenta = parseFloat(document.getElementById('renova-cli-precio').value) || 0;
-            const Vencimiento = document.getElementById('renova-cli-vence').value;
-
-            const datosRenovacion = { 'Precio Venta': PrecioVenta };
-            if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
-
-            const { error } = await _supabase.from('Clientes').update(datosRenovacion).eq('id', id);
-            if (error) alert("Error al renovar cliente: " + error.message);
-            else { alert("¡Perfil renovado con éxito!"); cerrarModal(); cargarSistema(); }
-        }
-
-        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento, notas = '') {
-            document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
-            document.getElementById('modal-contenido').innerHTML = `
-                <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <div class="grid grid-cols-2 gap-2 mb-2">
-                    <input type="text" id="edit-cli-pin" value="${pin}" placeholder="PIN" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                    <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
-                </div>
-                <textarea id="edit-cli-notas" placeholder="Notas u observaciones" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">${notas !== 'Sin notas' ? notas : ''}</textarea>
-                <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
-            `;
-            document.getElementById('modal-accion').classList.remove('hidden');
-            document.getElementById('modal-accion').classList.add('flex');
-        }
-
-        async function guardarEdicionCliente(id) {
-            const Plataforma = document.getElementById('edit-cli-plat').value;
-            const CuentaMaestra = document.getElementById('edit-cli-cuenta').value;
-            const Perfil = document.getElementById('edit-cli-perfil').value;
-            const Cliente = document.getElementById('edit-cli-nombre').value;
-            const Celular = document.getElementById('edit-cli-celular').value;
-            const Pin = document.getElementById('edit-cli-pin').value;
-            const PrecioVenta = parseFloat(document.getElementById('edit-cli-precio').value) || 0;
-            const Vencimiento = document.getElementById('edit-cli-vence').value;
-            const Notas = document.getElementById('edit-cli-notas').value;
-
-            const datosEditados = { 
-                Plataforma, 
-                CuentaMaestra,
-                Perfil, 
-                Cliente, 
-                Celular, 
-                Pin, 
-                'Precio Venta': PrecioVenta,
-                Vencimiento,
-                Notas 
-            };
-
-            const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
-            if (error) alert("Error al actualizar cliente: " + error.message);
-            else { alert("¡Cliente actualizado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function abrirModalRenovarCuenta(id, plataforma, costoActual, periodoActual, vencimientoActual) {
