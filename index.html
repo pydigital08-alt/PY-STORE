@@ -225,8 +225,9 @@
                 </div>
             </div>
 
-            <!-- Gráficos Estadísticos -->
+            <!-- Gráficos y Secciones de Alertas -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Ingresos por Plataforma -->
                 <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                     <div>
                         <h4 class="font-bold text-sm mb-4">Ingresos por Plataforma</h4>
@@ -236,11 +237,15 @@
                     </div>
                 </div>
 
+                <!-- Cuentas Maestras Próximas a Vencer (Reemplazo del Histórico) -->
                 <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                     <div>
-                        <h4 class="font-bold text-sm mb-4">Histórico de Ventas por Mes</h4>
-                        <div class="relative h-64 flex items-center justify-center">
-                            <canvas id="graficoHistoricoVentas"></canvas>
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-sm">Cuentas Maestras Próximas a Vencer</h4>
+                            <span class="text-xs text-amber-400 font-semibold">Atención Proveedor</span>
+                        </div>
+                        <div id="widget-cuentas-vencimiento" class="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                            <p class="text-xs text-purple-400/60 text-center py-6">No hay cuentas maestras próximas a vencer.</p>
                         </div>
                     </div>
                 </div>
@@ -418,7 +423,6 @@
         let globalCuentas = [];
         let filtroPlataformaActual = 'todos';
         let chartInstance = null;
-        let chartHistoricoInstance = null;
 
         function verificarLogin() {
             const pass = document.getElementById('input-password-login').value;
@@ -636,34 +640,6 @@
                     }
                 });
             }
-
-            const ctx2 = document.getElementById('graficoHistoricoVentas');
-            if (ctx2) {
-                if (chartHistoricoInstance) chartHistoricoInstance.destroy();
-                chartHistoricoInstance = new Chart(ctx2, {
-                    type: 'line',
-                    data: {
-                        labels: ['Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Actual'],
-                        datasets: [{
-                            label: 'Ventas (S/)',
-                            data: [150, 280, 420, 390, 510, globalClients.reduce((acc, c) => acc + parseFloat(c['Precio Venta'] || c.PrecioVenta || 0), 0)],
-                            borderColor: '#ec4899',
-                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { ticks: { color: '#a855f7', font: { size: 10 } }, grid: { display: false } },
-                            y: { ticks: { color: '#a855f7', font: { size: 10 } }, grid: { color: 'rgba(168, 85, 247, 0.1)' } }
-                        }
-                    }
-                });
-            }
         }
 
         function renderizarDatos(clients, cuentas) {
@@ -752,6 +728,50 @@
             if(ocupacionTexto) ocupacionTexto.textContent = `${totalPerfilesOcupados} de ${totalCapacidadCupos} perfiles ocupados (${porcentajeOcupacion}%)`;
 
             renderizarGraficos(globalClients);
+
+            // Widget de Vencimiento de Cuentas Maestras
+            const widgetCuentasVenc = document.getElementById('widget-cuentas-vencimiento');
+            if(widgetCuentasVenc) {
+                const cuentasOrdenadas = [...globalCuentas].sort((a,b) => new Date(a.Vencimiento || a.vencimiento || '2099-01-01') - new Date(b.Vencimiento || b.vencimiento || '2099-01-01'));
+                widgetCuentasVenc.innerHTML = '';
+                
+                if(cuentasOrdenadas.length > 0) {
+                    cuentasOrdenadas.forEach(cu => {
+                        const vC = cu.Vencimiento || cu.vencimiento || '---';
+                        const platC = cu.Plataforma || cu.plataforma || 'Plataforma';
+                        const correoC = cu.Correo || cu.correo || 'Correo';
+                        const provC = cu.Proveedor || cu.proveedor || 'Proveedor';
+                        
+                        let estadoVencHtml = '<span class="text-purple-400/60">---</span>';
+                        if (vC && vC !== '---') {
+                            const hoy = new Date(); hoy.setHours(0,0,0,0);
+                            const vDate = new Date(vC); vDate.setHours(0,0,0,0);
+                            const dias = Math.ceil((vDate - hoy) / (1000 * 60 * 60 * 24));
+                            if (dias < 0) {
+                                estadoVencHtml = `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold text-[9px]">¡Ya venció!</span>`;
+                            } else if (dias === 0) {
+                                estadoVencHtml = `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold text-[9px]">Vence hoy</span>`;
+                            } else if (dias <= 7) {
+                                estadoVencHtml = `<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-semibold text-[9px]">Quedan ${dias} días</span>`;
+                            } else {
+                                estadoVencHtml = `<span class="text-emerald-400 text-[10px]">Quedan ${dias} días</span>`;
+                            }
+                        }
+
+                        widgetCuentasVenc.innerHTML += `
+                            <div class="bg-[#1a152d] border border-purple-900/30 p-3 rounded-xl flex justify-between items-center text-xs">
+                                <div>
+                                    <span class="font-bold text-white">${platC}</span> <span class="text-purple-300 font-mono text-[11px]">(${correoC})</span>
+                                    <div class="text-[10px] text-purple-300/70 mt-0.5">Prov: ${provC} | Vence: ${vC}</div>
+                                </div>
+                                <div>${estadoVencHtml}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    widgetCuentasVenc.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-6">No hay cuentas maestras registradas.</p>`;
+                }
+            }
 
             const widgetVenc = document.getElementById('widget-vencimientos');
             if(widgetVenc) {
@@ -905,7 +925,7 @@
                 if(listaRenovaciones) listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // 2. Renderizar Cuentas Maestras con Botón de Añadir Perfil y Proveedor reubicado
+            // Renderizar Cuentas Maestras con Botón de Añadir Perfil y Proveedor reubicado
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (contenedorCuentasFull) {
                 if (globalCuentas.length > 0) {
@@ -927,7 +947,7 @@
                             return cliCorreo === correo.toLowerCase() || (cliCorreo === '' && cliPlat === plataforma.toLowerCase());
                         });
 
-                        const totalCupos = 5; // Base de 5 perfiles por defecto
+                        const totalCupos = 5;
                         const perfilesOcupados = perfilesAsignados.length;
                         const perfilesDisponibles = Math.max(0, totalCupos - perfilesOcupados);
 
@@ -979,7 +999,6 @@
                                         <div class="flex justify-between text-purple-300/70"><span>Periodo:</span> <span class="font-semibold">${periodo}</span></div>
                                         <div class="flex justify-between text-purple-300/70"><span>Costo Proveedor:</span> <span class="text-emerald-400 font-semibold">S/ ${costo.toFixed(2)}</span></div>
                                         <div class="flex justify-between text-purple-300/70"><span>Espacios Libres:</span> <span class="text-pink-400 font-bold">${perfilesDisponibles} de ${totalCupos} libres</span></div>
-                                        <!-- Proveedor ubicado debajo de espacios libres para mayor orden -->
                                         <div class="flex justify-between text-purple-300/70 pt-1 border-t border-purple-900/20"><span>Proveedor:</span> <span class="text-purple-200 font-medium">${proveedor}</span></div>
                                     </div>
                                     <div class="mb-4">
