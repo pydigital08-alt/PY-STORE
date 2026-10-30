@@ -479,7 +479,6 @@
         async function cargarSistema() {
             actualizarSaludo();
             try {
-                // Hacemos la consulta insensible a mayúsculas/minúsculas o nombres alternativos de tablas
                 let resClientes = await _supabase.from('Clientes').select('*');
                 if (!resClientes.data || resClientes.data.length === 0) {
                     resClientes = await _supabase.from('clients').select('*');
@@ -492,6 +491,13 @@
                 
                 globalClients = resClientes.data || [];
                 globalCuentas = resCuentas.data || [];
+
+                // ORDENAR AUTOMÁTICAMENTE: Los que vencen primero van al inicio
+                globalClients.sort((a, b) => {
+                    const fechaA = new Date(a.Vencimiento || a.vencimiento || '2099-12-31');
+                    const fechaB = new Date(b.Vencimiento || b.vencimiento || '2099-12-31');
+                    return fechaA - fechaB;
+                });
 
                 filtrarDatos();
             } catch (err) {
@@ -1057,39 +1063,87 @@
             else { alert("¡Cuenta maestra actualizada con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
-        function abrirModalRenovarCuenta(id, plataforma, costoActual, periodoActual, vencimientoActual) {
+        function abrirModalRenovarCliente(id, plataforma, perfil, precioActual, vencimientoActual) {
             let fechaSugerida = '';
             if (vencimientoActual && vencimientoActual !== '---') {
                 let d = new Date(vencimientoActual);
                 d.setMonth(d.getMonth() + 1);
                 fechaSugerida = d.toISOString().split('T')[0];
+            } else {
+                let d = new Date();
+                d.setMonth(d.getMonth() + 1);
+                fechaSugerida = d.toISOString().split('T')[0];
             }
 
-            document.getElementById('modal-titulo').textContent = `Renovar ${plataforma} (Nuevo Mes)`;
+            document.getElementById('modal-titulo').textContent = `Renovar Perfil: ${perfil} (${plataforma})`;
             document.getElementById('modal-contenido').innerHTML = `
-                <p class="text-xs text-purple-300 mb-2">Actualiza el periodo, costo del proveedor y nuevo vencimiento al renovar:</p>
-                <input type="text" id="renova-periodo" placeholder="Periodo (ej. Noviembre 2026)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <input type="number" id="renova-costo" value="${costoActual}" placeholder="Costo proveedor (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
-                <div class="text-[10px] text-purple-300 mb-2">Nuevo Vencimiento: <input type="date" id="renova-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
-                <button onclick="guardarRenovacionCuenta('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Renovación</button>
+                <p class="text-xs text-purple-300 mb-2">Actualiza el precio de venta y extiende la fecha de vencimiento 1 mes más:</p>
+                <input type="number" id="renova-cli-precio" value="${precioActual}" placeholder="Precio Venta (S/)" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="text-[10px] text-purple-300 mb-3">Nuevo Vencimiento: <input type="date" id="renova-cli-vence" value="${fechaSugerida}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarRenovacionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Confirmar Renovación</button>
             `;
             document.getElementById('modal-accion').classList.remove('hidden');
             document.getElementById('modal-accion').classList.add('flex');
         }
 
-        async function guardarRenovacionCuenta(id) {
-            const Periodo = document.getElementById('renova-periodo').value;
-            const Costo = parseFloat(document.getElementById('renova-costo').value) || 0;
-            const Vencimiento = document.getElementById('renova-vence').value;
+        async function guardarRenovacionCliente(id) {
+            const PrecioVenta = parseFloat(document.getElementById('renova-cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('renova-cli-vence').value;
 
-            if(!Periodo) { alert("Ingresa el periodo o mes"); return; }
-
-            const datosRenovacion = { Periodo, Costo };
+            const datosRenovacion = { 'Precio Venta': PrecioVenta };
             if (Vencimiento) datosRenovacion['Vencimiento'] = Vencimiento;
 
-            const { error } = await _supabase.from('Cuenta Maestra').update(datosRenovacion).eq('id', id);
-            if (error) alert("Error al renovar: " + error.message);
-            else { alert("¡Cuenta renovada con éxito!"); cerrarModal(); cargarSistema(); }
+            const { error } = await _supabase.from('Clientes').update(datosRenovacion).eq('id', id);
+            if (error) alert("Error al renovar cliente: " + error.message);
+            else { alert("¡Perfil renovado con éxito!"); cerrarModal(); cargarSistema(); }
+        }
+
+        function abrirModalEditarCliente(id, plat, cuentaMaestra, perfil, cliente, celular, pin, precio, vencimiento, notas = '') {
+            document.getElementById('modal-titulo').textContent = `Editar Cliente: ${cliente}`;
+            document.getElementById('modal-contenido').innerHTML = `
+                <input type="text" id="edit-cli-plat" value="${plat}" placeholder="Plataforma" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-cuenta" value="${cuentaMaestra !== 'Sin asignar' ? cuentaMaestra : ''}" placeholder="Correo de Cuenta Maestra" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-perfil" value="${perfil}" placeholder="Perfil" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-nombre" value="${cliente}" placeholder="Nombre del cliente" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <input type="text" id="edit-cli-celular" value="${celular}" placeholder="Celular" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <input type="text" id="edit-cli-pin" value="${pin}" placeholder="PIN" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                    <input type="number" id="edit-cli-precio" value="${precio}" placeholder="Precio Venta" class="bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <textarea id="edit-cli-notas" placeholder="Notas u observaciones" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2.5 text-xs text-white mb-2">${notas !== 'Sin notas' ? notas : ''}</textarea>
+                <div class="text-[10px] text-purple-300 mb-3">Vencimiento: <input type="date" id="edit-cli-vence" value="${vencimiento !== '---' ? vencimiento : ''}" class="w-full bg-[#120f1d] border border-purple-900/40 rounded-xl p-2 text-xs text-white mt-1"></div>
+                <button onclick="guardarEdicionCliente('${id}')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 mt-2">Guardar Cambios</button>
+            `;
+            document.getElementById('modal-accion').classList.remove('hidden');
+            document.getElementById('modal-accion').classList.add('flex');
+        }
+
+        async function guardarEdicionCliente(id) {
+            const Plataforma = document.getElementById('edit-cli-plat').value;
+            const CuentaMaestra = document.getElementById('edit-cli-cuenta').value;
+            const Perfil = document.getElementById('edit-cli-perfil').value;
+            const Cliente = document.getElementById('edit-cli-nombre').value;
+            const Celular = document.getElementById('edit-cli-celular').value;
+            const Pin = document.getElementById('edit-cli-pin').value;
+            const PrecioVenta = parseFloat(document.getElementById('edit-cli-precio').value) || 0;
+            const Vencimiento = document.getElementById('edit-cli-vence').value;
+            const Notas = document.getElementById('edit-cli-notas').value;
+
+            const datosEditados = { 
+                Plataforma, 
+                CuentaMaestra,
+                Perfil, 
+                Cliente, 
+                Celular, 
+                Pin, 
+                'Precio Venta': PrecioVenta,
+                Vencimiento,
+                Notas 
+            };
+
+            const { error } = await _supabase.from('Clientes').update(datosEditados).eq('id', id);
+            if (error) alert("Error al actualizar cliente: " + error.message);
+            else { alert("¡Cliente actualizado con éxito!"); cerrarModal(); cargarSistema(); }
         }
 
         function abrirModalCuenta() {
