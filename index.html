@@ -169,6 +169,17 @@
                 </div>
             </div>
 
+            <!-- Barra de Ocupación Global -->
+            <div class="bg-[#151221] bg-card-pro border border-purple-900/30 p-6 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold text-sm">Ocupación global de cuentas maestras</h4>
+                    <span id="ocupacion-texto" class="text-xs text-purple-300 font-semibold">0 de 0 perfiles ocupados</span>
+                </div>
+                <div class="w-full bg-purple-950/60 border border-purple-900/40 rounded-full h-3 overflow-hidden">
+                    <div id="barra-ocupacion" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
             <!-- Gráficos y Secciones de Alertas -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Ingresos por Plataforma -->
@@ -486,7 +497,9 @@
         }
 
         function filtrarDatos() {
-            const query = document.getElementById('input-buscador').value.toLowerCase();
+            const inputBuscador = document.getElementById('input-buscador');
+            const query = inputBuscador ? inputBuscador.value.toLowerCase() : '';
+            
             const clientesFiltrados = globalClients.filter(cli => {
                 const nombre = (cli.Cliente || cli.cliente || '').toLowerCase();
                 const perfil = (cli.Perfil || cli.perfil || '').toLowerCase();
@@ -860,7 +873,7 @@
                 if(listaRenovaciones) listaRenovaciones.innerHTML = `<p class="text-xs text-purple-400/60 text-center py-4">No se encontraron resultados.</p>`;
             }
 
-            // Renderizar Cuentas Maestras con Botón de Añadir Perfil y Proveedor reubicado
+            // Renderizar Cuentas Maestras
             const contenedorCuentasFull = document.getElementById('cuentas-grid-completo');
             if (contenedorCuentasFull) {
                 if (globalCuentas.length > 0) {
