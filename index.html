@@ -479,8 +479,16 @@
         async function cargarSistema() {
             actualizarSaludo();
             try {
-                const resClientes = await _supabase.from('Clientes').select('*');
-                const resCuentas = await _supabase.from('Cuenta Maestra').select('*');
+                // Hacemos la consulta insensible a mayúsculas/minúsculas o nombres alternativos de tablas
+                let resClientes = await _supabase.from('Clientes').select('*');
+                if (!resClientes.data || resClientes.data.length === 0) {
+                    resClientes = await _supabase.from('clients').select('*');
+                }
+
+                let resCuentas = await _supabase.from('Cuenta Maestra').select('*');
+                if (!resCuentas.data || resCuentas.data.length === 0) {
+                    resCuentas = await _supabase.from('accounts').select('*');
+                }
                 
                 globalClients = resClientes.data || [];
                 globalCuentas = resCuentas.data || [];
@@ -501,10 +509,10 @@
             const query = inputBuscador ? inputBuscador.value.toLowerCase() : '';
             
             const clientesFiltrados = globalClients.filter(cli => {
-                const nombre = (cli.Cliente || cli.cliente || '').toLowerCase();
+                const nombre = (cli.Cliente || cli.cliente || cli.name || '').toLowerCase();
                 const perfil = (cli.Perfil || cli.perfil || '').toLowerCase();
-                const celular = (cli.Celular || cli.celular || '').toLowerCase();
-                const plat = (cli.Plataforma || cli.plataforma || '').toLowerCase();
+                const celular = (cli.Celular || cli.celular || cli.phone || '').toLowerCase();
+                const plat = (cli.Plataforma || cli.plataforma || cli.platform || '').toLowerCase();
                 const cuenta = (cli.CuentaMaestra || cli.cuenta_maestra || cli.CorreoCuenta || '').toLowerCase();
                 
                 const coincideTexto = nombre.includes(query) || perfil.includes(query) || celular.includes(query) || plat.includes(query) || cuenta.includes(query);
